@@ -1,0 +1,12 @@
+services:
+  rag_api:
+    build: .
+    container_name: rag-textmining-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./workspace:/app
+    env_file:
+      - ./.env
+    tty: true
+    command: /bin/bash
