@@ -1,36 +1,70 @@
+from xmlrpc import client
+
 from src.configs import settings
 from src.data_pipeline.chunker import MDChunker
 from src.data_pipeline.embedder import Embedder
+from src.database import DBManager
+
+from qdrant_client.models import PointStruct
 
 import json
 
-def inject(chunk):
-	metadata = chunk["metadata"]
-	text = f'[{metadata["title"]}][{metadata["chapter"]}][{metadata["article"]}] - {chunk["content"]}'
+def enrich_content(chunk):
+	metadata = chunk.get('metadata', {})
+	content = chunk.get('content', '')
 
-	return text
+	if not metadata:
+		return content
 
-def main():
-	chunker = MDChunker()
-	embedder = Embedder("keepitreal/vietnamese-sbert")
+	metadata_str = ''
+	for key, value in metadata.items():
+		metadata_str += f"[{key}: {value}] "
+	
+	enriched_content = f"{metadata_str.strip()}\n{content}"
+
+	return enriched_content
+
+def chunking():
+	chunker = MDChunker(chunk_size=1000, chunk_overlap=100)
 
 	with open(settings.ORIGINAL_DATA_DIR / "landlaw.md", "r") as file:
 		content = file.read()
 
 	chunks = chunker.chunking(content)
 	chunker.save_to_json(chunks, settings.CHUNKED_DATA_DIR / "landlaw_chunks.json")
+	print(f"Saved {len(chunks)} chunks to {settings.CHUNKED_DATA_DIR / 'landlaw_chunks.json'}")
 
-	# Test with 32 chunks
-	embeddings = embedder.embed_batch([inject(chunk) for chunk in chunks[:32]])
-	with open(settings.CHUNKED_DATA_DIR / "landlaw_embeddings.json", "w", encoding="utf-8") as f:
-		json.dump(
-			embeddings,
-			f,
-			ensure_ascii=False,
-			indent=4,
+def embedding():
+	embedder = Embedder("keepitreal/vietnamese-sbert")
+
+	with open(settings.CHUNKED_DATA_DIR / "landlaw_chunks.json", "r") as file:
+		chunks = json.load(file)
+
+	embeddings = embedder.embed_batch([enrich_content(chunk) for chunk in chunks])
+	
+	db_manager = DBManager(
+		url=settings.QDRANT_URL,
+		api_key=settings.QDRANT_API_KEY
+	)
+
+	collection_name = 'landlaw'
+
+	db_manager.setup_collection(collection_name)
+
+	points = []
+	for (chunk, embedding) in (zip(chunks, embeddings)):
+		payload = chunk.get('metadata', {}).copy()
+		payload['content'] = chunk.get('content', '')
+		points.append(
+			PointStruct(
+				id=chunk['id'],
+				vector={'dense': embedding},
+				payload=payload
+			)
 		)
 
-	# TODO: Embed all chunks and save to vector database 
+	db_manager.upsert_points(collection_name, points)
 
 if __name__ == "__main__":
-	main()
+	# chunking()
+	embedding()

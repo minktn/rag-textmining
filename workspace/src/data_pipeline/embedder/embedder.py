@@ -8,7 +8,7 @@ class Embedder:
 		embeddings = self.model.encode(
 			inputs=contents,
 			batch_size=batch_size,
-			show_progress_bar=False,
+			show_progress_bar=True,
 			convert_to_numpy=True
 		)
 		return embeddings.tolist()

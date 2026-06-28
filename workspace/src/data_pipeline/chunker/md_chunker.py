@@ -1,3 +1,4 @@
+import uuid
 import hashlib
 from .base_chunker import BaseChunker
 from langchain_text_splitters import MarkdownHeaderTextSplitter, RecursiveCharacterTextSplitter
@@ -6,7 +7,7 @@ class MDChunker(BaseChunker):
 	def __init__(self, headers_to_split_on=None, chunk_size=1000, chunk_overlap=100):
 		if headers_to_split_on is None:
 			headers_to_split_on = [
-				("#", "title"),
+				("#", "source"),
 				("##", "chapter"),
 				("###", "section"),
 				("####", "article"),
@@ -28,7 +29,7 @@ class MDChunker(BaseChunker):
 			salt = doc.metadata.get("article", "no_article")
 			id = hashlib.md5(f"{salt}::{doc.page_content}".encode("utf-8")).hexdigest()
 			chunks.append({
-				"id": id,
+				"id": str(uuid.UUID(id)),
 				"metadata": doc.metadata,
 				"content": doc.page_content,
 			})
