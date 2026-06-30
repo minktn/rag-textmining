@@ -66,5 +66,5 @@ def embedding():
 	db_manager.upsert_points(collection_name, points)
 
 if __name__ == "__main__":
-	# chunking()
+	chunking()
 	embedding()

@@ -16,9 +16,6 @@ class Config:
 	ORIGINAL_DATA_DIR = BASE_DIR / "data" / "original"
 	CHUNKED_DATA_DIR = BASE_DIR / "data" / "chunked"
 
-	# API CONFIG
-	GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-
 	# DATABASE CONFIG
 	QDRANT_URL = os.getenv("QDRANT_URL")
 	QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
