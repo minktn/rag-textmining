@@ -13,11 +13,16 @@ class Config:
 	)
 
 	# DATA DIRECTORY
-	ORIGINAL_DATA_DIR = BASE_DIR / "data" / "original"
-	CHUNKED_DATA_DIR = BASE_DIR / "data" / "chunked"
+	ORIGINAL_DATA_DIR = BASE_DIR / 'data' / 'original'
+	CHUNKED_DATA_DIR = BASE_DIR / 'data' / 'chunked'
 
 	# DATABASE CONFIG
-	QDRANT_URL = os.getenv("QDRANT_URL")
-	QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
+	QDRANT_URL = os.getenv('QDRANT_URL')
+	QDRANT_API_KEY = os.getenv('QDRANT_API_KEY')
+
+	# GROQ CONFIG
+	GROQ_API_KEY = os.getenv('GROQ_API_KEY')
+	TEST_LLM = 'meta-llama/llama-4-scout-17b-16e-instruct'
+	TRUE_LLM = 'llama-3.3-70b-versatile'
 
 settings = Config()

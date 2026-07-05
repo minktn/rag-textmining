@@ -1,8 +1,6 @@
-from xmlrpc import client
-
 from src.configs import settings
-from src.data_pipeline.chunker import MDChunker
-from src.data_pipeline.embedder import Embedder
+from src.data_pipeline import MDChunker
+from src.data_pipeline import Embedder
 from src.database import DBManager
 
 from qdrant_client.models import PointStruct

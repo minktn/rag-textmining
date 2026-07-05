@@ -58,7 +58,11 @@ class DBManager:
 			limit=limit
 		)
 
-		return search_results
+		formatted_results = [
+			{'content': point.payload.get('content', '')}
+			for point in search_results.points
+		]
+		return formatted_results
 
 	# def query_sparse(self, collection_name, query_filter, limit=5):
 	# 	search_results = self.client.search(
