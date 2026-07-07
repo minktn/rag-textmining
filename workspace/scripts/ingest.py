@@ -1,11 +1,9 @@
-from xmlrpc import client
-
 from src.configs import settings
-from src.data_pipeline.chunker import MDChunker
-from src.data_pipeline.embedder import Embedder
+from src.data_pipeline import MDChunker
+from src.data_pipeline import DenseEmbedder, SparseEmbedder
 from src.database import DBManager
 
-from qdrant_client.models import PointStruct
+from qdrant_client.models import PointStruct, models
 
 import json
 
@@ -35,13 +33,17 @@ def chunking():
 	print(f"Saved {len(chunks)} chunks to {settings.CHUNKED_DATA_DIR / 'landlaw_chunks.json'}")
 
 def embedding():
-	embedder = Embedder("keepitreal/vietnamese-sbert")
+	dense_embedder = DenseEmbedder("keepitreal/vietnamese-sbert")
+	sparse_embedder = SparseEmbedder("Qdrant/bm25")
 
 	with open(settings.CHUNKED_DATA_DIR / "landlaw_chunks.json", "r") as file:
 		chunks = json.load(file)
 
-	embeddings = embedder.embed_batch([enrich_content(chunk) for chunk in chunks])
-	
+	enriched_chunks = [enrich_content(chunk) for chunk in chunks]
+
+	dense_embeddings = dense_embedder.embed_batch(enriched_chunks)
+	sparse_embeddings = sparse_embedder.embed_batch(enriched_chunks)
+
 	db_manager = DBManager(
 		url=settings.QDRANT_URL,
 		api_key=settings.QDRANT_API_KEY
@@ -52,13 +54,19 @@ def embedding():
 	db_manager.setup_collection(collection_name)
 
 	points = []
-	for (chunk, embedding) in (zip(chunks, embeddings)):
+	for (chunk, dense_embedding, sparse_embedding) in (zip(chunks, dense_embeddings, sparse_embeddings)):
 		payload = chunk.get('metadata', {}).copy()
 		payload['content'] = chunk.get('content', '')
 		points.append(
 			PointStruct(
 				id=chunk['id'],
-				vector={'dense': embedding},
+				vector={
+					'dense': dense_embedding,
+					'sparse': models.SparseVector(
+						indices=sparse_embedding['indices'],
+						values=sparse_embedding['values']
+					)
+				},
 				payload=payload
 			)
 		)
@@ -66,5 +74,5 @@ def embedding():
 	db_manager.upsert_points(collection_name, points)
 
 if __name__ == "__main__":
-	chunking()
+	# chunking()
 	embedding()
