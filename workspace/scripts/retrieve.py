@@ -1,4 +1,4 @@
-from src.data_pipeline import Embedder
+from src.data_pipeline import DenseEmbedder
 from src.configs import settings
 from src.database import DBManager
 from src.llm import LLMManager
@@ -11,7 +11,7 @@ def main():
 
 	query = 'Luật đất đai quy định những gì?'
 
-	embedder = Embedder("keepitreal/vietnamese-sbert")
+	embedder = DenseEmbedder("keepitreal/vietnamese-sbert")
 	query_vector = embedder.embed_single(query)
 
 	search_results = db_manager.query_dense(
