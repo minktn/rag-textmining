@@ -1,13 +1,13 @@
 # rag-textmining
 
 ## RUN DOCKER
-```
+```bash
 docker-compose up -d --build
 docker exec -it rag-textmining-api /bin/bash
 ```
 
 ## DIRECTORIES
-```
+```bash
 project/
 ├── workspace/
 │	├── data/
