@@ -71,7 +71,7 @@ class DBManager:
 					points=batch
 				)
 	
-	def query_dense(self, collection_name, query_vector, limit=5, query_filter=None):
+	def query_dense(self, collection_name, query_vector, limit=20, query_filter=None):
 		search_results = self.client.query_points(
 			collection_name=collection_name,
 			query=query_vector,
