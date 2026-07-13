@@ -26,10 +26,11 @@ def compute_ragas_metrics(results: list[dict]) -> dict:
         from ragas import evaluate as ragas_evaluate
         from ragas.metrics import (
             faithfulness,
-            answer_relevancy,
+            AnswerRelevancy,
             context_precision,
             context_recall,
         )
+        answer_relevancy = AnswerRelevancy(strictness=1)
         from langchain_groq import ChatGroq
         from langchain_huggingface import HuggingFaceEmbeddings
     except ImportError as e:
@@ -56,10 +57,17 @@ def compute_ragas_metrics(results: list[dict]) -> dict:
     dataset = Dataset.from_dict(ragas_data)
 
     # ── Setup LLM + Embeddings cho RAGAS ────────────────────────
+    from langchain_core.rate_limiters import InMemoryRateLimiter
+    from ragas.run_config import RunConfig
+
+    # Configure client-side rate limiting for LangChain Groq (limit to ~24 RPM)
+    rate_limiter = InMemoryRateLimiter(requests_per_second=0.4)
+
     llm = ChatGroq(
         model=settings.TEST_LLM,
         api_key=settings.GROQ_API_KEY,
         temperature=0.0,
+        rate_limiter=rate_limiter,
     )
 
     embeddings = HuggingFaceEmbeddings(
@@ -75,12 +83,21 @@ def compute_ragas_metrics(results: list[dict]) -> dict:
         context_recall,
     ]
 
+    # Limit concurrency to respect rate limits and backoff/retry on 429
+    run_config = RunConfig(
+        max_workers=2,
+        timeout=180,
+        max_retries=10,
+        max_wait=60,
+    )
+
     try:
         ragas_result = ragas_evaluate(
             dataset=dataset,
             metrics=metrics,
             llm=llm,
             embeddings=embeddings,
+            run_config=run_config,
         )
     except Exception as e:
         print(f"\nWarning: RAGAS evaluation failed: {e}")

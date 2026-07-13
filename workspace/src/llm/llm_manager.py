@@ -1,6 +1,11 @@
+import time
 from groq import Groq
 
 class LLMManager:
+	# Rate limiting: 30 RPM -> 1 request every 2.0 seconds minimum delay
+	_last_request_time = 0.0
+	_min_delay = 2.0
+
 	def __init__(self, api_key, temperature=0.1):
 		self.client = Groq(api_key=api_key)
 		self.temperature = temperature
@@ -20,6 +25,13 @@ class LLMManager:
 			return f'CÂU HỎI:\n{query}'
 
 	def generate_response(self, prompt, model_name):
+		# Enforce rate limit delay
+		now = time.time()
+		elapsed = now - LLMManager._last_request_time
+		if elapsed < LLMManager._min_delay:
+			time.sleep(LLMManager._min_delay - elapsed)
+		LLMManager._last_request_time = time.time()
+
 		try:
 			response = self.client.chat.completions.create(
 				messages=[
