@@ -6,6 +6,9 @@ Load và validate eval dataset từ JSON file.
 
 import json
 from pathlib import Path
+from src.eval.text_processing import safe_print
+
+print = safe_print
 
 
 def load_eval_dataset(eval_file: Path, limit: int = None) -> tuple[dict, list[dict]]:
@@ -27,6 +30,6 @@ def load_eval_dataset(eval_file: Path, limit: int = None) -> tuple[dict, list[di
     if limit and limit > 0:
         data = data[:limit]
 
-    print(f"📂 Loaded {len(data)} questions from {eval_file.name}")
+    print(f"Loaded {len(data)} questions from {eval_file.name}")
     print(f"   Law: {metadata.get('law_name', 'N/A')} | Version: {metadata.get('version', 'N/A')}")
     return metadata, data

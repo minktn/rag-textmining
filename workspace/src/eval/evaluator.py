@@ -10,6 +10,9 @@ import time
 from src.data_pipeline import DenseEmbedder
 from src.database import DBManager
 from src.llm import LLMManager
+from src.eval.text_processing import safe_print
+
+print = safe_print
 
 
 class RAGEvaluator:
@@ -130,7 +133,7 @@ class RAGEvaluator:
 
         for idx, item in enumerate(questions, 1):
             qid = item['id']
-            print(f"\r  ⏳ [{idx}/{total}] {qid}: {item['question'][:60]}...", end='', flush=True)
+            print(f"\r  [{idx}/{total}] {qid}: {item['question'][:60]}...", end='', flush=True)
 
             result = self.evaluate_single(item)
             results.append(result)

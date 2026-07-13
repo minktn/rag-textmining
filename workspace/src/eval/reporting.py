@@ -8,7 +8,9 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from src.eval.text_processing import HAS_UNDERTHESEA
+from src.eval.text_processing import HAS_UNDERTHESEA, safe_print
+
+print = safe_print
 
 
 def print_summary_table(basic_metrics: dict, ragas_scores: dict, model_name: str):
@@ -17,7 +19,7 @@ def print_summary_table(basic_metrics: dict, ragas_scores: dict, model_name: str
     thin_sep = "─" * 60
 
     print(f"\n{sep}")
-    print(f"  📊  KẾT QUẢ ĐÁNH GIÁ RAG — Luật Đất đai 2024")
+    print(f"  [RAG EVALUATION RESULTS] - Land Law 2024")
     print(f"  Model: {model_name}")
     top_k = basic_metrics.get('top_k', '?')
     print(f"  Top-K: {top_k}")
@@ -132,5 +134,5 @@ def save_results(
     with open(summary_path, 'w', encoding='utf-8') as f:
         json.dump(summary_data, f, ensure_ascii=False, indent=4)
 
-    print(f"\n💾 Kết quả chi tiết: {detail_path}")
-    print(f"💾 Bảng tổng hợp:   {summary_path}")
+    print(f"\nDetailed results saved to: {detail_path}")
+    print(f"Summary saved to:          {summary_path}")

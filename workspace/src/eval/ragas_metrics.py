@@ -33,11 +33,11 @@ def compute_ragas_metrics(results: list[dict]) -> dict:
         from langchain_groq import ChatGroq
         from langchain_huggingface import HuggingFaceEmbeddings
     except ImportError as e:
-        print(f"\n⚠️  RAGAS dependencies chưa được cài đặt: {e}")
-        print("   Chạy: pip install ragas langchain-groq langchain-huggingface datasets")
+        print(f"\nWarning: RAGAS dependencies are not installed: {e}")
+        print("   Run: pip install ragas langchain-groq langchain-huggingface datasets")
         return {}
 
-    print("\n🔬 Đang tính RAGAS metrics (sử dụng LLM-as-judge)...")
+    print("\nComputing RAGAS metrics (using LLM-as-judge)...")
 
     # ── Chuẩn bị RAGAS dataset ──────────────────────────────────
     ragas_data = {
@@ -83,8 +83,8 @@ def compute_ragas_metrics(results: list[dict]) -> dict:
             embeddings=embeddings,
         )
     except Exception as e:
-        print(f"\n⚠️  RAGAS evaluation gặp lỗi: {e}")
-        print("   Có thể do rate limit Groq API. Thử giảm --limit hoặc đợi.")
+        print(f"\nWarning: RAGAS evaluation failed: {e}")
+        print("   This might be due to Groq API rate limits. Try reducing --limit or wait.")
         return {}
 
     # ── Trích xuất kết quả ──────────────────────────────────────

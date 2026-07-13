@@ -35,8 +35,10 @@ from src.eval import (
     save_results,
     load_eval_dataset,
 )
-from src.eval.text_processing import HAS_UNDERTHESEA
+from src.eval.text_processing import HAS_UNDERTHESEA, safe_print
 from src.eval.metrics import HAS_ROUGE
+
+print = safe_print
 
 
 def parse_args():
@@ -84,15 +86,15 @@ def main():
     collection = args.collection
 
     print("=" * 60)
-    print("  🏛️  RAG EVALUATION — Luật Đất đai 2024")
+    print("  [RAG EVALUATION] - Land Law 2024")
     print("=" * 60)
     print(f"  Model:       {model_name}")
     print(f"  Top-K:       {top_k}")
     print(f"  Collection:  {collection}")
     print(f"  Embedding:   {settings.EMBEDDING_MODEL}")
-    print(f"  Tokenizer:   {'Underthesea' if HAS_UNDERTHESEA else 'Simple split (⚠️ pip install underthesea)'}")
-    print(f"  ROUGE-L:     {'✅ rouge-score' if HAS_ROUGE else '✅ LCS fallback'}")
-    print(f"  RAGAS:       {'❌ Skipped' if args.skip_ragas else '✅ Enabled'}")
+    print(f"  Tokenizer:   {'Underthesea' if HAS_UNDERTHESEA else 'Simple split (Warning: pip install underthesea)'}")
+    print(f"  ROUGE-L:     {'rouge-score' if HAS_ROUGE else 'LCS fallback'}")
+    print(f"  RAGAS:       {'Skipped' if args.skip_ragas else 'Enabled'}")
     print(f"  Limit:       {args.limit or 'All'}")
     print("=" * 60)
 
@@ -100,11 +102,11 @@ def main():
     eval_metadata, questions = load_eval_dataset(eval_file, limit=args.limit)
 
     if not questions:
-        print("❌ Không có câu hỏi nào để đánh giá!")
+        print("No questions to evaluate!")
         sys.exit(1)
 
     # ── Init components ───────────────────────────────────────
-    print("\n🔧 Khởi tạo components...")
+    print("\nInitializing components...")
     embedder = DenseEmbedder(settings.EMBEDDING_MODEL)
 
     db_manager = DBManager(
@@ -118,7 +120,7 @@ def main():
     )
 
     # ── Phase 1: Run RAG pipeline ─────────────────────────────
-    print(f"\n🚀 Phase 1: Chạy RAG pipeline trên {len(questions)} câu hỏi...\n")
+    print(f"\nPhase 1: Running RAG pipeline on {len(questions)} questions...\n")
 
     evaluator = RAGEvaluator(
         embedder=embedder,
@@ -131,16 +133,16 @@ def main():
     results = evaluator.evaluate_all(questions)
 
     # ── Phase 2: Compute basic metrics ────────────────────────
-    print("\n📐 Phase 2: Tính toán basic metrics...")
+    print("\nPhase 2: Computing basic metrics...")
     basic_metrics = MetricsCalculator.aggregate(results, top_k=top_k)
 
     # ── Phase 3: RAGAS metrics (optional) ─────────────────────
     ragas_scores = {}
     if not args.skip_ragas:
-        print("\n🔬 Phase 3: Tính toán RAGAS metrics...")
+        print("\nPhase 3: Computing RAGAS metrics...")
         ragas_scores = compute_ragas_metrics(results)
     else:
-        print("\n⏭️  Phase 3: RAGAS metrics — SKIPPED")
+        print("\nPhase 3: RAGAS metrics — SKIPPED")
 
     # ── Phase 4: Report & Save ────────────────────────────────
     print_summary_table(basic_metrics, ragas_scores, model_name)
@@ -155,7 +157,7 @@ def main():
         output_dir=settings.EVAL_RESULTS_DIR,
     )
 
-    print("\n✅ Đánh giá hoàn tất!")
+    print("\nEvaluation completed!")
 
 
 if __name__ == '__main__':

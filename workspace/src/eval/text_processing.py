@@ -44,3 +44,20 @@ def tokenize_vi(text: str) -> list[str]:
         return normalize_text(segmented).split()
     else:
         return normalize_text(text).split()
+
+
+def safe_print(*args, **kwargs):
+    """In ra stdout an toàn, tự động thay thế ký tự không hỗ trợ bằng '?' thay vì crash."""
+    import sys
+    sep = kwargs.get('sep', ' ')
+    end = kwargs.get('end', '\n')
+    flush = kwargs.get('flush', False)
+    file = kwargs.get('file', sys.stdout)
+    text = sep.join(str(arg) for arg in args) + end
+    try:
+        file.write(text)
+    except UnicodeEncodeError:
+        encoding = getattr(file, 'encoding', 'utf-8') or 'utf-8'
+        file.write(text.encode(encoding, errors='replace').decode(encoding))
+    if flush:
+        file.flush()
