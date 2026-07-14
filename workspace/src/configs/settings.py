@@ -39,7 +39,6 @@ class Config:
 	TEST_LLM = 'meta-llama/llama-4-scout-17b-16e-instruct'
 	TRUE_LLM = 'llama-3.3-70b-versatile'
 
-<<<<<<< HEAD
 	# EMBEDDING MODEL (centralized)
 	EMBEDDING_MODEL = "keepitreal/vietnamese-sbert"
 
@@ -48,6 +47,3 @@ class Config:
 	EVAL_RESULTS_DIR = BASE_DIR / 'data' / 'eval' / 'results'
 
 settings = Config()
-=======
-settings = Config()
->>>>>>> main
