@@ -24,7 +24,7 @@ def enrich_content(chunk):
 	return enriched_content
 
 def chunking():
-	chunker = MDChunker(chunk_size=1000, chunk_overlap=100)
+	chunker = MDChunker(chunk_size=1000)
 
 	with open(settings.ORIGINAL_DATA_DIR / "landlaw.md", "r", encoding="utf-8") as file:
 		content = file.read()
@@ -51,7 +51,7 @@ def embedding():
 		api_key=settings.QDRANT_API_KEY
 	)
 
-	collection_name = 'landlaw'
+	collection_name = 'landlaw_new'
 
 	db_manager.setup_collection(collection_name)
 

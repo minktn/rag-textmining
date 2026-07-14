@@ -82,7 +82,7 @@ class LegalMetadataProcessor:
 		payload['article_no'] = article_no if article_no is not None else content_refs['article_no']
 		payload['chapter_no'] = chapter_no if chapter_no is not None else content_refs['chapter_no']
 		payload['section_no'] = section_no if section_no is not None else content_refs['section_no']
-		payload['clause_nos'] = self.extract_clause_numbers(content_text)
+		# payload['clause_nos'] = self.extract_clause_numbers(content_text)
 		payload['ref_article_nos'] = self.extract_references(
 			content_text,
 			current_article_no=payload['article_no'],
