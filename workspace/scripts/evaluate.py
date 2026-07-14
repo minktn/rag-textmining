@@ -47,7 +47,7 @@ def parse_args():
     )
     parser.add_argument(
         '--eval-file', type=str, default=None,
-        help='Đường dẫn đến file eval JSON (mặc định: eval_landlaw_2024_expanded.json)'
+        help='Đường dẫn đến file eval JSON (mặc định: eval_landlaw_2024.json)'
     )
     parser.add_argument(
         '--limit', type=int, default=None,
@@ -79,7 +79,7 @@ def main():
     if args.eval_file:
         eval_file = Path(args.eval_file)
     else:
-        eval_file = settings.EVAL_DATA_DIR / 'eval_landlaw_2024_expanded.json'
+        eval_file = settings.EVAL_DATA_DIR / 'eval_landlaw_2024.json'
 
     model_name = args.model or settings.TEST_LLM
     top_k = args.top_k
@@ -119,6 +119,15 @@ def main():
         temperature=0.1
     )
 
+    from src.retriever import Retriever
+    retriever = Retriever(
+        db_manager=db_manager,
+        embedder=embedder,
+        collection_name=collection,
+        dense_candidate_limit=settings.RETRIEVAL_CANDIDATE_LIMIT,
+        rerank_limit=top_k,
+    )
+
     # ── Phase 1: Run RAG pipeline ─────────────────────────────
     print(f"\nPhase 1: Running RAG pipeline on {len(questions)} questions...\n")
 
@@ -129,6 +138,7 @@ def main():
         model_name=model_name,
         collection_name=collection,
         top_k=top_k,
+        retriever=retriever,
     )
     results = evaluator.evaluate_all(questions)
 

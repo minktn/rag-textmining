@@ -10,6 +10,7 @@ import time
 from src.data_pipeline import DenseEmbedder
 from src.database import DBManager
 from src.llm import LLMManager
+from src.retriever import Retriever
 from src.eval.text_processing import safe_print
 
 print = safe_print
@@ -30,6 +31,7 @@ class RAGEvaluator:
         model_name: str,
         collection_name: str = 'landlaw',
         top_k: int = 5,
+        retriever: Retriever | None = None,
     ):
         self.embedder = embedder
         self.db_manager = db_manager
@@ -38,36 +40,33 @@ class RAGEvaluator:
         self.collection_name = collection_name
         self.top_k = top_k
 
+        if retriever is not None:
+            self.retriever = retriever
+        else:
+            from src.configs import settings
+            self.retriever = Retriever(
+                db_manager=db_manager,
+                embedder=embedder,
+                collection_name=collection_name,
+                dense_candidate_limit=getattr(settings, "RETRIEVAL_CANDIDATE_LIMIT", 20),
+                rerank_limit=top_k,
+            )
+
     # ── Retrieve ──────────────────────────────────────────────────
 
     def retrieve(self, question: str) -> dict:
-        """Truy vấn Qdrant MỘT LẦN DUY NHẤT, trả về contexts + payloads + latency.
-
-        Trước refactor, code gọi 2 lần Qdrant cho cùng 1 câu hỏi:
-          1. db_manager.query_dense()  → chỉ lấy content
-          2. db_manager.client.query_points() → lấy payload
-        Bây giờ chỉ gọi query_points() 1 lần, extract cả hai.
-        """
+        """Truy vấn Qdrant bằng Retriever class, trả về contexts + payloads + latency."""
         t0 = time.perf_counter()
-        query_vector = self.embedder.embed_single(question)
-
-        raw_results = self.db_manager.client.query_points(
-            collection_name=self.collection_name,
-            query=query_vector,
-            using='dense',
-            limit=self.top_k,
-        )
+        retrieval_result = self.retriever.retrieve(question)
         latency_ms = (time.perf_counter() - t0) * 1000
 
-        # Extract content + full payload from single query
-        contexts = [
-            point.payload.get('content', '')
-            for point in raw_results.points
-        ]
-        payloads = [point.payload for point in raw_results.points]
+        # Extract content + full payload from retriever's result
+        chunks = retrieval_result.get('context_chunks', [])
+        contexts = [chunk.get('content', '') for chunk in chunks]
+        payloads = [chunk.get('metadata', {}) for chunk in chunks]
 
         # Format docs cho LLM prompt (tương thích với LLMManager.construct_prompt)
-        docs = [{'content': c} for c in contexts]
+        docs = chunks
 
         return {
             'contexts': contexts,
