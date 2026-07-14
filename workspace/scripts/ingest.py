@@ -1,4 +1,5 @@
 from src.configs import settings
+from src.common import LegalMetadataProcessor
 from src.data_pipeline import MDChunker
 from src.data_pipeline import DenseEmbedder, SparseEmbedder
 from src.database import DBManager
@@ -25,7 +26,7 @@ def enrich_content(chunk):
 def chunking():
 	chunker = MDChunker(chunk_size=1000, chunk_overlap=100)
 
-	with open(settings.ORIGINAL_DATA_DIR / "landlaw.md", "r") as file:
+	with open(settings.ORIGINAL_DATA_DIR / "landlaw.md", "r", encoding="utf-8") as file:
 		content = file.read()
 
 	chunks = chunker.chunking(content)
@@ -35,8 +36,9 @@ def chunking():
 def embedding():
 	dense_embedder = DenseEmbedder("keepitreal/vietnamese-sbert")
 	sparse_embedder = SparseEmbedder("Qdrant/bm25")
+	metadata_processor = LegalMetadataProcessor()
 
-	with open(settings.CHUNKED_DATA_DIR / "landlaw_chunks.json", "r") as file:
+	with open(settings.CHUNKED_DATA_DIR / "landlaw_chunks.json", "r", encoding="utf-8") as file:
 		chunks = json.load(file)
 
 	enriched_chunks = [enrich_content(chunk) for chunk in chunks]
@@ -55,8 +57,9 @@ def embedding():
 
 	points = []
 	for (chunk, dense_embedding, sparse_embedding) in (zip(chunks, dense_embeddings, sparse_embeddings)):
-		payload = chunk.get('metadata', {}).copy()
-		payload['content'] = chunk.get('content', '')
+		content = chunk.get('content', '')
+		payload = metadata_processor.enrich_payload(chunk.get('metadata', {}), content)
+		payload['content'] = content
 		points.append(
 			PointStruct(
 				id=chunk['id'],
