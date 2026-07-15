@@ -1,3 +1,13 @@
+import os
+import sys
+from pathlib import Path
+
+# Setup Hugging Face mirror and custom cache paths to avoid Windows TLS socket errors (WinError 10054/10038)
+os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
+os.environ["FASTEMBED_CACHE_PATH"] = str(Path.home() / ".cache" / "fastembed")
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 from src.configs import settings
 from src.common import LegalMetadataProcessor
 from src.data_pipeline import MDChunker
@@ -51,7 +61,7 @@ def embedding():
 		api_key=settings.QDRANT_API_KEY
 	)
 
-	collection_name = 'landlaw_new'
+	collection_name = settings.COLLECTION_NAME
 
 	db_manager.setup_collection(collection_name)
 
@@ -77,5 +87,5 @@ def embedding():
 	db_manager.upsert_points(collection_name, points)
 
 if __name__ == "__main__":
-	# chunking()
+	chunking()
 	embedding()

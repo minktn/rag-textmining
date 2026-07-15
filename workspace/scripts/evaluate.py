@@ -18,9 +18,16 @@ Module structure (src/eval/):
     - data_loader: Load eval dataset
 """
 
+import os
 import argparse
 import sys
 from pathlib import Path
+
+# Setup Hugging Face mirror and custom cache paths to avoid Windows TLS socket errors (WinError 10054/10038)
+os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
+os.environ["FASTEMBED_CACHE_PATH"] = str(Path.home() / ".cache" / "fastembed")
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.configs import settings
 from src.data_pipeline import DenseEmbedder
@@ -66,8 +73,8 @@ def parse_args():
         help='Số lượng contexts retrieve (mặc định: 5)'
     )
     parser.add_argument(
-        '--collection', type=str, default='landlaw',
-        help='Tên collection Qdrant (mặc định: landlaw)'
+        '--collection', type=str, default=settings.COLLECTION_NAME,
+        help=f'Tên collection Qdrant (mặc định: {settings.COLLECTION_NAME})'
     )
     return parser.parse_args()
 

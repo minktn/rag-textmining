@@ -29,7 +29,8 @@ class DBManager:
 		self.client = QdrantClient(
 			url=url,
 			api_key=api_key,
-			check_compatibility=False
+			check_compatibility=False,
+			timeout=60.0
 		)
 
 		self._initialized = True

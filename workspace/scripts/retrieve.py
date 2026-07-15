@@ -1,7 +1,12 @@
+import os
 import argparse
 import json
 import sys
 from pathlib import Path
+
+# Setup Hugging Face mirror and custom cache paths to avoid Windows TLS socket errors (WinError 10054/10038)
+os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
+os.environ["FASTEMBED_CACHE_PATH"] = str(Path.home() / ".cache" / "fastembed")
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 

@@ -38,7 +38,16 @@ def compute_ragas_metrics(results: list[dict]) -> dict:
         print("   Run: pip install ragas langchain-groq langchain-huggingface datasets")
         return {}
 
-    print("\nComputing RAGAS metrics (using LLM-as-judge)...")
+    # ── Cấu hình các tiêu chí đánh giá RAGAS ────────────────────
+    # Bạn chỉ cần comment/uncomment dòng dưới đây để bật/tắt tiêu chí chấm
+    active_metrics = {
+        'faithfulness': faithfulness,
+        'context_recall': context_recall,
+        # 'answer_relevancy': answer_relevancy,
+        # 'context_precision': context_precision,
+    }
+
+    print(f"\nComputing RAGAS metrics (using LLM-as-judge) for: {list(active_metrics.keys())}...")
 
     # ── Chuẩn bị RAGAS dataset ──────────────────────────────────
     ragas_data = {
@@ -75,14 +84,6 @@ def compute_ragas_metrics(results: list[dict]) -> dict:
         model_kwargs={'device': settings.DEVICE},
     )
 
-    # ── Chạy RAGAS evaluation ───────────────────────────────────
-    metrics = [
-        faithfulness,
-        answer_relevancy,
-        context_precision,
-        context_recall,
-    ]
-
     # Limit concurrency to respect rate limits and backoff/retry on 429
     run_config = RunConfig(
         max_workers=2,
@@ -94,7 +95,7 @@ def compute_ragas_metrics(results: list[dict]) -> dict:
     try:
         ragas_result = ragas_evaluate(
             dataset=dataset,
-            metrics=metrics,
+            metrics=list(active_metrics.values()),
             llm=llm,
             embeddings=embeddings,
             run_config=run_config,
@@ -109,7 +110,7 @@ def compute_ragas_metrics(results: list[dict]) -> dict:
 
     # Aggregate scores (Ragas lưu điểm trung bình trong thuộc tính nội bộ _repr_dict)
     scores_dict = getattr(ragas_result, '_repr_dict', {})
-    for metric_name in ['faithfulness', 'answer_relevancy', 'context_precision', 'context_recall']:
+    for metric_name in active_metrics.keys():
         val = scores_dict.get(metric_name, None)
         if val is not None:
             ragas_scores[metric_name] = round(float(val), 4)
@@ -118,7 +119,7 @@ def compute_ragas_metrics(results: list[dict]) -> dict:
     try:
         df = ragas_result.to_pandas()
         for idx, r in enumerate(results):
-            for metric_name in ['faithfulness', 'answer_relevancy', 'context_precision', 'context_recall']:
+            for metric_name in active_metrics.keys():
                 col_name = metric_name
                 if col_name in df.columns and idx < len(df):
                     val = df.iloc[idx][col_name]
