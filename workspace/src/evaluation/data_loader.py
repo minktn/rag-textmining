@@ -6,7 +6,7 @@ Load và validate eval dataset từ JSON file.
 
 import json
 from pathlib import Path
-from src.eval.text_processing import safe_print
+from .text_processing import safe_print
 
 print = safe_print
 

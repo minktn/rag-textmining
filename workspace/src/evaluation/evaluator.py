@@ -7,10 +7,10 @@ Chỉ gọi Qdrant MỘT LẦN per question (loại bỏ duplicate query).
 
 import time
 
-from src.data_pipeline import DenseEmbedder
+from src.database.embedder import DenseEmbedder
 from src.database import DBManager
-from src.llm import LLMManager
-from src.eval.text_processing import safe_print
+from src.generation import LLMManager
+from src.evaluation.text_processing import safe_print
 
 print = safe_print
 
@@ -97,7 +97,7 @@ class RAGEvaluator:
 
     def evaluate_single(self, item: dict) -> dict:
         """Chạy retrieve + generate cho 1 câu hỏi, trả về kết quả chi tiết."""
-        from src.eval.metrics import MetricsCalculator
+        from .metrics import MetricsCalculator
 
         question = item['question']
 

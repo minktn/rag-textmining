@@ -1,4 +1,9 @@
-from src.data_pipeline import SparseEmbedder
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from src.database.embedder import SparseEmbedder
 from src.configs import settings
 
 import json

@@ -1,0 +1,31 @@
+[project]
+name = "rag-textmining"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "datasets>=3.0.0",
+    "groq>=0.30.0,<1.0.0",
+    "langchain-groq>=0.3.0",
+    "langchain-huggingface>=0.2.0",
+    "langchain-text-splitters==1.1.2",
+    "nltk>=3.9.0",
+    "qdrant-client[fastembed]==1.18.0",
+    "ragas>=0.2.0",
+    "rouge-score>=0.1.2",
+    "sentence-transformers==5.6.0",
+    "torch",
+    "torchvision",
+    "underthesea>=6.8.0",
+    "pyrefly"
+]
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu118" }
+torchvision = { index = "pytorch-cu118" }
+
+[[tool.uv.index]]
+name = "pytorch-cu118"
+url = "https://download.pytorch.org/whl/cu118"
+explicit = true

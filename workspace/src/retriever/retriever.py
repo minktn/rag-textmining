@@ -7,7 +7,7 @@ from src.common import LegalMetadataProcessor
 if TYPE_CHECKING:
 	from qdrant_client.models import Filter
 
-	from src.data_pipeline import DenseEmbedder
+	from src.database.embedder import DenseEmbedder
 	from src.database import DBManager
 
 
@@ -315,7 +315,7 @@ class Retriever:
 		)
 
 	def _build_default_embedder(self, dense_model_name: str) -> DenseEmbedder:
-		from src.data_pipeline import DenseEmbedder
+		from src.database.embedder import DenseEmbedder
 
 		return DenseEmbedder(dense_model_name)
 

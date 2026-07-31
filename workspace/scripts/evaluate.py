@@ -22,12 +22,14 @@ import argparse
 import sys
 from pathlib import Path
 
-from src.configs import settings
-from src.data_pipeline import DenseEmbedder
-from src.database import DBManager
-from src.llm import LLMManager
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.eval import (
+from src.configs import settings
+from src.database.embedder import DenseEmbedder
+from src.database import DBManager
+from src.generation import LLMManager
+
+from src.evaluation import (
     RAGEvaluator,
     MetricsCalculator,
     compute_ragas_metrics,
@@ -35,8 +37,8 @@ from src.eval import (
     save_results,
     load_eval_dataset,
 )
-from src.eval.text_processing import HAS_UNDERTHESEA, safe_print
-from src.eval.metrics import HAS_ROUGE
+from src.evaluation.text_processing import HAS_UNDERTHESEA, safe_print
+from src.evaluation.metrics import HAS_ROUGE
 
 print = safe_print
 

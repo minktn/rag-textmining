@@ -58,7 +58,7 @@ def main():
 		print(json.dumps(retrieval_result, ensure_ascii=False, indent=2))
 		return
 
-	from src.llm import LLMManager
+	from src.generation import LLMManager
 
 	llm_manager = LLMManager(api_key=settings.GROQ_API_KEY, temperature=0.1)
 	prompt = llm_manager.construct_prompt(

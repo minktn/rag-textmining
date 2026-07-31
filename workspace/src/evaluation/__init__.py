@@ -12,12 +12,12 @@ Cấu trúc:
     - data_loader: Load eval dataset
 """
 
-from src.eval.text_processing import normalize_text, tokenize_vi
-from src.eval.metrics import MetricsCalculator
-from src.eval.ragas_metrics import compute_ragas_metrics
-from src.eval.evaluator import RAGEvaluator
-from src.eval.reporting import print_summary_table, save_results
-from src.eval.data_loader import load_eval_dataset
+from .text_processing import normalize_text, tokenize_vi
+from .metrics import MetricsCalculator
+from .ragas_metrics import compute_ragas_metrics
+from .evaluator import RAGEvaluator
+from .reporting import print_summary_table, save_results
+from .data_loader import load_eval_dataset
 
 __all__ = [
     'normalize_text',

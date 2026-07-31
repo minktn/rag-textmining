@@ -27,7 +27,7 @@ except ImportError:
     HAS_ROUGE = False
 
 # ── Shared text processing ────────────────────────────────────────────
-from src.eval.text_processing import normalize_text, tokenize_vi
+from .text_processing import normalize_text, tokenize_vi
 
 
 class MetricsCalculator:

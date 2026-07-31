@@ -110,26 +110,21 @@ The default collection is `landlaw`. To test another collection:
 python scripts/retrieve.py --query "Theo Điều 188 Luật Đất đai quy định gì?" --collection your_collection --no-generate
 ```
 
-## Run Outside Docker
-
-Docker is recommended. Running outside Docker is only useful if your local Python environment has all dependencies installed and can reach Qdrant.
+## Run Outside Docker (with uv)
 
 From the project root:
 
 ```bash
-cd workspace
-pip install -r requirements.txt
-python scripts/retrieve.py --query "Theo Điều 188 Luật Đất đai quy định gì?" --no-generate
+uv sync
+uv run python workspace/scripts/retrieve.py --query "Theo Điều 188 Luật Đất đai quy định gì?" --no-generate
 ```
-
-If local Python cannot import packages such as `qdrant_client`, `sentence_transformers`, or `groq`, run inside Docker instead.
 
 ## Useful Checks
 
 Show CLI help:
 
 ```bash
-python scripts/retrieve.py --help
+uv run python workspace/scripts/retrieve.py --help
 ```
 
 Check container status:
@@ -155,17 +150,35 @@ project/
 |   |   `-- original/
 |   |       `-- landlaw.md
 |   |-- scripts/
+|   |   |-- evaluate.py
 |   |   |-- ingest.py
-|   |   `-- retrieve.py
+|   |   |-- retrieve.py
+|   |   `-- test.py
 |   `-- src/
-|       |-- configs/
 |       |-- common/
+|       |-- configs/
 |       |-- database/
-|       |-- data_pipeline/
-|       |-- llm/
-|       `-- retriever/
+|       |   |-- chunker/
+|       |   `-- embedder/
+|       |-- evaluation/
+|       |-- generation/
+|       |-- retriever/
+|       `-- utils/
 |-- .env
 |-- docker-compose.yml
 |-- Dockerfile
+|-- pyproject.toml
 `-- README.md
 ```
+## USED PAPER:
+- Hypothetical Document Embedding: https://arxiv.org/pdf/2212.10496
+- RAG-fusion: https://arxiv.org/pdf/2402.03367
+- Filter-reranker: https://arxiv.org/pdf/2303.08559
+- Token_elimination: https://arxiv.org/pdf/2310.13682
+- CoG: https://arxiv.org/pdf/2307.06962
+- Active RAG: https://arxiv.org/pdf/2305.06983
+- SELF-RAG: https://arxiv.org/pdf/2310.11511
+- Late chunking: https://arxiv.org/pdf/2409.04701
+- Corrective RAG: https://arxiv.org/pdf/2401.15884 - Use ViLegalQwen2.5-1.5B-Base 
+
+

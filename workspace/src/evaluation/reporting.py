@@ -8,7 +8,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from src.eval.text_processing import HAS_UNDERTHESEA, safe_print
+from .text_processing import HAS_UNDERTHESEA, safe_print
 
 print = safe_print
 

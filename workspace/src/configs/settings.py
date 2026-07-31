@@ -33,6 +33,7 @@ class Config:
 	RERANKER_MODEL = 'cross-encoder/mmarco-mMiniLMv2-L12-H384-v1'
 	RETRIEVAL_CANDIDATE_LIMIT = 20
 	RERANK_LIMIT = 5
+	RETRIEVE_EVALUATOR = 'ntphuc149/ViLegalQwen2.5-1.5B-Base'
 
 	# GROQ CONFIG
 	GROQ_API_KEY = os.getenv('GROQ_API_KEY')
