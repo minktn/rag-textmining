@@ -92,10 +92,15 @@ class MetricsCalculator:
              với gt.clause_nos (exact clause match)
         """
         p_article = payload.get('article_no')
+        p_clauses = set(payload.get('clause_nos', []))
+        if p_article is None and 'content' in payload:
+            extracted = MetricsCalculator.extract_payload_from_text(payload['content'])
+            p_article = extracted['article_no']
+            if not p_clauses:
+                p_clauses = set(extracted['clause_nos'])
+
         if p_article is None:
             return False
-
-        p_clauses = set(payload.get('clause_nos', []))
 
         for gt in gt_law_ids:
             if p_article != gt['article_no']:
@@ -119,6 +124,28 @@ class MetricsCalculator:
         ]
 
     @staticmethod
+    def extract_payload_from_text(text: str) -> dict:
+        """Trích xuất thông tin article_no và clause_nos từ văn bản thuần bằng regex.
+
+        Giúp tính toán đầy đủ các metrics retrieval cho GraphRAG hoặc các hệ thống chỉ trả về text context.
+        """
+        import re
+        if not text:
+            return {'article_no': None, 'clause_nos': [], 'content': ''}
+
+        art_match = re.search(r'Điều\s+(\d+)', text, re.IGNORECASE)
+        article_no = int(art_match.group(1)) if art_match else None
+
+        clause_matches = re.findall(r'Khoản\s+(\d+)', text, re.IGNORECASE)
+        clause_nos = [int(c) for c in clause_matches] if clause_matches else []
+
+        return {
+            'article_no': article_no,
+            'clause_nos': clause_nos,
+            'content': text,
+        }
+
+    @staticmethod
     def extract_law_ids_from_payloads(payloads: list[dict]) -> list[dict]:
         """Trích xuất law_id chuẩn hóa từ danh sách retrieved payloads.
 
@@ -127,11 +154,19 @@ class MetricsCalculator:
         """
         law_ids = []
         for p in payloads:
+            art = p.get('article_no')
+            clauses = p.get('clause_nos', [])
+            if art is None and 'content' in p:
+                extracted = MetricsCalculator.extract_payload_from_text(p['content'])
+                art = extracted['article_no']
+                if not clauses:
+                    clauses = extracted['clause_nos']
+
             law_ids.append({
-                'article_no': p.get('article_no'),
+                'article_no': art,
                 'chapter_no': p.get('chapter_no'),
                 'section_no': p.get('section_no'),
-                'clause_nos': p.get('clause_nos', []),
+                'clause_nos': clauses,
             })
         return law_ids
 

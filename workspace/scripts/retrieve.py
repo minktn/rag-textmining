@@ -66,7 +66,7 @@ def main():
 		docs=retrieval_result['context_chunks'],
 	)
 
-	response = llm_manager.generate_response(prompt, model_name=settings.TEST_LLM)
+	response = llm_manager.generate_response(prompt, model_name=settings.TRUE_LLM)
 	if response:
 		print('Câu trả lời được tạo:')
 		print(response)

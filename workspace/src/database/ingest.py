@@ -1,81 +1,61 @@
+import sys
+import argparse
+from pathlib import Path
+
+# Ensure the workspace root is in the Python path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
 from src.configs import settings
 from src.common import LegalMetadataProcessor
 from src.database.chunker import MDChunker
 from src.database.embedder import DenseEmbedder, SparseEmbedder
-from src.database import DBManager
+from src.database.db_manager import DBManager
+from src.database.vector_store import VectorStore
 
-from qdrant_client.models import PointStruct, models
+def main():
+    parser = argparse.ArgumentParser(description="Data Ingestion Pipeline")
+    parser.add_argument('--late', action='store_true', help="Use Late Chunking for ingestion")
+    args = parser.parse_args()
 
-import json
+    print("Initializing embedding models and database components...")
+    
+    # Initialize components
+    dense_embedder = DenseEmbedder(settings.DENSE_EMBEDDING_MODEL)
+    sparse_embedder = SparseEmbedder("Qdrant/bm25")
+    metadata_processor = LegalMetadataProcessor()
+    chunker = MDChunker(chunk_size=1000)
 
-def enrich_content(chunk):
-	metadata = chunk.get('metadata', {})
-	content = chunk.get('content', '')
+    db_manager = DBManager(
+        url=settings.QDRANT_URL,
+        api_key=settings.QDRANT_API_KEY
+    )
 
-	if not metadata:
-		return content
+    # Instantiate the new VectorStore
+    vector_store = VectorStore(
+        db_manager=db_manager,
+        dense_embedder=dense_embedder,
+        sparse_embedder=sparse_embedder,
+        metadata_processor=metadata_processor,
+        chunker=chunker
+    )
 
-	metadata_str = ''
-	for key, value in metadata.items():
-		metadata_str += f"[{key}: {value}] "
-	
-	enriched_content = f"{metadata_str.strip()}\n{content}"
+    # Input and output paths
+    input_file = settings.ORIGINAL_DATA_DIR / "landlaw.md"
+    output_file = settings.CHUNKED_DATA_DIR / "landlaw_chunks.json"
+    
+    print(f"Checking for existing chunk data at: {output_file}")
+    if not output_file.exists():
+        print(f"Chunks not found. Chunking {input_file}...")
+        vector_store.chunk_and_save(input_file, output_file)
 
-	return enriched_content
-
-def chunking():
-	chunker = MDChunker(chunk_size=1000)
-
-	with open(settings.ORIGINAL_DATA_DIR / "landlaw.md", "r", encoding="utf-8") as file:
-		content = file.read()
-
-	chunks = chunker.chunking(content)
-	chunker.save_to_json(chunks, settings.CHUNKED_DATA_DIR / "landlaw_chunks.json")
-	print(f"Saved {len(chunks)} chunks to {settings.CHUNKED_DATA_DIR / 'landlaw_chunks.json'}")
-
-def embedding():
-	dense_embedder = DenseEmbedder("keepitreal/vietnamese-sbert")
-	sparse_embedder = SparseEmbedder("Qdrant/bm25")
-	metadata_processor = LegalMetadataProcessor()
-
-	with open(settings.CHUNKED_DATA_DIR / "landlaw_chunks.json", "r", encoding="utf-8") as file:
-		chunks = json.load(file)
-
-	enriched_chunks = [enrich_content(chunk) for chunk in chunks]
-
-	dense_embeddings = dense_embedder.embed_batch(enriched_chunks)
-	sparse_embeddings = sparse_embedder.embed_batch(enriched_chunks)
-
-	db_manager = DBManager(
-		url=settings.QDRANT_URL,
-		api_key=settings.QDRANT_API_KEY
-	)
-
-	collection_name = 'landlaw_new'
-
-	db_manager.setup_collection(collection_name)
-
-	points = []
-	for (chunk, dense_embedding, sparse_embedding) in (zip(chunks, dense_embeddings, sparse_embeddings)):
-		content = chunk.get('content', '')
-		payload = metadata_processor.enrich_payload(chunk.get('metadata', {}), content)
-		payload['content'] = content
-		points.append(
-			PointStruct(
-				id=chunk['id'],
-				vector={
-					'dense': dense_embedding,
-					'sparse': models.SparseVector(
-						indices=sparse_embedding['indices'],
-						values=sparse_embedding['values']
-					)
-				},
-				payload=payload
-			)
-		)
-
-	db_manager.upsert_points(collection_name, points)
+    collection_name = 'landlaw'
+    
+    if args.late:
+        print(f"Starting LATE CHUNKING ingestion into collection '{collection_name}'...")
+        vector_store.ingest_documents_late(collection_name, output_file)
+    else:
+        print(f"Starting standard ingestion into collection '{collection_name}'...")
+        vector_store.ingest_documents(collection_name, output_file)
 
 if __name__ == "__main__":
-	# chunking()
-	embedding()
+    main()

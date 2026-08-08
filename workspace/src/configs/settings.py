@@ -20,8 +20,8 @@ class Config:
 	)
 
 	# DATA DIRECTORY
-	ORIGINAL_DATA_DIR = BASE_DIR / 'data' / 'original'
-	CHUNKED_DATA_DIR = BASE_DIR / 'data' / 'chunked'
+	ORIGINAL_DATA_DIR = BASE_DIR / 'data'
+	CHUNKED_DATA_DIR = BASE_DIR / 'data'
 
 	# DATABASE CONFIG
 	QDRANT_URL = os.getenv('QDRANT_URL')
@@ -29,7 +29,8 @@ class Config:
 	COLLECTION_NAME = 'landlaw'
 
 	# RETRIEVAL CONFIG
-	DENSE_EMBEDDING_MODEL = 'keepitreal/vietnamese-sbert'
+	DENSE_EMBEDDING_MODEL = 'BAAI/bge-m3' # or keepitreal/vietnamese-sbert
+	LONG_DENSE_EMBEDDING_MODEL = 'BAAI/bge-m3'
 	RERANKER_MODEL = 'cross-encoder/mmarco-mMiniLMv2-L12-H384-v1'
 	RETRIEVAL_CANDIDATE_LIMIT = 20
 	RERANK_LIMIT = 5
@@ -37,11 +38,17 @@ class Config:
 
 	# GROQ CONFIG
 	GROQ_API_KEY = os.getenv('GROQ_API_KEY')
-	TEST_LLM = 'meta-llama/llama-4-scout-17b-16e-instruct'
+	TEST_LLM = 'llama-3.3-70b-versatile'
 	TRUE_LLM = 'llama-3.3-70b-versatile'
+	SUPPORT_LLM = 'openai/gpt-oss-120b'
+	RAGAS_LLM = 'z-ai/glm-5.2'
+
+	# NVIDIA CONFIG
+	NVIDIA_KEY = os.getenv('NVIDIA_KEY')
+	NVIDIA_BASE_URL = os.getenv('NVIDIA_BASE_URL', 'https://integrate.api.nvidia.com/v1')
 
 	# EMBEDDING MODEL (centralized)
-	EMBEDDING_MODEL = "keepitreal/vietnamese-sbert"
+	EMBEDDING_MODEL = "BAAI/bge-m3" # or keepitreal/vietnamese-sbert
 
 	# EVAL CONFIG
 	EVAL_DATA_DIR = BASE_DIR / 'data' / 'eval'

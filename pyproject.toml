@@ -18,7 +18,9 @@ dependencies = [
     "torch",
     "torchvision",
     "underthesea>=6.8.0",
-    "pyrefly"
+    "pyrefly",
+    "graphrag>=2.7.2",
+    "langchain-openai",
 ]
 
 [tool.uv.sources]

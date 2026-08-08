@@ -180,5 +180,5 @@ project/
 - SELF-RAG: https://arxiv.org/pdf/2310.11511
 - Late chunking: https://arxiv.org/pdf/2409.04701
 - Corrective RAG: https://arxiv.org/pdf/2401.15884 - Use ViLegalQwen2.5-1.5B-Base 
-
+- ollama pull bge-m3
 

@@ -56,7 +56,7 @@ def embedding():
 		api_key=settings.QDRANT_API_KEY
 	)
 
-	collection_name = 'landlaw_new'
+	collection_name = 'landlaw'
 
 	db_manager.setup_collection(collection_name)
 

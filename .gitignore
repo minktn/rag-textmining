@@ -219,3 +219,8 @@ __marimo__/
 
 # Data files
 data/
+
+cache/
+input/
+output/
+prompts/

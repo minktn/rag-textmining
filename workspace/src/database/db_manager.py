@@ -34,7 +34,10 @@ class DBManager:
 
 		self._initialized = True
 
-	def setup_collection(self, collection_name, vector_size=768, distance_metric=Distance.COSINE):
+	def setup_collection(self, collection_name, vector_size=768, distance_metric=Distance.COSINE, recreate=False):
+		if recreate and self.client.collection_exists(collection_name):
+			self.client.delete_collection(collection_name)
+
 		if not self.client.collection_exists(collection_name):
 			self.client.create_collection(
 				collection_name=collection_name,

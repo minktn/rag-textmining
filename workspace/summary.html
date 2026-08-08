@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Ingestion Refactoring Summary</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        .section {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        code {
+            background-color: #eee;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, monospace;
+        }
+        pre {
+            background-color: #eee;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .highlight {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🚀 Refactoring Summary</h1>
+    
+    <div class="section">
+        <h2>1. What Was Accomplished</h2>
+        <ul>
+            <li><strong>Created <code>VectorStore</code> Class:</strong> Refactored the procedural ingestion code into a production-grade <code>VectorStore</code> object located in <code>src/database/vector_store.py</code>.</li>
+            <li><strong>Added Observability:</strong> Integrated Python's <code>logging</code> module to write details to <code>upload_data.log</code> in the database folder, and wrapped the embedding/upsert loop with a <code>tqdm</code> progress bar for visual tracking.</li>
+            <li><strong>Codebase Cleanup:</strong> Removed the redundant <code>src/database/ingest.py</code> file and successfully exposed <code>VectorStore</code> in the <code>src/database/__init__.py</code> file.</li>
+            <li><strong>Refactored Entrypoint:</strong> Transformed <code>scripts/ingest.py</code> to act solely as a clean runner script that initializes dependencies and triggers the pipeline.</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>2. How to Run the Process</h2>
+        <p>To execute the newly refactored data ingestion pipeline, open your terminal at the root of the workspace (<code>workspace/</code>) and run:</p>
+        <pre><code>python src/database/ingest.py</code></pre>
+        <p><strong>What to expect when running:</strong></p>
+        <ul>
+            <li>You will see console output indicating that components are initializing.</li>
+            <li>A <code>tqdm</code> progress bar will appear, showing you the real-time progress of constructing and upserting points.</li>
+            <li>Behind the scenes, detailed logs will be appended to <code>src/database/upload_data.log</code> for auditing.</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>3. Can We Use Late Chunking?</h2>
+        <p><strong>The short answer: Yes, but it requires specific architectural changes.</strong></p>
+        <p>Currently, you have an empty <code>late_chunker.py</code> file, meaning the infrastructure is planned but not implemented. Your dense embedder is <code>keepitreal/vietnamese-sbert</code>. Here is how late chunking applies:</p>
+        <ul>
+            <li><span class="highlight">Current Limitation:</span> Standard SBERT models have a maximum token context (usually 512 tokens). True "Late Chunking" involves feeding an entire long document into the embedder and then pooling the chunk boundaries <i>after</i> the model processes it. SBERT cannot fit an entire long document in one forward pass without truncation.</li>
+            <li><span class="highlight">How to implement it:</span> To utilize late chunking, you would need to switch to a long-context embedding model (like Jina embeddings that support late chunking up to 8192 tokens). You would pass the whole document to the model, get token-level embeddings, and then average (mean pool) the tokens belonging to each specific chunk boundary.</li>
+            <li><span class="highlight">Alternative Approach (Contextual Chunking):</span> If you wish to stay with SBERT, instead of true late chunking, you can use <strong>Contextual Chunking</strong>. This involves using an LLM to generate a brief summary of the entire document, and appending that summary to the beginning of <i>every</i> small chunk before embedding it with SBERT.</li>
+        </ul>
+    </div>
+
+</body>
+</html>
