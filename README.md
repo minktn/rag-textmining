@@ -171,14 +171,13 @@ project/
 `-- README.md
 ```
 ## USED PAPER:
-- Hypothetical Document Embedding: https://arxiv.org/pdf/2212.10496
-- RAG-fusion: https://arxiv.org/pdf/2402.03367
+- Hypothetical Document Embedding: https://arxiv.org/pdf/2212.10496 (**Done**)
+- RAG-fusion: https://arxiv.org/pdf/2402.03367 (**Done**)
 - Filter-reranker: https://arxiv.org/pdf/2303.08559
 - Token_elimination: https://arxiv.org/pdf/2310.13682
 - CoG: https://arxiv.org/pdf/2307.06962
 - Active RAG: https://arxiv.org/pdf/2305.06983
 - SELF-RAG: https://arxiv.org/pdf/2310.11511
-- Late chunking: https://arxiv.org/pdf/2409.04701
-- Corrective RAG: https://arxiv.org/pdf/2401.15884 - Use ViLegalQwen2.5-1.5B-Base 
-- ollama pull bge-m3
+- Late chunking: https://arxiv.org/pdf/2409.04701 (**Done**)
+- Corrective RAG: https://arxiv.org/pdf/2401.15884 - Use ViLegalQwen2.5-1.5B-Base
 
