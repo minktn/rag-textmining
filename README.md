@@ -179,5 +179,5 @@ project/
 - Active RAG: https://arxiv.org/pdf/2305.06983
 - SELF-RAG: https://arxiv.org/pdf/2310.11511
 - Late chunking: https://arxiv.org/pdf/2409.04701 (**Done**)
-- Corrective RAG: https://arxiv.org/pdf/2401.15884 - Use ViLegalQwen2.5-1.5B-Base
+- Corrective RAG: https://arxiv.org/pdf/2401.15884 (**Finetuning on progress**)
 
