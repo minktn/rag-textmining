@@ -21,6 +21,12 @@ dependencies = [
     "pyrefly",
     "graphrag>=2.7.2",
     "langchain-openai",
+    "huggingface-hub>=1.26.0",
+    "uvicorn>=0.52.4",
+    "langchain-google-genai>=4.3.5",
+    "neo4j>=6.2.0",
+    "llmlingua>=0.2.2",
+    "mcp>=2.1.1",
 ]
 
 [tool.uv.sources]

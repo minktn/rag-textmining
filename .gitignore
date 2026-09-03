@@ -220,7 +220,13 @@ __marimo__/
 # Data files
 data/
 
-cache/
+**/cache/
 input/
 output/
 prompts/
+db/results
+
+.agents/
+
+**/node_modules/
+**/bamibert_vilegalnli/
