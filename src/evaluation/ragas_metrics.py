@@ -48,7 +48,12 @@ class RagasJudge:
         base_url: Optional[str] = None,
         embedding_model: Optional[str] = None,
         rate_limit_rps: float = 0.5,
+        batch_size: Optional[int] = None,
+        max_workers: Optional[int] = None,
     ):
+        self.batch_size = batch_size or getattr(settings, "EVAL_BATCH_SIZE", 10)
+        self.max_workers = max_workers or getattr(settings, "RAGAS_MAX_WORKERS", 4)
+
         # Mặc định lấy dịch vụ từ settings.RAGAS_SERVICE hoặc settings.LLM_SERVICE
         self.service = (
             service
@@ -152,61 +157,43 @@ class RagasJudge:
         else:
             raise ValueError(f"Dịch vụ LLM '{self.service}' không được hỗ trợ.")
 
-    def evaluate(
+    def _evaluate_single_batch(
         self,
-        results: List[Dict[str, Any]],
-        metrics_list: Optional[List[str]] = None,
-    ) -> Dict[str, float]:
-        """
-        Tính toán RAGAS metrics cho tập kết quả sử dụng dịch vụ LLM đã cấu hình.
-
-        Parameters
-        ----------
-        results : List[Dict[str, Any]]
-            Danh sách kết quả evaluation, mỗi item chứa:
-            question, generated_answer, retrieved_contexts, ground_truth.
-        metrics_list : Optional[List[str]]
-            Danh sách metric muốn chạy (mặc định: cả 4 metrics).
-        """
-        if not results:
+        batch_results: List[Dict[str, Any]],
+        batch_idx: int = 1,
+        total_batches: int = 1,
+        workers: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Đánh giá 1 batch kết quả qua RAGAS framework."""
+        if not batch_results:
             return {}
 
-        if not self.api_key:
-            logger.warning(f"[RAGAS] Không tìm thấy API Key cho dịch vụ '{self.service}'. Bỏ qua RAGAS.")
-            print(f"\n[RAGAS Warning] Chưa cấu hình API Key cho dịch vụ RAGAS '{self.service}' trong .env!")
-            return {}
-
+        from datasets import Dataset
         try:
-            from datasets import Dataset
-            try:
-                from langchain_huggingface import HuggingFaceEmbeddings
-            except ImportError:
-                from langchain_community.embeddings import HuggingFaceEmbeddings
-            from langchain_core.rate_limiters import InMemoryRateLimiter
-            from ragas import evaluate as ragas_evaluate
-            from ragas.llms import LangchainLLMWrapper
-            from ragas.metrics import AnswerRelevancy, context_precision, context_recall, faithfulness
-            from ragas.run_config import RunConfig
-        except ImportError as e:
-            logger.warning(f"[RAGAS] Thiếu thư viện phụ thuộc: {e}")
-            print(f"\n[RAGAS Warning] Thư viện RAGAS chưa sẵn sàng: {e}")
-            return {}
+            from langchain_huggingface import HuggingFaceEmbeddings
+        except ImportError:
+            from langchain_community.embeddings import HuggingFaceEmbeddings
+        from langchain_core.rate_limiters import InMemoryRateLimiter
+        from ragas import evaluate as ragas_evaluate
+        from ragas.llms import LangchainLLMWrapper
+        from ragas.metrics import AnswerRelevancy, context_precision, context_recall, faithfulness
+        from ragas.run_config import RunConfig
 
-        print(
-            f"\n[RAGAS] Đang đánh giá {len(results)} câu hỏi với LLM Judge: "
-            f"service='{self.service}', model='{self.model_name}'..."
+        num_workers = workers or self.max_workers
+
+        safe_print(
+            f"  [RAGAS Batch {batch_idx}/{total_batches}] Đang gửi request LLM Judge "
+            f"cho {len(batch_results)} câu hỏi (workers={num_workers}, service='{self.service}')..."
         )
 
-        # 1. Chuẩn bị dataset cho RAGAS
         ragas_data = {
-            "question": [r.get("question", "") for r in results],
-            "answer": [r.get("generated_answer", "") for r in results],
-            "contexts": [r.get("retrieved_contexts", []) for r in results],
-            "ground_truth": [r.get("ground_truth", "") for r in results],
+            "question": [r.get("question", "") for r in batch_results],
+            "answer": [r.get("generated_answer", "") for r in batch_results],
+            "contexts": [r.get("retrieved_contexts", []) for r in batch_results],
+            "ground_truth": [r.get("ground_truth", "") for r in batch_results],
         }
         dataset = Dataset.from_dict(ragas_data)
 
-        # 2. Khởi tạo LLM Judge & Embeddings
         rate_limiter = InMemoryRateLimiter(requests_per_second=self.rate_limit_rps)
         langchain_llm = self._build_langchain_llm(rate_limiter)
         ragas_llm_wrapper = LangchainLLMWrapper(langchain_llm)
@@ -216,7 +203,6 @@ class RagasJudge:
             model_kwargs={"device": settings.DEVICE},
         )
 
-        # 3. Chọn metrics
         selected_metrics = [
             faithfulness,
             AnswerRelevancy(strictness=1),
@@ -225,13 +211,12 @@ class RagasJudge:
         ]
 
         run_config = RunConfig(
-            max_workers=2,
+            max_workers=num_workers,
             timeout=180,
             max_retries=10,
             max_wait=60,
         )
 
-        # 4. Thực thi RAGAS
         try:
             ragas_result = ragas_evaluate(
                 dataset=dataset,
@@ -240,30 +225,104 @@ class RagasJudge:
                 embeddings=embeddings,
                 run_config=run_config,
             )
-        except Exception as e:
-            logger.error(f"[RAGAS] Lỗi khi chạy ragas_evaluate: {e}")
-            print(f"\n[RAGAS Error] Đánh giá thất bại: {e}")
-            return {}
 
-        # 5. Tổng hợp điểm số
-        ragas_scores: Dict[str, float] = {}
-        scores_dict = getattr(ragas_result, "_repr_dict", {})
-        metric_names = ["faithfulness", "answer_relevancy", "context_precision", "context_recall"]
-        for m in metric_names:
-            val = scores_dict.get(m)
-            if val is not None:
-                ragas_scores[m] = round(float(val), 4)
-
-        # Gán kết quả chi tiết từng câu hỏi vào results
-        try:
+            metric_names = ["faithfulness", "answer_relevancy", "context_precision", "context_recall"]
             df = ragas_result.to_pandas()
-            for idx, r in enumerate(results):
+            for idx, r in enumerate(batch_results):
                 for m in metric_names:
                     if m in df.columns and idx < len(df):
                         val = df.iloc[idx][m]
-                        r[f"ragas_{m}"] = round(float(val), 4) if val is not None else None
-        except Exception as ex:
-            logger.warning(f"[RAGAS] Không thể trích xuất per-question scores: {ex}")
+                        try:
+                            f_val = float(val)
+                            import math
+                            r[f"ragas_{m}"] = round(f_val, 4) if not math.isnan(f_val) else None
+                        except (ValueError, TypeError):
+                            r[f"ragas_{m}"] = None
+
+            safe_print(f"  ✓ [RAGAS Batch {batch_idx}/{total_batches}] Hoàn tất đánh giá.")
+            return getattr(ragas_result, "_repr_dict", {})
+        except Exception as e:
+            logger.error(f"[RAGAS] Lỗi tại Batch {batch_idx}/{total_batches}: {e}")
+            safe_print(f"  ✗ [RAGAS Error Batch {batch_idx}/{total_batches}]: {e}")
+            return {}
+
+    def evaluate(
+        self,
+        results: List[Dict[str, Any]],
+        metrics_list: Optional[List[str]] = None,
+        batch_size: Optional[int] = None,
+        max_workers: Optional[int] = None,
+    ) -> Dict[str, float]:
+        """
+        Tính toán RAGAS metrics cho tập kết quả theo từng batch có multithreading/asyncio.
+
+        Parameters
+        ----------
+        results : List[Dict[str, Any]]
+            Danh sách kết quả evaluation, mỗi item chứa:
+            question, generated_answer, retrieved_contexts, ground_truth.
+        metrics_list : Optional[List[str]]
+            Danh sách metric muốn chạy (mặc định: cả 4 metrics).
+        batch_size : Optional[int]
+            Kích thước batch (mặc định lấy từ settings.EVAL_BATCH_SIZE).
+        max_workers : Optional[int]
+            Số luồng đồng thời (mặc định lấy từ settings.RAGAS_MAX_WORKERS).
+        """
+        if not results:
+            return {}
+
+        if not self.api_key:
+            logger.warning(f"[RAGAS] Không tìm thấy API Key cho dịch vụ '{self.service}'. Bỏ qua RAGAS.")
+            safe_print(f"\n[RAGAS Warning] Chưa cấu hình API Key cho dịch vụ RAGAS '{self.service}' trong .env!")
+            return {}
+
+        bs = batch_size or self.batch_size
+        workers = max_workers or self.max_workers
+
+        # Chia results thành các batch
+        batches = [results[i : i + bs] for i in range(0, len(results), bs)]
+        total_batches = len(batches)
+
+        safe_print(
+            f"\n[RAGAS] Đang đánh giá {len(results)} câu hỏi chia làm {total_batches} batch "
+            f"(batch_size={bs}, workers={workers}, LLM Judge='{self.service}', model='{self.model_name}')..."
+        )
+
+        # Sử dụng ThreadPoolExecutor để khởi tạo đồng thời nhiều luồng request tới RAGAS
+        import concurrent.futures
+
+        if total_batches > 1 and workers > 1:
+            batch_workers = min(workers, total_batches)
+            safe_print(f"  [RAGAS Multithreading] Kích hoạt {batch_workers} worker threads xử lý đồng thời các batch...")
+            with concurrent.futures.ThreadPoolExecutor(max_workers=batch_workers) as executor:
+                futures = {
+                    executor.submit(
+                        self._evaluate_single_batch,
+                        batch,
+                        idx,
+                        total_batches,
+                        max(1, workers // batch_workers),
+                    ): idx
+                    for idx, batch in enumerate(batches, 1)
+                }
+                for f in concurrent.futures.as_completed(futures):
+                    b_num = futures[f]
+                    try:
+                        f.result()
+                    except Exception as e:
+                        logger.error(f"[RAGAS Multithread Error] Batch {b_num} thất bại: {e}")
+        else:
+            for idx, batch in enumerate(batches, 1):
+                self._evaluate_single_batch(batch, idx, total_batches, workers)
+
+        # Tổng hợp điểm số trung bình vĩ mô (macro-average) chính xác trên toàn bộ câu hỏi
+        ragas_scores: Dict[str, float] = {}
+        metric_names = ["faithfulness", "answer_relevancy", "context_precision", "context_recall"]
+        for m in metric_names:
+            key = f"ragas_{m}"
+            vals = [r[key] for r in results if r.get(key) is not None]
+            if vals:
+                ragas_scores[m] = round(sum(vals) / len(vals), 4)
 
         return ragas_scores
 
@@ -272,7 +331,14 @@ def compute_ragas_metrics(
     results: List[Dict[str, Any]],
     service: Optional[str] = None,
     model_name: Optional[str] = None,
+    batch_size: Optional[int] = None,
+    max_workers: Optional[int] = None,
 ) -> Dict[str, float]:
     """Hàm helper tương thích ngược."""
-    judge = RagasJudge(service=service, model_name=model_name)
-    return judge.evaluate(results)
+    judge = RagasJudge(
+        service=service,
+        model_name=model_name,
+        batch_size=batch_size,
+        max_workers=max_workers,
+    )
+    return judge.evaluate(results, batch_size=batch_size, max_workers=max_workers)

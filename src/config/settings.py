@@ -102,6 +102,9 @@ class Config:
 	EVAL_DATA_DIR = DB_DIR / 'eval'
 	EVAL_RESULTS_DIR = DB_DIR / 'results'
 	RAGAS_SERVICE = "nvidia" # Or "google"/"groq"
+	EVAL_BATCH_SIZE = 10
+	EVAL_MAX_WORKERS = 4
+	RAGAS_MAX_WORKERS = 4
 
 	ADAPTABLE_POSTPROCESS = ["prompt_compression"]
 	ADAPTABLE_PREPROCESS = []

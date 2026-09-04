@@ -59,7 +59,14 @@ class RAGEvaluator:
         root_dir: Optional[Path] = None,
         embedder: Optional[Any] = None,
         db_manager: Optional[Any] = None,
+        # Batch & Concurrency params
+        batch_size: Optional[int] = None,
+        max_workers: Optional[int] = None,
     ):
+        # Batch & Concurrency
+        self.batch_size = batch_size or getattr(settings, "EVAL_BATCH_SIZE", 10)
+        self.max_workers = max_workers or getattr(settings, "EVAL_MAX_WORKERS", 4)
+
         # 1. Xác định chế độ Retriever
         if use_graph is not None:
             self.use_graph = use_graph
@@ -85,7 +92,11 @@ class RAGEvaluator:
         self.sub_llm_manager = sub_llm_manager or SubLLMManager(service=sub_llm_service, mode=sub_llm_mode)
         self.model_name = model_name or self.llm_manager.get_default_model(self.llm_manager.service)
 
-        self.ragas_judge = ragas_judge or RagasJudge(service=ragas_service)
+        self.ragas_judge = ragas_judge or RagasJudge(
+            service=ragas_service,
+            batch_size=self.batch_size,
+            max_workers=self.max_workers,
+        )
         self.reporter = reporter or EvaluationReporter()
 
         from src.common.legal_metadata import LegalMetadataProcessor
@@ -153,6 +164,8 @@ class RAGEvaluator:
                 "embedding_model": settings.EMBEDDING_MODEL,
                 "collection_name": self.collection_name,
                 "top_k": self.top_k,
+                "batch_size": self.batch_size,
+                "max_workers": self.max_workers,
                 "ragas_service": self.ragas_judge.service if self.ragas_judge else None,
                 "ragas_model": self.ragas_judge.model_name if self.ragas_judge else None,
             },
@@ -315,21 +328,76 @@ class RAGEvaluator:
     # Batch / All Evaluation
     # ─────────────────────────────────────────────────────────────
 
-    def evaluate_all(self, questions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Đánh giá toàn bộ danh sách câu hỏi với tiến trình hiển thị an toàn."""
-        results = []
+    def evaluate_batch(
+        self,
+        batch_items: List[Dict[str, Any]],
+        batch_idx: int = 1,
+        total_batches: int = 1,
+    ) -> List[Dict[str, Any]]:
+        """Đánh giá 1 batch câu hỏi với multithreading để tăng tốc các request LLM/Retriever."""
+        if not batch_items:
+            return []
+
+        import concurrent.futures
+
+        workers = min(self.max_workers, len(batch_items))
+        if workers > 1:
+            results = [None] * len(batch_items)
+            with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
+                # Đảm bảo thứ tự câu hỏi không bị xáo trộn
+                future_to_idx = {
+                    executor.submit(self.evaluate_single, item): i
+                    for i, item in enumerate(batch_items)
+                }
+                completed = 0
+                for future in concurrent.futures.as_completed(future_to_idx):
+                    i = future_to_idx[future]
+                    results[i] = future.result()
+                    completed += 1
+                    safe_print(
+                        f"\r  [Batch {batch_idx}/{total_batches}] Hoàn thành: {completed}/{len(batch_items)} câu...",
+                        end="",
+                        flush=True,
+                    )
+            safe_print()
+            return results
+        else:
+            results = []
+            for idx, item in enumerate(batch_items, 1):
+                qid = item.get("id", f"Q{idx}")
+                q_preview = item.get("question", "")[:50]
+                safe_print(
+                    f"\r  [Batch {batch_idx}/{total_batches}] [{idx}/{len(batch_items)}] {qid}: {q_preview}...",
+                    end="",
+                    flush=True,
+                )
+                results.append(self.evaluate_single(item))
+            safe_print()
+            return results
+
+    def evaluate_all(
+        self,
+        questions: List[Dict[str, Any]],
+        batch_size: Optional[int] = None,
+    ) -> List[Dict[str, Any]]:
+        """Đánh giá toàn bộ danh sách câu hỏi theo từng batch có multithreading."""
+        bs = batch_size or self.batch_size
         total = len(questions)
+        batches = [questions[i : i + bs] for i in range(0, total, bs)]
+        total_batches = len(batches)
 
-        for idx, item in enumerate(questions, 1):
-            qid = item.get("id", f"Q{idx}")
-            q_preview = item.get("question", "")[:60]
-            safe_print(f"\r  [{idx}/{total}] {qid}: {q_preview}...", end="", flush=True)
+        safe_print(f"  Tổng số: {total} câu hỏi | Chia thành: {total_batches} batch (batch_size={bs}, workers={self.max_workers})")
 
-            result = self.evaluate_single(item)
-            results.append(result)
+        all_results = []
+        for b_idx, batch in enumerate(batches, 1):
+            start_num = (b_idx - 1) * bs + 1
+            end_num = min(b_idx * bs, total)
+            safe_print(f"\n--- [Batch {b_idx}/{total_batches}] Đang xử lý câu hỏi {start_num} -> {end_num}/{total} ({len(batch)} câu) ---")
+            batch_results = self.evaluate_batch(batch, batch_idx=b_idx, total_batches=total_batches)
+            all_results.extend(batch_results)
+            safe_print(f"  ✓ Đã hoàn tất Batch {b_idx}/{total_batches}.")
 
-        safe_print()
-        return results
+        return all_results
 
     # ─────────────────────────────────────────────────────────────
     # Full Workflow Orchestration & Standardized JSON Output
@@ -343,11 +411,18 @@ class RAGEvaluator:
         seed: int = 42,
         skip_ragas: bool = False,
         save: bool = True,
+        batch_size: Optional[int] = None,
+        max_workers: Optional[int] = None,
     ) -> Dict[str, Any]:
         """
         Chạy toàn bộ quy trình đánh giá hoàn chỉnh và trả về cấu trúc JSON chuẩn hóa
         đồng bộ 100% với lựa chọn trên UI.
         """
+        if batch_size is not None:
+            self.batch_size = batch_size
+        if max_workers is not None:
+            self.max_workers = max_workers
+
         # 1. Load data
         loader = EvalDataLoader()
         dataset_meta, questions = loader.load(
@@ -361,8 +436,8 @@ class RAGEvaluator:
             safe_print("Không có câu hỏi nào để đánh giá!")
             return {}
 
-        safe_print(f"\n[Phase 1] Đang chạy RAG pipeline ({self.retriever_mode}) cho {len(questions)} câu hỏi...")
-        results = self.evaluate_all(questions)
+        safe_print(f"\n[Phase 1] Đang chạy RAG pipeline ({self.retriever_mode}) cho {len(questions)} câu hỏi theo batch...")
+        results = self.evaluate_all(questions, batch_size=self.batch_size)
 
         safe_print("\n[Phase 2] Tính toán các chỉ số cơ bản (Basic Metrics)...")
         basic_metrics = MetricsCalculator.aggregate(
@@ -374,7 +449,11 @@ class RAGEvaluator:
         ragas_scores = {}
         if not skip_ragas:
             safe_print("\n[Phase 3] Tính toán RAGAS Metrics (LLM-as-a-judge)...")
-            ragas_scores = self.ragas_judge.evaluate(results)
+            ragas_scores = self.ragas_judge.evaluate(
+                results,
+                batch_size=self.batch_size,
+                max_workers=self.max_workers,
+            )
         else:
             safe_print("\n[Phase 3] Bỏ qua RAGAS Metrics (--skip-ragas).")
 

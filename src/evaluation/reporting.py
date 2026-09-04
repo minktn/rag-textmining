@@ -184,13 +184,18 @@ class EvaluationReporter:
         unified_output: Dict[str, Any],
         output_dir: Optional[Path] = None,
     ) -> Tuple[Path, Path]:
-        """Lưu báo cáo chuẩn hóa đồng bộ phục vụ giao diện UI."""
+        """Lưu báo cáo chuẩn hóa đồng bộ phục vụ giao diện UI và lưu trữ dài hạn theo template eval_report_YYYYMMDD_HHMMSS.json."""
         target_dir = Path(output_dir or self.output_dir)
         target_dir.mkdir(parents=True, exist_ok=True)
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        detail_path = target_dir / f"eval_report_{timestamp}.json"
+        report_filename = f"eval_report_{timestamp}.json"
+        detail_path = target_dir / report_filename
         latest_path = target_dir / "eval_latest.json"
+
+        if "metadata" in unified_output:
+            unified_output["metadata"]["report_filename"] = report_filename
+            unified_output["metadata"]["saved_at"] = datetime.now().isoformat()
 
         with open(detail_path, "w", encoding="utf-8") as f:
             json.dump(unified_output, f, ensure_ascii=False, indent=4)
@@ -198,8 +203,8 @@ class EvaluationReporter:
         with open(latest_path, "w", encoding="utf-8") as f:
             json.dump(unified_output, f, ensure_ascii=False, indent=4)
 
-        print(f"Báo cáo đồng bộ UI đã lưu tại: {detail_path}")
-        print(f"Đã cập nhật bản mới nhất cho UI tại: {latest_path}")
+        print(f"Báo cáo chi tiết đã lưu tại:  {detail_path}")
+        print(f"Bản đồng bộ mới nhất đã lưu: {latest_path}")
         return detail_path, latest_path
 
 
@@ -209,6 +214,20 @@ def print_summary_table(basic_metrics: dict, ragas_scores: dict, model_name: str
     reporter.print_summary_table(basic_metrics, ragas_scores, model_name)
 
 
-def save_results(results, basic_metrics, ragas_scores, eval_metadata, model_name, top_k, output_dir):
+def save_results(results, basic_metrics, ragas_scores, eval_metadata, model_name, top_k, output_dir=None):
     reporter = EvaluationReporter(output_dir)
-    return reporter.save_results(results, basic_metrics, ragas_scores, eval_metadata, model_name, top_k, output_dir)
+    clean_results = [{k: v for k, v in r.items() if k != "retrieved_payloads"} for r in results]
+    unified = {
+        "metadata": {
+            "timestamp": datetime.now().isoformat(),
+            "model": model_name,
+            "top_k": top_k,
+            "eval_source": eval_metadata,
+        },
+        "summary_metrics": {
+            "retrieval": basic_metrics,
+            "ragas": ragas_scores,
+        },
+        "detailed_results": clean_results,
+    }
+    return reporter.save_unified_report(unified, output_dir=output_dir)

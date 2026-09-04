@@ -109,6 +109,7 @@ class EvalRunRequest(BaseModel):
     ragas_service: Optional[str] = None
     skip_ragas: bool = True
     top_k: int = 5
+    batch_size: Optional[int] = None
 
 
 # ── Health Check ─────────────────────────────────────────────
@@ -312,6 +313,7 @@ def run_evaluation(req: EvalRunRequest):
             postprocessing=req.postprocessing,
             ragas_service=req.ragas_service or getattr(settings, "RAGAS_SERVICE", "nvidia"),
             top_k=req.top_k,
+            batch_size=req.batch_size,
         )
 
         results = evaluator.run(
@@ -321,6 +323,7 @@ def run_evaluation(req: EvalRunRequest):
             seed=req.random_seed,
             skip_ragas=req.skip_ragas,
             save=True,
+            batch_size=req.batch_size,
         )
 
         # Đọc báo cáo mới nhất từ db/results/eval_latest.json

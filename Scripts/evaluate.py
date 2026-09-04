@@ -141,6 +141,14 @@ def parse_args():
 		"--graph-method", type=str, default="local", choices=["local", "global", "drift", "basic"],
 		help="Phương thức truy vấn GraphRAG (mặc định: local)"
 	)
+	parser.add_argument(
+		"--batch-size", type=int, default=getattr(settings, "EVAL_BATCH_SIZE", 10),
+		help="Kích thước batch xử lý câu hỏi (mặc định lấy từ settings.EVAL_BATCH_SIZE)"
+	)
+	parser.add_argument(
+		"--max-workers", type=int, default=getattr(settings, "EVAL_MAX_WORKERS", 4),
+		help="Số luồng đồng thời xử lý request (mặc định lấy từ settings.EVAL_MAX_WORKERS)"
+	)
 	return parser.parse_args()
 
 
@@ -167,6 +175,8 @@ def main():
 		collection_name=args.collection,
 		top_k=args.top_k,
 		graph_method=args.graph_method,
+		batch_size=args.batch_size,
+		max_workers=args.max_workers,
 	)
 
 	meta = evaluator.get_pipeline_metadata()
@@ -183,6 +193,8 @@ def main():
 	print(f"  Sub-LLM:     {config_info['sub_llm_service']} ({config_info['sub_llm_model']})")
 	print(f"  RAGAS Judge: {config_info['ragas_service']} ({config_info['ragas_model']})")
 	print(f"  Top-K:       {config_info['top_k']}")
+	print(f"  Batch Size:  {config_info.get('batch_size')}")
+	print(f"  Workers:     {config_info.get('max_workers')}")
 	print(f"  Collection:  {config_info['collection_name']}")
 	print(f"  Embedding:   {config_info['embedding_model']}")
 	print(f"  RAGAS:       {'Skipped' if args.skip_ragas else 'Enabled'}")
@@ -199,6 +211,8 @@ def main():
 		seed=args.seed,
 		skip_ragas=args.skip_ragas,
 		save=True,
+		batch_size=args.batch_size,
+		max_workers=args.max_workers,
 	)
 
 	print("\nEvaluation completed!")

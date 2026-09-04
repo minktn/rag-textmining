@@ -31,6 +31,27 @@ Pipeline tìm kiếm, truy xuất tri thức và trả lời câu hỏi pháp l�
 
 ---
 
+## ⚙️ Cấu hình hệ thống (`src/config/settings.py`)
+
+Các tham số chính được chỉnh sửa trực tiếp trong file [`src/config/settings.py`](src/config/settings.py):
+
+* **Mô hình LLM & Chế độ suy luận**:
+  * `LLM_SERVICE` / `SUB_LLM_SERVICE`: Dịch vụ LLM (`"nvidia"`, `"groq"`, `"google"`, `"local"`).
+  * `LLM_MODE` / `SUB_LLM_MODE`: Chế độ sinh lời giải (`"reason"` hoặc `"base"`).
+* **Mô hình Embedding**:
+  * `EMBEDDING_MODEL = "BAAI/bge-m3"` (1024 chiều, dùng cho Vector DB và Graph DB).
+  * `CONTRIEVER_MODEL = "facebook/mcontriever-msmarco"` (768 chiều).
+* **Đánh giá Benchmark (Evaluation & RAGAS)**:
+  * `RAGAS_SERVICE`: LLM Judge cho RAGAS (`"nvidia"`, `"groq"`, `"google"`).
+  * `EVAL_BATCH_SIZE`: Kích thước batch chia câu hỏi (mặc định: `10`).
+  * `EVAL_MAX_WORKERS`: Số luồng đa nhiệm chạy RAG pipeline (mặc định: `4`).
+  * `RAGAS_MAX_WORKERS`: Số luồng gửi song song tới RAGAS LLM Judge (mặc định: `4`).
+* **Tiền / Hậu xử lý mặc định**:
+  * `ADAPTABLE_PREPROCESS`: Danh sách tiền xử lý có thể xài chung với các pp khác.
+  * `ADAPTABLE_POSTPROCESS`: Danh sách hậu xử lý có thể xài chung với các pp khác (ví dụ: `["prompt_compression"]`).
+
+---
+
 ## 🚀 Thứ tự chạy các lệnh (Execution Order)
 
 ### Bước 1: Cài đặt thư viện phụ thuộc (Dependencies)
@@ -135,8 +156,15 @@ Chạy script đánh giá benchmark trên tập câu hỏi Luật Đất đai 20
 
 * **Đánh giá với RAG-Fusion**:
   ```bash
-  uv run python Scripts/evaluate.py --rag-fusion --limit 5
+  uv run python Scripts/evaluate.py --advanced rag_fusion --limit 5
   ```
+
+* **Tùy chỉnh kích thước Batch và số Luồng xử lý**:
+  ```bash
+  uv run python Scripts/evaluate.py --batch-size 10 --max-workers 4
+  ```
+
+> *Kết quả đánh giá được tự động lưu vào `db/results/eval_report_YYYYMMDD_HHMMSS.json` và đồng bộ tới `eval_latest.json`.*
 
 ---
 
