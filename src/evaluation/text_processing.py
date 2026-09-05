@@ -6,6 +6,7 @@ Chuẩn hóa text và tokenize tiếng Việt sử dụng Underthesea.
 """
 
 import re
+from typing import Any, List
 
 # ── Vietnamese tokenizer ──────────────────────────────────────────────
 # Underthesea cung cấp word segmentation tiếng Việt chính xác,
@@ -17,15 +18,26 @@ except ImportError:
     HAS_UNDERTHESEA = False
 
 
-def normalize_text(text: str) -> str:
+def normalize_text(text: Any) -> str:
     """Chuẩn hóa text để so sánh: lowercase, bỏ dấu câu thừa, gộp whitespace."""
+    if isinstance(text, list):
+        parts = []
+        for item in text:
+            if isinstance(item, dict) and "text" in item:
+                parts.append(str(item["text"]))
+            else:
+                parts.append(str(item))
+        text = " ".join(parts)
+    elif not isinstance(text, str):
+        text = str(text or "")
+
     text = text.lower().strip()
     text = re.sub(r'[^\w\s]', ' ', text)
     text = re.sub(r'\s+', ' ', text)
     return text.strip()
 
 
-def tokenize_vi(text: str) -> list[str]:
+def tokenize_vi(text: Any) -> list[str]:
     """Tokenize tiếng Việt sử dụng Underthesea word segmentation.
 
     Underthesea tách từ ghép tiếng Việt chính xác hơn, ví dụ:
@@ -34,6 +46,11 @@ def tokenize_vi(text: str) -> list[str]:
 
     Fallback về simple split nếu underthesea chưa được cài đặt.
     """
+    if isinstance(text, list):
+        text = " ".join(str(x) for x in text)
+    elif not isinstance(text, str):
+        text = str(text or "")
+
     text = text.strip()
     if not text:
         return []

@@ -301,6 +301,10 @@ class RAGEvaluator:
         retrieval = self.retrieve(question)
         generation = self.generate(question, retrieval["docs"])
         answer = generation["answer"]
+        if isinstance(answer, list):
+            answer = " ".join(str(x) for x in answer)
+        else:
+            answer = str(answer or "")
         contexts = retrieval["contexts"]
         payloads = retrieval["payloads"]
         retrieval_latency = retrieval["latency_ms"]

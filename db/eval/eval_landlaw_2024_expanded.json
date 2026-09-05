@@ -1,0 +1,3588 @@
+{
+    "metadata": {
+        "law_name": "Luật Đất đai 2024",
+        "law_number": "31/2024/QH15",
+        "effective_date": "2025-01-01",
+        "version": "3.1",
+        "description": "Bộ câu hỏi đánh giá mở rộng cho hệ thống RAG trên Luật Đất đai 2024. Gồm 205 câu hỏi chuẩn hóa.",
+        "total_questions": 205,
+        "question_types": {
+            "factual": "Câu hỏi truy xuất thông tin trực tiếp từ một điều khoản cụ thể",
+            "definition": "Câu hỏi về định nghĩa, giải thích từ ngữ trong luật",
+            "yes_no": "Câu hỏi đúng/sai, có/không dựa trên quy định pháp luật",
+            "listing": "Câu hỏi liệt kê các trường hợp, điều kiện, đối tượng",
+            "conditional": "Câu hỏi tình huống, điều kiện áp dụng cụ thể",
+            "multi_hop": "Câu hỏi cần tổng hợp thông tin từ nhiều điều khoản",
+            "out_of_scope": "Câu hỏi không liên quan trực tiếp đến Luật Đất đai 2024"
+        },
+        "law_id_schema": {
+            "chapter_no": "Số chương (int) — khớp payload.chapter_no",
+            "section_no": "Số mục (int|null) — khớp payload.section_no",
+            "article_no": "Số điều (int) — khớp payload.article_no",
+            "clause_nos": "Danh sách khoản cần thiết (array[int]) — khớp payload.clause_nos",
+            "ref_article_nos": "Các điều được tham chiếu chéo (array[int]) — khớp payload.ref_article_nos"
+        },
+        "created_at": "2026-07-11"
+    },
+    "data": [
+        {
+            "id": "Q001",
+            "question": "Luật Đất đai 2024 quy định về những nội dung gì?",
+            "answer": "Luật Đất đai 2024 quy định về chế độ sở hữu đất đai, quyền hạn và trách nhiệm của Nhà nước đại diện chủ sở hữu toàn dân về đất đai và thống nhất quản lý về đất đai, chế độ quản lý và sử dụng đất đai, quyền và nghĩa vụ của công dân, người sử dụng đất đối với đất đai thuộc lãnh thổ của nước Cộng hòa xã hội chủ nghĩa Việt Nam.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 1,
+                "section_no": null,
+                "article_no": 1,
+                "clause_nos": [],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q002",
+            "question": "Khái niệm Bản đồ địa chính được giải thích như thế nào trong Luật Đất đai 2024?",
+            "answer": "Bản đồ địa chính là bản đồ thể hiện các thửa đất và các đối tượng địa lý có liên quan, lập theo đơn vị hành chính cấp xã hoặc theo đơn vị hành chính cấp huyện nơi không thành lập đơn vị hành chính cấp xã, được cơ quan nhà nước có thẩm quyền xác nhận.",
+            "question_type": "definition",
+            "law_id": {
+                "chapter_no": 1,
+                "section_no": null,
+                "article_no": 3,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q003",
+            "question": "Bồi thường về đất là gì theo Luật Đất đai 2024?",
+            "answer": "Bồi thường về đất là việc Nhà nước trả lại giá trị quyền sử dụng đất của diện tích đất thu hồi cho người có đất thu hồi.",
+            "question_type": "definition",
+            "law_id": {
+                "chapter_no": 1,
+                "section_no": null,
+                "article_no": 3,
+                "clause_nos": [
+                    5
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q004",
+            "question": "Giá đất được định nghĩa như thế nào trong Luật Đất đai 2024?",
+            "answer": "Giá đất là giá trị của quyền sử dụng đất tính bằng tiền trên một đơn vị diện tích đất.",
+            "question_type": "definition",
+            "law_id": {
+                "chapter_no": 1,
+                "section_no": null,
+                "article_no": 3,
+                "clause_nos": [
+                    19
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q005",
+            "question": "Góp vốn bằng quyền sử dụng đất được định nghĩa như thế nào trong Luật Đất đai 2024?",
+            "answer": "Góp vốn bằng quyền sử dụng đất là sự thỏa thuận giữa các bên về chuyển quyền sử dụng đất thông qua việc góp quyền sử dụng đất để tạo thành vốn điều lệ của tổ chức kinh tế, bao gồm góp vốn để thành lập tổ chức kinh tế hoặc góp thêm vốn điều lệ của tổ chức kinh tế đã được thành lập.",
+            "question_type": "definition",
+            "law_id": {
+                "chapter_no": 1,
+                "section_no": null,
+                "article_no": 3,
+                "clause_nos": [
+                    22
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q006",
+            "question": "Hoạt động Lấn biển được định nghĩa như thế nào trong Luật Đất đai 2024?",
+            "answer": "Lấn biển là việc mở rộng diện tích đất trong phạm vi từ đường mép nước biển thấp nhất trung bình trong nhiều năm về phía biển thuộc vùng biển Việt Nam.",
+            "question_type": "definition",
+            "law_id": {
+                "chapter_no": 1,
+                "section_no": null,
+                "article_no": 3,
+                "clause_nos": [
+                    30
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q007",
+            "question": "Khái niệm \"Nhà nước thu hồi đất\" được giải thích như thế nào?",
+            "answer": "Nhà nước thu hồi đất là việc cơ quan nhà nước có thẩm quyền ban hành quyết định thu lại quyền sử dụng đất của người sử dụng đất hoặc thu lại đất của người đang sử dụng đất hoặc thu lại đất đang được Nhà nước giao quản lý.",
+            "question_type": "definition",
+            "law_id": {
+                "chapter_no": 1,
+                "section_no": null,
+                "article_no": 3,
+                "clause_nos": [
+                    35
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q008",
+            "question": "Khái niệm Thoái hóa đất được hiểu như thế nào theo Luật Đất đai 2024?",
+            "answer": "Thoái hóa đất là tình trạng đất bị thay đổi đặc tính, tính chất vốn có ban đầu theo chiều hướng xấu do tác động của điều kiện tự nhiên, con người.",
+            "question_type": "definition",
+            "law_id": {
+                "chapter_no": 1,
+                "section_no": null,
+                "article_no": 3,
+                "clause_nos": [
+                    40
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q009",
+            "question": "Khi nhà nước đi định giá đất, tôi hay nghe cán bộ nhắc đến cụm từ thửa đất chuẩn. Vậy thuật ngữ này trong luật được hiểu chính xác là thế nào?",
+            "answer": "Thửa đất chuẩn là thửa đất có các đặc tính về diện tích, hình thể, kích thước mang tính đại diện cho các thửa đất trong cùng một vùng giá trị. Thửa đất này được chọn làm tiêu chuẩn, làm hệ quy chiếu để định giá cho các thửa đất khác xung quanh trong vùng giá trị đó.",
+            "question_type": "definition",
+            "law_id": {
+                "chapter_no": 1,
+                "section_no": null,
+                "article_no": 3,
+                "clause_nos": [
+                    43
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q010",
+            "question": "Tranh chấp đất đai là gì?",
+            "answer": "Tranh chấp đất đai là tranh chấp về quyền, nghĩa vụ của người sử dụng đất giữa hai hoặc nhiều bên trong quan hệ đất đai.",
+            "question_type": "definition",
+            "law_id": {
+                "chapter_no": 1,
+                "section_no": null,
+                "article_no": 3,
+                "clause_nos": [
+                    47
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q011",
+            "question": "Thế nào là Đất tranh chấp theo quy định giải thích từ ngữ của Luật Đất đai 2024?",
+            "answer": "Luật Đất đai 2024 không định nghĩa trực tiếp đất tranh chấp, mà định nghĩa Tranh chấp đất đai là tranh chấp về quyền, nghĩa vụ của người sử dụng đất giữa hai hoặc nhiều bên trong quan hệ đất đai.",
+            "question_type": "definition",
+            "law_id": {
+                "chapter_no": 1,
+                "section_no": null,
+                "article_no": 3,
+                "clause_nos": [
+                    47
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q012",
+            "question": "Thế nào là Vùng phụ cận theo quy định của pháp luật đất đai?",
+            "answer": "Vùng phụ cận là vùng đất tiếp giáp với các điểm kết nối giao thông và các tuyến giao thông có tiềm năng phát triển theo quy hoạch.",
+            "question_type": "definition",
+            "law_id": {
+                "chapter_no": 1,
+                "section_no": null,
+                "article_no": 3,
+                "clause_nos": [
+                    49
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q013",
+            "question": "Những đối tượng nào là người sử dụng đất theo Luật Đất đai 2024?",
+            "answer": "Người sử dụng đất bao gồm: (1) Tổ chức trong nước gồm cơ quan nhà nước, cơ quan Đảng, đơn vị vũ trang nhân dân, Mặt trận Tổ quốc Việt Nam, tổ chức chính trị - xã hội, tổ chức kinh tế; (2) Tổ chức tôn giáo, tổ chức tôn giáo trực thuộc; (3) Cá nhân trong nước, người Việt Nam định cư ở nước ngoài là công dân Việt Nam; (4) Cộng đồng dân cư; (5) Tổ chức nước ngoài có chức năng ngoại giao; (6) Người gốc Việt Nam định cư ở nước ngoài; (7) Tổ chức kinh tế có vốn đầu tư nước ngoài.",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 1,
+                "section_no": null,
+                "article_no": 4,
+                "clause_nos": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q014",
+            "question": "Người Việt Nam định cư ở nước ngoài có quốc tịch Việt Nam là công dân Việt Nam thì có được pháp luật đất đai xếp chung nhóm và hưởng các quyền như cá nhân trong nước không?",
+            "answer": "Có. Theo khoản 3 Điều 4, cá nhân trong nước và người Việt Nam định cư ở nước ngoài có quốc tịch Việt Nam là công dân Việt Nam được gọi chung là cá nhân. Do đó, họ là người sử dụng đất có quyền và nghĩa vụ hoàn toàn giống như cá nhân sinh sống trong nước.",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 1,
+                "section_no": null,
+                "article_no": 4,
+                "clause_nos": [
+                    3
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q015",
+            "question": "Có bao nhiêu nguyên tắc sử dụng đất và đó là những nguyên tắc nào?",
+            "answer": "Có 4 nguyên tắc sử dụng đất: (1) Đúng mục đích sử dụng đất; (2) Bền vững, tiết kiệm, có hiệu quả đối với đất đai và tài nguyên; (3) Bảo vệ đất, bảo vệ môi trường, thích ứng với biến đổi khí hậu; (4) Thực hiện quyền và nghĩa vụ của người sử dụng đất trong thời hạn sử dụng đất, không xâm phạm quyền lợi hợp pháp của người sử dụng đất liền kề.",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 1,
+                "section_no": null,
+                "article_no": 5,
+                "clause_nos": [
+                    1,
+                    2,
+                    3,
+                    4
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q016",
+            "question": "Xã tôi có mấy sào đất nông nghiệp công ích, nếu có sai phạm gì để người ta lấn chiếm thì ông Chủ tịch xã có phải chịu trách nhiệm trước Nhà nước không?",
+            "answer": "Có. Theo quy định, Chủ tịch Ủy ban nhân dân cấp xã là người phải chịu trách nhiệm trực tiếp trước Nhà nước đối với việc quản lý, sử dụng quỹ đất nông nghiệp vào mục đích công ích của địa phương.",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 1,
+                "section_no": null,
+                "article_no": 6,
+                "clause_nos": [
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q017",
+            "question": "Đất đai được phân loại thành mấy nhóm? Đó là những nhóm nào?",
+            "answer": "Đất đai được phân loại thành 3 nhóm: (1) Nhóm đất nông nghiệp; (2) Nhóm đất phi nông nghiệp; (3) Nhóm đất chưa sử dụng.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 1,
+                "section_no": null,
+                "article_no": 9,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q018",
+            "question": "Nhóm đất nông nghiệp bao gồm những loại đất nào?",
+            "answer": "Nhóm đất nông nghiệp bao gồm: (a) Đất trồng cây hằng năm (gồm đất trồng lúa và đất trồng cây hằng năm khác); (b) Đất trồng cây lâu năm; (c) Đất lâm nghiệp (gồm đất rừng đặc dụng, đất rừng phòng hộ, đất rừng sản xuất); (d) Đất nuôi trồng thủy sản; (đ) Đất chăn nuôi tập trung; (e) Đất làm muối; (g) Đất nông nghiệp khác.",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 1,
+                "section_no": null,
+                "article_no": 9,
+                "clause_nos": [
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q019",
+            "question": "Việc xác định loại đất được dựa trên những loại giấy tờ chứng nhận nào?",
+            "answer": "Việc xác định loại đất dựa trên một trong các giấy tờ sau: (a) Giấy chứng nhận quyền sử dụng đất; (b) Giấy chứng nhận quyền sở hữu nhà ở và quyền sử dụng đất ở; (c) Giấy chứng nhận quyền sử dụng đất, quyền sở hữu nhà ở và tài sản khác gắn liền với đất; (d) Giấy chứng nhận quyền sử dụng đất, quyền sở hữu tài sản gắn liền với đất.",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 1,
+                "section_no": null,
+                "article_no": 10,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q020",
+            "question": "Trường hợp người sử dụng đất có hành vi hủy hoại đất thì Nhà nước xử lý như thế nào và có bị thu hồi đất ngay không?",
+            "answer": "Không bị thu hồi đất ngay lập tức. Theo quy định, người sử dụng đất hủy hoại đất phải bị xử phạt vi phạm hành chính về hành vi hủy hoại đất trước. Nếu sau khi đã bị xử phạt vi phạm hành chính mà vẫn tiếp tục vi phạm hành vi hủy hoại đất thì Nhà nước mới tiến hành thu hồi đất theo quy định tại khoản 2 Điều 81 của Luật Đất đai 2024.",
+            "question_type": "conditional",
+            "law_id": [
+                {
+                    "chapter_no": 1,
+                    "section_no": null,
+                    "article_no": 11,
+                    "clause_nos": [
+                        1
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 6,
+                    "section_no": null,
+                    "article_no": 81,
+                    "clause_nos": [
+                        2
+                    ],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q021",
+            "question": "Có được lấn đất, chiếm đất của người khác không?",
+            "answer": "Có, lấn đất, chiếm đất, hủy hoại đất là hành vi bị nghiêm cấm trong lĩnh vực đất đai, được quy định tại khoản 1 Điều 11 Luật Đất đai 2024.",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 1,
+                "section_no": null,
+                "article_no": 11,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q022",
+            "question": "Hành vi phân biệt đối xử về giới trong quản lý, sử dụng đất đai có bị pháp luật nghiêm cấm không?",
+            "answer": "Có. Phân biệt đối xử về giới trong quản lý, sử dụng đất đai là một trong những hành vi bị nghiêm cấm trong lĩnh vực đất đai.",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 1,
+                "section_no": null,
+                "article_no": 11,
+                "clause_nos": [
+                    11
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q023",
+            "question": "Đất đai thuộc sở hữu của ai theo quy định của Luật Đất đai 2024?",
+            "answer": "Đất đai thuộc sở hữu toàn dân do Nhà nước đại diện chủ sở hữu và thống nhất quản lý. Nhà nước trao quyền sử dụng đất cho người sử dụng đất theo quy định của Luật này.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 2,
+                "section_no": 1,
+                "article_no": 12,
+                "clause_nos": [],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q024",
+            "question": "Nhà nước có những quyền gì với tư cách là đại diện chủ sở hữu về đất đai?",
+            "answer": "Nhà nước có 12 quyền: (1) Quyết định quy hoạch sử dụng đất; (2) Quyết định mục đích sử dụng đất; (3) Quy định hạn mức sử dụng đất; (4) Quyết định thời hạn sử dụng đất; (5) Quyết định thu hồi đất; (6) Quyết định trưng dụng đất; (7) Quyết định giao đất không thu tiền sử dụng đất, giao đất có thu tiền sử dụng đất; (8) Quyết định cho thuê đất; (9) Công nhận quyền sử dụng đất; (10) Quy định nguyên tắc, phương pháp định giá đất; (11) Quyết định chính sách tài chính về đất đai; (12) Quy định quyền và nghĩa vụ của người sử dụng đất.",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 2,
+                "section_no": 1,
+                "article_no": 13,
+                "clause_nos": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q025",
+            "question": "Nhà nước thực hiện quyền đại diện chủ sở hữu về đất đai thông qua những cơ quan nào?",
+            "answer": "Nhà nước thực hiện quyền đại diện chủ sở hữu về đất đai thông qua: (1) Quốc hội, Ủy ban Thường vụ Quốc hội; (2) Hội đồng nhân dân các cấp; (3) Chính phủ, Ủy ban nhân dân các cấp.",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 2,
+                "section_no": 1,
+                "article_no": 14,
+                "clause_nos": [
+                    1,
+                    2,
+                    3
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q026",
+            "question": "Luật Đất đai 2024 quy định Nhà nước có những trách nhiệm gì đối với người sử dụng đất?",
+            "answer": "Trách nhiệm của Nhà nước đối với người sử dụng đất bao gồm: (1) Có chính sách tạo điều kiện đào tạo, chuyển đổi nghề cho người trực tiếp sản xuất nông nghiệp không còn đất; (2) Cấp Giấy chứng nhận quyền sử dụng đất khi đủ điều kiện; (3) Thực hiện bồi thường, hỗ trợ, tái định cư khi thu hồi đất; (4) Tuyên truyền, phổ biến, hướng dẫn, trợ giúp pháp lý; (5) Giải quyết tranh chấp, khiếu nại, tố cáo về đất đai.",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 2,
+                "section_no": 1,
+                "article_no": 15,
+                "clause_nos": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q027",
+            "question": "Nhà nước có chính sách gì về đất đai đối với đồng bào dân tộc thiểu số?",
+            "answer": "Nhà nước có các chính sách: (1) Bảo đảm đất sinh hoạt cộng đồng phù hợp với phong tục, tập quán; (2) Hỗ trợ đất đai lần đầu cho cá nhân thuộc diện hộ nghèo, hộ cận nghèo bao gồm giao đất ở, cho phép chuyển mục đích sử dụng đất sang đất ở, giao đất nông nghiệp, cho thuê đất phi nông nghiệp; (3) Hỗ trợ đất đai cho trường hợp đã được giao đất nhưng nay không còn đất hoặc thiếu đất.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 2,
+                "section_no": 1,
+                "article_no": 16,
+                "clause_nos": [
+                    1,
+                    2,
+                    3
+                ],
+                "ref_article_nos": [
+                    79
+                ]
+            }
+        },
+        {
+            "id": "Q028",
+            "question": "Cá nhân là người dân tộc thiểu số không trực tiếp sản xuất nông nghiệp nhưng thuộc diện hộ nghèo tại vùng đồng bào dân tộc thiểu số thì có được Nhà nước giao đất nông nghiệp không thu tiền sử dụng đất không?",
+            "answer": "Có. Căn cứ khoản 7 Điều 118, đồng bào dân tộc thiểu số không trực tiếp sản xuất nông nghiệp nhưng thuộc đối tượng được giao đất không thu tiền sử dụng đất theo chính sách quy định tại Điều 16 thì được Nhà nước giao đất không thu tiền sử dụng đất. Cụ thể theo khoản 2 Điều 16, cá nhân là người dân tộc thiểu số thuộc diện hộ nghèo, hộ cận nghèo tại vùng đồng bào dân tộc thiểu số và miền núi sẽ được Nhà nước giao đất nông nghiệp trong hạn mức không thu tiền sử dụng đất.",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 2,
+                    "section_no": 1,
+                    "article_no": 16,
+                    "clause_nos": [
+                        2
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 9,
+                    "section_no": null,
+                    "article_no": 118,
+                    "clause_nos": [
+                        7
+                    ],
+                    "ref_article_nos": [
+                        16
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "Q029",
+            "question": "Anh Y là người dân tộc Gia Rai thuộc diện hộ nghèo ở địa bàn Tây Nguyên, hiện gia đình anh đang thiếu đất sản xuất nông nghiệp. Căn cứ theo Luật Đất đai 2024, Nhà nước có chính sách hỗ trợ đất đai gì cụ thể cho gia đình anh Y không?",
+            "answer": "Có hỗ trợ. Gia đình anh Y thuộc diện hộ nghèo là đồng bào dân tộc thiểu số sẽ được Nhà nước thực hiện chính sách hỗ trợ đất đai lần đầu, cụ thể là giao đất nông nghiệp trong hạn mức không thu tiền sử dụng đất, hoặc cho thuê đất phi nông nghiệp để sản xuất kinh doanh và được miễn, giảm tiền thuê đất nhằm bảo đảm sinh kế ổn định.",
+            "question_type": "situational",
+            "law_id": {
+                "chapter_no": 2,
+                "section_no": 1,
+                "article_no": 16,
+                "clause_nos": [
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q030",
+            "question": "Nhà nước có thừa nhận việc đòi lại đất đã được giao theo quy định trước đây không?",
+            "answer": "Không, Nhà nước không thừa nhận việc đòi lại đất đã được giao theo quy định của Nhà nước cho người khác sử dụng trong quá trình thực hiện chính sách đất đai của Nhà nước Việt Nam dân chủ cộng hòa, Chính phủ Cách mạng lâm thời Cộng hòa miền Nam Việt Nam và Nhà nước Cộng hòa xã hội chủ nghĩa Việt Nam.",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 2,
+                "section_no": 1,
+                "article_no": 17,
+                "clause_nos": [
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q031",
+            "question": "Công dân có quyền tham gia đấu giá quyền sử dụng đất, đấu thầu lựa chọn nhà đầu tư thực hiện dự án có sử dụng đất không?",
+            "answer": "Có. Công dân có quyền tham gia đấu giá quyền sử dụng đất, đấu thầu lựa chọn nhà đầu tư thực hiện dự án có sử dụng đất theo quy định của pháp luật.",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 2,
+                "section_no": 3,
+                "article_no": 23,
+                "clause_nos": [
+                    4
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q032",
+            "question": "Người dân bình dân như chúng tôi nếu muốn tìm hiểu về đất đai của địa phương thì có quyền yêu cầu nhà nước cho xem những thông tin gì?",
+            "answer": "Công dân được quyền tiếp cận các thông tin đất đai bao gồm: Quy hoạch, kế hoạch sử dụng đất; Kết quả thống kê, kiểm kê đất đai; Việc giao đất, cho thuê đất; Bảng giá đất đã được công bố; Phương án bồi thường, hỗ trợ, tái định cư; Kết quả thanh tra, kiểm tra, giải quyết tranh chấp đất đai; Thủ tục hành chính và các văn bản pháp luật về đất đai.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 2,
+                "section_no": 3,
+                "article_no": 24,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q033",
+            "question": "Theo Luật Đất đai 2024, công dân được tiếp cận những thông tin đất đai nào?",
+            "answer": "Công dân được tiếp cận các thông tin đất đai gồm: (a) Quy hoạch, kế hoạch sử dụng đất, các quy hoạch có liên quan; (b) Kết quả thống kê, kiểm kê đất đai; (c) Giao đất, cho thuê đất; (d) Bảng giá đất đã được công bố; (đ) Phương án bồi thường, hỗ trợ, tái định cư đã được phê duyệt; (e) Kết quả thanh tra, kiểm tra, giải quyết tranh chấp, khiếu nại, tố cáo, xử lý vi phạm về đất đai; (g) Thủ tục hành chính về đất đai; (h) Văn bản quy phạm pháp luật về đất đai; (i) Các thông tin đất đai khác theo quy định.",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 2,
+                "section_no": 3,
+                "article_no": 24,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q034",
+            "question": "Hợp đồng chuyển nhượng, tặng cho, thế chấp quyền sử dụng đất có bắt buộc phải công chứng hoặc chứng thực không? Những loại hợp đồng nào về đất đai được công chứng theo yêu cầu của các bên?",
+            "answer": "Có bắt buộc. Hợp đồng chuyển nhượng, tặng cho, thế chấp, góp vốn bằng quyền sử dụng đất phải được công chứng hoặc chứng thực. Ngược lại, hợp đồng cho thuê, cho thuê lại quyền sử dụng đất và tài sản gắn liền với đất, hợp đồng chuyển đổi quyền sử dụng đất nông nghiệp; hợp đồng chuyển nhượng hoặc góp vốn bằng quyền sử dụng đất mà một bên hoặc các bên tham gia giao dịch là tổ chức hoạt động kinh doanh bất động sản thì được công chứng hoặc chứng thực theo yêu cầu của các bên.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 3,
+                "section_no": 1,
+                "article_no": 27,
+                "clause_nos": [
+                    3
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q035",
+            "question": "Chú ruột tôi là người gốc Việt Nam nhưng đã định cư ở nước ngoài lâu năm, năm nay chú muốn về nước dưỡng lão thì có được mua nhà ở gắn liền với đất tại các dự án khu đô thị không?",
+            "answer": "Có. Người gốc Việt Nam định cư ở nước ngoài được phép nhập cảnh vào Việt Nam có quyền mua, thuê mua nhà ở gắn liền với quyền sử dụng đất ở, hoặc nhận quyền sử dụng đất ở trong các dự án phát triển nhà ở.",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 3,
+                "section_no": 1,
+                "article_no": 28,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q036",
+            "question": "Cá nhân sử dụng đất nông nghiệp có được quyền tự do đổi quyền sử dụng đất của mình với cá nhân khác trong cùng một xã không?",
+            "answer": "Có được phép, nhưng phải là chuyển đổi quyền sử dụng đất nông nghiệp trong cùng một tỉnh với cá nhân khác để thuận tiện cho sản xuất nông nghiệp và không phải nộp thuế thu nhập cá nhân hay lệ phí trước bạ.",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 3,
+                "section_no": 1,
+                "article_no": 37,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q037",
+            "question": "Trường học công lập của tôi được nhà nước giao đất không thu tiền, nay trường muốn dùng một phần sân bãi để làm khu kinh doanh dịch vụ cho học sinh thì có được xin đổi sang hình thức thuê đất trả tiền hằng năm để hợp pháp hóa không?",
+            "answer": "Có. Đơn vị sự nghiệp công lập (như trường học, bệnh viện) được Nhà nước giao đất không thu tiền sử dụng đất mà có nhu cầu sử dụng một phần hoặc toàn bộ diện tích để sản xuất, kinh doanh, cung cấp dịch vụ thì được phép lựa chọn chuyển sang hình thức Nhà nước cho thuê đất thu tiền thuê đất hằng năm đối với phần diện tích đó.",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 3,
+                "section_no": 2,
+                "article_no": 30,
+                "clause_nos": [
+                    3
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q038",
+            "question": "Đơn vị sự nghiệp công lập được Nhà nước cho thuê đất thu tiền thuê đất hằng năm (không nhằm đầu tư hạ tầng KCN) có quyền bán hoặc thế chấp tài sản gắn liền với đất không?",
+            "answer": "Không. Căn cứ khoản 2 Điều 34, đơn vị sự nghiệp công lập được Nhà nước cho thuê đất thu tiền thuê đất hằng năm không có quyền bán, quyền thế chấp và quyền góp vốn bằng tài sản gắn liền với đất cũng như quyền thuê trong hợp đồng thuê đất.",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 3,
+                "section_no": 2,
+                "article_no": 34,
+                "clause_nos": [
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q039",
+            "question": "Tổ chức kinh tế có vốn đầu tư nước ngoài được phép đầu tư xây dựng kinh doanh kết cấu hạ tầng khu công nghiệp có được cho thuê lại quyền sử dụng đất không?",
+            "answer": "Có. Tổ chức này được quyền cho thuê lại quyền sử dụng đất theo hình thức trả tiền thuê đất hằng năm đối với đất đã được xây dựng xong kết cấu hạ tầng. Người thuê lại quyền sử dụng đất phải sử dụng đất đúng mục đích và thực hiện nghĩa vụ tài chính theo quy định.",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 3,
+                "section_no": 4,
+                "article_no": 41,
+                "clause_nos": [
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q040",
+            "question": "Tổ chức kinh tế có vốn đầu tư nước ngoài được Nhà nước cho thuê đất thu tiền hằng năm có quyền cho thuê quyền thuê trong hợp đồng thuê đất hay không?",
+            "answer": "Có. Căn cứ theo quy định pháp luật, tổ chức kinh tế có vốn đầu tư nước ngoài sử dụng đất trong trường hợp này có quyền cho thuê tài sản thuộc sở hữu của mình gắn liền với đất và quyền thuê trong hợp đồng thuê đất.",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 3,
+                "section_no": 4,
+                "article_no": 41,
+                "clause_nos": [
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q041",
+            "question": "Tổ chức kinh tế có vốn đầu tư nước ngoài được Nhà nước giao đất có thu tiền sử dụng đất để thực hiện dự án có những quyền gì đối với quyền sử dụng đất và tài sản gắn liền với đất?",
+            "answer": "Tổ chức này có các quyền bao gồm: Chuyển nhượng quyền sử dụng đất, tài sản gắn liền với đất; Cho thuê, cho thuê lại quyền sử dụng đất, tài sản gắn liền với đất; Thế chấp quyền sử dụng đất, tài sản gắn liền với đất tại các tổ chức tín dụng được phép hoạt động tại Việt Nam; Góp vốn bằng quyền sử dụng đất, tài sản gắn liền với đất. Ngoài ra còn có các quyền và nghĩa vụ chung quy định tại Điều 26 và Điều 31.",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 3,
+                "section_no": 4,
+                "article_no": 41,
+                "clause_nos": [
+                    3
+                ],
+                "ref_article_nos": [
+                    26,
+                    31
+                ]
+            }
+        },
+        {
+            "id": "Q042",
+            "question": "Tổ chức kinh tế có vốn đầu tư nước ngoài có sử dụng đất được hình thành do nhà đầu tư nước ngoài mua cổ phần, phần vốn góp thì quyền và nghĩa vụ được xác định như thế nào?",
+            "answer": "Quyền và nghĩa vụ của tổ chức kinh tế có vốn đầu tư nước ngoài trong trường hợp này được áp dụng theo quy định tại khoản 2 và khoản 3 Điều 41 của Luật Đất đai 2024, tương ứng với hình thức nộp tiền sử dụng đất, trả tiền thuê đất.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 3,
+                "section_no": 4,
+                "article_no": 41,
+                "clause_nos": [
+                    4
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q043",
+            "question": "Người gốc Việt Nam định cư ở nước ngoài sử dụng đất để thực hiện dự án đầu tư được Nhà nước cho thuê đất trả tiền một lần nhưng được miễn, giảm tiền thuê đất thì được áp dụng quyền và nghĩa vụ theo quy định nào?",
+            "answer": "Trường hợp này, người gốc Việt Nam định cư ở nước ngoài sẽ có quyền và nghĩa vụ theo quy định tại khoản 3 Điều 33 của Luật Đất đai 2024.",
+            "question_type": "conditional",
+            "law_id": {
+                "chapter_no": 3,
+                "section_no": 4,
+                "article_no": 41,
+                "clause_nos": [
+                    5
+                ],
+                "ref_article_nos": [
+                    33
+                ]
+            }
+        },
+        {
+            "id": "Q044",
+            "question": "Tổ chức kinh tế có vốn đầu tư nước ngoài nhận góp vốn bằng quyền sử dụng đất (không để thực hiện dự án nhà ở để bán) và được Nhà nước cho thuê đất thu tiền hằng năm có quyền và nghĩa vụ ra sao?",
+            "answer": "Tổ chức kinh tế có vốn đầu tư nước ngoài trong trường hợp này có quyền và nghĩa vụ được quy định tại khoản 2 Điều 41 của Luật Đất đai 2024.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 3,
+                "section_no": 4,
+                "article_no": 42,
+                "clause_nos": [
+                    2
+                ],
+                "ref_article_nos": [
+                    41
+                ]
+            }
+        },
+        {
+            "id": "Q045",
+            "question": "Tổ chức kinh tế có vốn đầu tư nước ngoài nhận góp vốn bằng quyền sử dụng đất để thực hiện dự án nhà ở để bán và được Nhà nước giao đất có thu tiền sử dụng đất thì quyền và nghĩa vụ áp dụng theo khoản nào?",
+            "answer": "Trong trường hợp này, quyền và nghĩa vụ của tổ chức kinh tế có vốn đầu tư nước ngoài được áp dụng theo quy định tại khoản 3 Điều 41 của Luật Đất đai 2024.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 3,
+                "section_no": 4,
+                "article_no": 42,
+                "clause_nos": [
+                    2
+                ],
+                "ref_article_nos": [
+                    41
+                ]
+            }
+        },
+        {
+            "id": "Q046",
+            "question": "Doanh nghiệp liên doanh giữa doanh nghiệp nhà nước (được thuê đất trước 01/7/2004 bằng nguồn vốn xem như NSNN cấp) với tổ chức nước ngoài thì giá trị quyền sử dụng đất được xác định ra sao và có quyền, nghĩa vụ gì?",
+            "answer": "Giá trị quyền sử dụng đất trong trường hợp này được xác định là phần vốn của Nhà nước đóng góp vào doanh nghiệp liên doanh. Doanh nghiệp liên doanh có quyền, nghĩa vụ quy định tại khoản 1 và khoản 3 Điều 33 của Luật Đất đai 2024.",
+            "question_type": "conditional",
+            "law_id": {
+                "chapter_no": 3,
+                "section_no": 4,
+                "article_no": 42,
+                "clause_nos": [
+                    3
+                ],
+                "ref_article_nos": [
+                    33
+                ]
+            }
+        },
+        {
+            "id": "Q047",
+            "question": "Trường hợp tổ chức kinh tế có vốn đầu tư nước ngoài trả tiền thuê đất, thuê lại đất một lần cho cả thời gian thuê thì áp dụng quyền và nghĩa vụ theo quy định nào?",
+            "answer": "Trường hợp trả tiền thuê đất một lần cho cả thời gian thuê hoặc trả tiền thuê lại đất một lần cho cả thời gian thuê lại thì tổ chức này có quyền và nghĩa vụ quy định tại khoản 1 và khoản 3 Điều 33 của Luật Đất đai 2024.",
+            "question_type": "conditional",
+            "law_id": {
+                "chapter_no": 3,
+                "section_no": 4,
+                "article_no": 43,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": [
+                    33
+                ]
+            }
+        },
+        {
+            "id": "Q048",
+            "question": "Điều 44 của Luật Đất đai 2024 quy định quyền và nghĩa vụ sử dụng đất ở đối với những đối tượng nào?",
+            "answer": "Điều 44 quy định về quyền và nghĩa vụ sử dụng đất ở đối với người gốc Việt Nam định cư ở nước ngoài được sở hữu nhà ở tại Việt Nam; và người nước ngoài hoặc người gốc Việt Nam định cư ở nước ngoài không thuộc đối tượng được sở hữu nhà ở gắn liền với quyền sử dụng đất ở tại Việt Nam.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 3,
+                "section_no": 4,
+                "article_no": 44,
+                "clause_nos": [],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q049",
+            "question": "Người sử dụng đất có được thực hiện các quyền chuyển nhượng, cho thuê, thế chấp quyền sử dụng đất khi thửa đất đang có tranh chấp hoặc đang bị kê biên để bảo đảm thi hành án không?",
+            "answer": "Không được thực hiện. Một trong các điều kiện bắt buộc để người sử dụng đất được thực hiện các quyền chuyển nhượng, cho thuê, thế chấp... là đất đó phải không có tranh chấp hoặc tranh chấp đã được giải quyết bởi cơ quan nhà nước có thẩm quyền, bản án, quyết định của Tòa án, phán quyết của Trọng tài đã có hiệu lực pháp luật; đồng thời quyền sử dụng đất không bị kê biên, áp dụng biện pháp khẩn cấp tạm thời để bảo đảm thi hành án.",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 3,
+                "section_no": 5,
+                "article_no": 45,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q050",
+            "question": "Một cá nhân không trực tiếp sản xuất nông nghiệp có được phép nhận chuyển nhượng quyền sử dụng đất trồng lúa từ người khác không? Nếu có thì phải đáp ứng điều kiện gì?",
+            "answer": "Có được phép. Cá nhân không trực tiếp sản xuất nông nghiệp vẫn được nhận chuyển nhượng đất trồng lúa, nhưng nếu nhận chuyển nhượng quá hạn mức giao đất trồng lúa (quá 3 ha đối với tỉnh miền Nam và miền Trung, quá 2 ha đối với tỉnh miền Bắc) thì phải thành lập tổ chức kinh tế và có phương án sử dụng đất trồng lúa được Ủy ban nhân dân cấp huyện phê duyệt.",
+            "question_type": "conditional",
+            "law_id": {
+                "chapter_no": 3,
+                "section_no": 5,
+                "article_no": 45,
+                "clause_nos": [
+                    6
+                ],
+                "ref_article_nos": [
+                    176
+                ]
+            }
+        },
+        {
+            "id": "Q051",
+            "question": "Hệ thống quy hoạch, kế hoạch sử dụng đất bao gồm những cấp nào?",
+            "answer": "Hệ thống quy hoạch, kế hoạch sử dụng đất bao gồm: (a) Quy hoạch, kế hoạch sử dụng đất quốc gia; (b) Quy hoạch, kế hoạch sử dụng đất cấp tỉnh; (c) Quy hoạch sử dụng đất cấp huyện, kế hoạch sử dụng đất hằng năm cấp huyện; (d) Quy hoạch sử dụng đất quốc phòng; (đ) Quy hoạch sử dụng đất an ninh.",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 5,
+                "section_no": null,
+                "article_no": 61,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q052",
+            "question": "Thời kỳ quy hoạch sử dụng đất quốc gia và quy hoạch sử dụng đất cấp tỉnh là bao nhiêu năm?",
+            "answer": "Thời kỳ quy hoạch sử dụng đất quốc gia, quy hoạch sử dụng đất cấp tỉnh là 10 năm. Tầm nhìn của quy hoạch sử dụng đất quốc gia là từ 30 năm đến 50 năm; tầm nhìn của quy hoạch sử dụng đất cấp tỉnh là từ 20 năm đến 30 năm.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 5,
+                "section_no": null,
+                "article_no": 62,
+                "clause_nos": [
+                    1,
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q053",
+            "question": "Thời kỳ quy hoạch sử dụng đất cấp huyện là bao nhiêu năm? Tầm nhìn bao nhiêu năm?",
+            "answer": "Thời kỳ quy hoạch sử dụng đất cấp huyện là 10 năm. Tầm nhìn quy hoạch sử dụng đất cấp huyện là 20 năm.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 5,
+                "section_no": null,
+                "article_no": 62,
+                "clause_nos": [
+                    3
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q054",
+            "question": "Thời gian lấy ý kiến về quy hoạch sử dụng đất cấp tỉnh là bao lâu?",
+            "answer": "Thời gian lấy ý kiến về quy hoạch sử dụng đất cấp tỉnh là 45 ngày kể từ ngày công khai thông tin về nội dung lấy ý kiến.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 5,
+                "section_no": null,
+                "article_no": 70,
+                "clause_nos": [
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q055",
+            "question": "Quy hoạch sử dụng đất cấp huyện sau khi được phê duyệt phải được công bố công khai trong thời hạn bao nhiêu ngày và ở những nơi nào?",
+            "answer": "Trong thời hạn 15 ngày kể từ ngày được phê duyệt, quy hoạch sử dụng đất cấp huyện phải được công bố công khai tại trụ sở Ủy ban nhân dân cấp huyện, cấp xã và công khai trên Cổng thông tin điện tử của Ủy ban nhân dân cấp huyện trong suốt kỳ quy hoạch.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 5,
+                "section_no": null,
+                "article_no": 75,
+                "clause_nos": [
+                    1,
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q056",
+            "question": "Việc phê duyệt phương án bồi thường, hỗ trợ, tái định cư và việc bố trí tái định cư phải được hoàn thành vào thời điểm nào so với quyết định thu hồi đất?",
+            "answer": "Việc phê duyệt phương án bồi thường, hỗ trợ, tái định cư và việc bố trí tái định cư bắt buộc phải được hoàn thành trước khi cơ quan Nhà nước có thẩm quyền ra quyết định thu hồi đất (đây là điều kiện tiên quyết thu hồi đất vì mục đích quốc phòng, an ninh, phát triển kinh tế - xã hội).",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 6,
+                    "section_no": null,
+                    "article_no": 80,
+                    "clause_nos": [
+                        3
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 7,
+                    "section_no": 1,
+                    "article_no": 91,
+                    "clause_nos": [
+                        6
+                    ],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q057",
+            "question": "Người sử dụng đất nếu chây ì không chịu thực hiện nghĩa vụ tài chính (như nợ tiền sử dụng đất, tiền thuê đất) thì Nhà nước có tiến hành thu hồi đất không?",
+            "answer": "Có. Nhà nước sẽ thu hồi đất đối với trường hợp người sử dụng đất không thực hiện nghĩa vụ tài chính đối với Nhà nước theo quy định của pháp luật và đã bị cơ quan nhà nước có thẩm quyền cưỡng chế thực hiện nghĩa vụ tài chính nhưng vẫn không chấp hành.",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 6,
+                "section_no": null,
+                "article_no": 81,
+                "clause_nos": [
+                    6
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q058",
+            "question": "Đất trồng lúa của gia đình tôi do không có người làm nên cứ bỏ không đấy mấy năm nay rồi. Tôi nghe nói bỏ hoang như vậy sẽ bị nhà nước thu hồi lại, có đúng không?",
+            "answer": "Đúng vậy, pháp luật có quy định thu hồi đất đối với hành vi bỏ hoang . Cụ thể, đất trồng cây hằng năm (như đất trồng lúa) không được sử dụng trong thời gian 12 tháng liên tục, đã bị xử phạt vi phạm hành chính mà vẫn không đưa đất vào sử dụng đúng hạn thì sẽ bị Nhà nước thu hồi .",
+            "question_type": "conditional",
+            "law_id": {
+                "chapter_no": 6,
+                "section_no": null,
+                "article_no": 81,
+                "clause_nos": [
+                    10
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q059",
+            "question": "Trong trường hợp nào Nhà nước thu hồi rừng đồng thời với việc thu hồi đất?",
+            "answer": "Nhà nước thực hiện thu hồi đất đồng thời với thu hồi rừng khi đất đó thuộc trường hợp thu hồi rừng theo quy định của pháp luật về lâm nghiệp mà không thể tiếp tục giao đất, cho thuê đất cho người khác sử dụng.",
+            "question_type": "conditional",
+            "law_id": {
+                "chapter_no": 6,
+                "section_no": null,
+                "article_no": 82,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q060",
+            "question": "Trường hợp cá nhân sử dụng đất chết mà không có người thừa kế thì đất đai đó được Nhà nước xử lý như thế nào?",
+            "answer": "Nhà nước sẽ thu hồi đất đối với trường hợp cá nhân sử dụng đất chết mà không có người nhận thừa kế sau khi đã thực hiện nghĩa vụ về tài sản theo quy định của pháp luật về dân sự. Diện tích đất thu hồi này sẽ được bàn giao cho địa phương quản lý để tiếp tục giao hoặc cho người khác thuê.",
+            "question_type": "conditional",
+            "law_id": {
+                "chapter_no": 6,
+                "section_no": null,
+                "article_no": 82,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q061",
+            "question": "Trường hợp hộ gia đình, cá nhân đang sử dụng đất nông nghiệp tự nguyện trả lại đất cho Nhà nước do không còn nhu cầu sử dụng thì Nhà nước có thu hồi đất không? Việc trả lại đất phải dựa trên căn cứ pháp lý nào?",
+            "answer": "Có. Nhà nước thu hồi đất trong trường hợp người sử dụng đất giảm hoặc không còn nhu cầu sử dụng đất và có đơn tự nguyện trả lại đất. Việc thu hồi này phải dựa trên căn cứ là Văn bản trả lại đất của người sử dụng đất.",
+            "question_type": "conditional",
+            "law_id": {
+                "chapter_no": 6,
+                "section_no": null,
+                "article_no": 82,
+                "clause_nos": [
+                    2,
+                    5
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q062",
+            "question": "Trước khi quyết định thu hồi đất phi nông nghiệp để làm dự án giao thông, cơ quan Nhà nước có thẩm quyền phải thông báo trước cho người dân biết chậm nhất là bao nhiêu ngày?",
+            "answer": "Trước khi ban hành quyết định thu hồi đất, cơ quan nhà nước có thẩm quyền phải gửi văn bản thông báo thu hồi đất cho người có đất bị thu hồi biết chậm nhất là 180 ngày đối với đất phi nông nghiệp.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 6,
+                "section_no": null,
+                "article_no": 85,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q063",
+            "question": "Thông báo thu hồi đất vì mục đích quốc phòng, an ninh, phát triển kinh tế - xã hội có hiệu lực trong thời gian bao lâu kể từ ngày ban hành?",
+            "answer": "Thông báo thu hồi đất có hiệu lực là 12 tháng tính từ ngày ban hành thông báo thu hồi đất.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 6,
+                "section_no": null,
+                "article_no": 85,
+                "clause_nos": [
+                    5
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q064",
+            "question": "Trưng dụng đất được thực hiện trong những trường hợp thật cần thiết nào? Ai có thẩm quyền quyết định trưng dụng đất?",
+            "answer": "Trưng dụng đất chỉ được thực hiện trong trường hợp thật cần thiết để thực hiện nhiệm vụ quốc phòng, an ninh hoặc trong tình trạng chiến tranh, tình trạng khẩn cấp, phòng, chống thiên tai. Thẩm quyền quyết định trưng dụng đất thuộc về Bộ trưởng Bộ Tài nguyên và Môi trường, Bộ trưởng Bộ Tài chính, Bộ trưởng Bộ Quốc phòng, Bộ trưởng Bộ Công an, Bộ trưởng Bộ Giao thông vận tải, Bộ trưởng Bộ Nông nghiệp và Phát triển nông nghiệp, Bộ trưởng Bộ Công Thương, Bộ trưởng Bộ Y tế, Chủ tịch Ủy ban nhân dân cấp tỉnh, Chủ tịch Ủy ban nhân dân cấp huyện.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 6,
+                "section_no": null,
+                "article_no": 90,
+                "clause_nos": [
+                    1,
+                    4
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q065",
+            "question": "Thời hạn trưng dụng đất tối đa là bao nhiêu ngày? Trong trường hợp đặc biệt thì được gia hạn thêm bao nhiêu ngày?",
+            "answer": "Thời hạn trưng dụng đất là không quá 30 ngày kể từ ngày quyết định trưng dụng có hiệu lực thi hành. Trong trường hợp tình trạng khẩn cấp hoặc phòng, chống thiên tai chưa được khắc phục, thời hạn trưng dụng có thể được gia hạn nhưng không quá 30 ngày.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 6,
+                "section_no": null,
+                "article_no": 90,
+                "clause_nos": [
+                    2,
+                    3
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q066",
+            "question": "Người có đất bị trưng dụng nếu bị thiệt hại về thu nhập do việc trưng dụng đất gây ra thì có được Nhà nước bồi thường thiệt hại không?",
+            "answer": "Có. Người có đất bị trưng dụng nếu bị thiệt hại về thu nhập trực tiếp từ việc trưng dụng đất gây ra hoặc bị thiệt hại về tài sản gắn liền với đất thì được Nhà nước bồi thường thiệt hại theo quy định pháp luật.",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 6,
+                "section_no": null,
+                "article_no": 90,
+                "clause_nos": [
+                    6
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q067",
+            "question": "Sắp tới nhà nước thu hồi ruộng lúa của nhà tôi để làm dự án, cho tôi hỏi họ phải gửi giấy thông báo trước cho nhà tôi khoảng bao nhiêu ngày để gia đình còn chuẩn bị?",
+            "answer": "Đối với đất nông nghiệp (như ruộng lúa), cơ quan nhà nước có thẩm quyền phải gửi văn bản thông báo thu hồi đất cho người có đất bị thu hồi biết chậm nhất là 90 ngày trước khi chính thức ban hành quyết định thu hồi đất.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 7,
+                "section_no": 1,
+                "article_no": 85,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q068",
+            "question": "Nhà nước đòi thu hồi đất nhà tôi nhưng lại bảo cứ dọn đi rồi nhà tái định cư sẽ xây xong và giao sau. Họ làm thế có đúng luật không?",
+            "answer": "Không hẳn. Nếu bạn thuộc trường hợp được bố trí tái định cư thì việc yêu cầu bạn dọn đi trước, còn nhà tái định cư sẽ xây xong và giao sau là không phù hợp với Luật Đất đai 2024. Điều 91 quy định việc phê duyệt phương án bồi thường, hỗ trợ, tái định cư và việc bố trí tái định cư phải được hoàn thành trước khi có quyết định thu hồi đất và khu tái định cư phải được hoàn thiện hạ tầng kỹ thuật, hạ tầng xã hội theo quy hoạch đã được phê duyệt. Vì vậy, nếu cơ quan có thẩm quyền yêu cầu người dân rời khỏi nơi ở trong khi chưa bố trí xong nơi tái định cư và chỉ hứa sẽ giao nhà sau khi xây xong, thì cách thực hiện này không phù hợp với yêu cầu",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 7,
+                "section_no": 1,
+                "article_no": 91,
+                "clause_nos": [
+                    1,
+                    5,
+                    6
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q069",
+            "question": "Trong thời hạn bao nhiêu ngày kể từ ngày quyết định phê duyệt phương án bồi thường, hỗ trợ, tái định cư có hiệu lực, cơ quan có thẩm quyền phải thực hiện chi trả tiền bồi thường cho người dân?",
+            "answer": "Trong thời hạn 30 ngày kể từ ngày quyết định phê duyệt phương án bồi thường, hỗ trợ, tái định cư có hiệu lực thi hành, cơ quan, đơn vị, tổ chức thực hiện bồi thường phải chi trả tiền bồi thường, hỗ trợ cho người có đất thu hồi, chủ sở hữu tài sản.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 7,
+                "section_no": 1,
+                "article_no": 94,
+                "clause_nos": [
+                    3
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q070",
+            "question": "Cơ quan đền bù giải tỏa chậm chi trả tiền bồi thường đất cho nhà tôi suốt 5 tháng nay do trục trặc thủ tục nội bộ. Vậy gia đình tôi có được nhận thêm khoản tiền phạt hay tiền lãi nào từ việc trả chậm này không?",
+            "answer": "Có. Trường hợp cơ quan thực hiện bồi thường chậm chi trả thì khi thanh toán, ngoài tiền bồi thường theo phương án đã duyệt, bạn còn được thanh toán thêm một khoản tiền bằng mức tiền chậm nộp theo quy định của Luật Quản lý thuế tính trên số tiền chậm trả và thời gian chậm trả.",
+            "question_type": "situational",
+            "law_id": {
+                "chapter_no": 7,
+                "section_no": 1,
+                "article_no": 94,
+                "clause_nos": [
+                    3
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q071",
+            "question": "Trường hợp đất bị thu hồi đang có tranh chấp giữa hai gia đình chưa giải quyết xong thì tiền bồi thường giải phóng mặt bằng được xử lý gửi ở đâu?",
+            "answer": "Trường hợp đất thu hồi, tài sản đang có tranh chấp thì tiền bồi thường, hỗ trợ được gửi vào tài khoản tiền gửi của đơn vị, tổ chức thực hiện nhiệm vụ bồi thường, hỗ trợ, tái định cư mở tại ngân hàng thương mại do Nhà nước nắm giữ cổ phần chi phối theo lãi suất không kỳ hạn và tiền lãi sẽ được trả cho người thắng cuộc tranh chấp sau đó.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 7,
+                "section_no": 1,
+                "article_no": 94,
+                "clause_nos": [
+                    4
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q072",
+            "question": "Tổ chức kinh tế có vốn đầu tư nước ngoài đang sử dụng đất phi nông nghiệp được Nhà nước cho thuê đất trả tiền một lần, khi Nhà nước thu hồi đất thì có được bồi thường về đất không?",
+            "answer": "Có. Tổ chức kinh tế có vốn đầu tư nước ngoài đang sử dụng đất phi nông nghiệp được Nhà nước cho thuê đất trả tiền thuê đất một lần cho cả thời gian thuê, khi Nhà nước thu hồi đất nếu đủ điều kiện được bồi thường theo quy định tại Điều 95 của Luật này thì được bồi thường về đất.",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 7,
+                    "section_no": 2,
+                    "article_no": 95,
+                    "clause_nos": [
+                        1
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 7,
+                    "section_no": 2,
+                    "article_no": 100,
+                    "clause_nos": [
+                        3
+                    ],
+                    "ref_article_nos": [
+                        95
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "Q073",
+            "question": "Nhà tôi sắp bị giải tỏa trắng để làm khu công nghiệp. Tôi không muốn lấy tiền đền bù mà muốn nhà nước đền cho một căn nhà khác để ở luôn thì có được không?",
+            "answer": "Bạn hoàn toàn có quyền đề nghị bồi thường bằng nhà ở . Hộ gia đình bị thu hồi đất ở nếu đủ điều kiện bồi thường thì được bồi thường bằng đất ở, bằng nhà ở, bằng tiền hoặc bằng đất có mục đích sử dụng khác . Tùy thuộc vào điều kiện quỹ nhà ở tái định cư của địa phương, mong muốn được cấp một căn nhà khác của bạn sẽ được xem xét giải quyết [13, 14].",
+            "question_type": "conditional",
+            "law_id": {
+                "chapter_no": 7,
+                "section_no": 2,
+                "article_no": 98,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": [
+                    95
+                ]
+            }
+        },
+        {
+            "id": "Q074",
+            "question": "Tổ chức kinh tế, người gốc Việt Nam định cư ở nước ngoài đang sử dụng đất để thực hiện dự án đầu tư xây dựng nhà ở khi Nhà nước thu hồi đất sẽ được bồi thường như thế nào?",
+            "answer": "Tổ chức kinh tế, người gốc Việt Nam định cư ở nước ngoài, tổ chức kinh tế có vốn đầu tư nước ngoài đang sử dụng đất để thực hiện dự án đầu tư xây dựng nhà ở khi Nhà nước thu hồi đất, nếu có đủ điều kiện được bồi thường thì được bồi thường bằng tiền hoặc bằng đất.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 7,
+                "section_no": 2,
+                "article_no": 98,
+                "clause_nos": [
+                    2
+                ],
+                "ref_article_nos": [
+                    95
+                ]
+            }
+        },
+        {
+            "id": "Q075",
+            "question": "Hộ gia đình, cá nhân đang sử dụng đất phi nông nghiệp không phải là đất ở khi Nhà nước thu hồi đất sẽ được bồi thường bằng những hình thức nào nếu đủ điều kiện?",
+            "answer": "Hộ gia đình, cá nhân đang sử dụng đất phi nông nghiệp không phải là đất ở khi Nhà nước thu hồi đất, nếu đủ điều kiện bồi thường quy định tại Điều 95, thì được bồi thường bằng đất có cùng mục đích sử dụng với loại đất thu hồi hoặc bằng tiền theo thời hạn sử dụng đất còn lại đối với đất sử dụng có thời hạn hoặc bằng đất có mục đích sử dụng khác với loại đất thu hồi hoặc bằng nhà ở.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 7,
+                "section_no": 2,
+                "article_no": 99,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": [
+                    95
+                ]
+            }
+        },
+        {
+            "id": "Q076",
+            "question": "Hộ gia đình, cá nhân đang sử dụng đất phi nông nghiệp không phải là đất ở được Nhà nước cho thuê đất trả tiền thuê đất một lần cho cả thời gian thuê nhưng được miễn tiền thuê đất khi Nhà nước thu hồi đất thì có được bồi thường về đất không?",
+            "answer": "Có. Hộ gia đình, cá nhân đang sử dụng đất phi nông nghiệp không phải là đất ở được Nhà nước cho thuê đất trả tiền thuê đất một lần cho cả thời gian thuê nhưng được miễn tiền thuê đất khi Nhà nước thu hồi đất, nếu có đủ điều kiện được bồi thường theo quy định thì vẫn được bồi thường về đất.",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 7,
+                "section_no": 2,
+                "article_no": 99,
+                "clause_nos": [
+                    2
+                ],
+                "ref_article_nos": [
+                    95
+                ]
+            }
+        },
+        {
+            "id": "Q077",
+            "question": "Đất của nhà chùa, nhà thờ (tổ chức tôn giáo) đang sử dụng khi bị Nhà nước thu hồi để làm dự án giao thông công cộng thì có được đền bù bằng đất khác không?",
+            "answer": "Có. Cộng đồng dân cư, tổ chức tôn giáo, tổ chức tôn giáo trực thuộc đang sử dụng đất phi nông nghiệp khi bị Nhà nước thu hồi đất, nếu đáp ứng đủ điều kiện được bồi thường theo quy định thì sẽ được bồi thường bằng đất.",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 7,
+                "section_no": 2,
+                "article_no": 100,
+                "clause_nos": [
+                    4
+                ],
+                "ref_article_nos": [
+                    95
+                ]
+            }
+        },
+        {
+            "id": "Q078",
+            "question": "Nhà nước sắp thu hồi khu vườn nhà tôi để làm dự án, mà vườn cây ăn quả đang rủng rỉnh trái chưa kịp hái. Vậy nhà nước tính tiền đền bù cho vườn cây nhà tôi như thế nào?",
+            "answer": "Đối với cây lâu năm đang trong thời kỳ thu hoạch, mức bồi thường được tính bằng sản lượng vườn cây còn chưa thu hoạch tương ứng với số năm còn lại trong chu kỳ thu hoạch và đơn giá bồi thường . Trong trường hợp cây chưa thu hoạch nhưng có thể di chuyển, bạn sẽ được bồi thường chi phí di chuyển và thiệt hại thực tế do phải đem đi trồng lại .",
+            "question_type": "situational",
+            "law_id": {
+                "chapter_no": 7,
+                "section_no": 2,
+                "article_no": 103,
+                "clause_nos": [
+                    5,
+                    6
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q079",
+            "question": "Căn nhà ngói cấp 4 của tôi đang ở rất cũ rồi, nay thuộc diện bị đập đi để làm đường. Khi đền bù thì nhà nước sẽ tính tiền theo giá trị cái nhà cũ kỹ này hay đền bù đủ tiền để tôi xây một cái nhà cấp 4 mới?",
+            "answer": "Nhà nước sẽ bồi thường cho bạn bằng giá trị xây dựng mới, không tính theo giá trị đã khấu hao của căn nhà cũ . Khi Nhà nước thu hồi đất mà phải phá dỡ nhà ở, chủ sở hữu sẽ được bồi thường bằng giá trị xây dựng mới của một căn nhà có tiêu chuẩn kỹ thuật tương đương .",
+            "question_type": "situational",
+            "law_id": {
+                "chapter_no": 7,
+                "section_no": 3,
+                "article_no": 102,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q080",
+            "question": "Gia đình tôi có một căn nhà cấp 4 và công trình phụ (bếp, nhà vệ sinh) xây dựng hợp pháp trên đất. Nay Nhà nước thu hồi đất làm đường và buộc phải phá dỡ toàn bộ. Gia đình tôi sẽ được bồi thường căn nhà này như thế nào?",
+            "answer": "Gia đình bạn sẽ được bồi thường bằng giá trị xây dựng mới của nhà ở, công trình có tiêu chuẩn kỹ thuật tương đương, chứ không tính theo giá trị đã khấu hao. Ngoài ra, gia đình bạn còn có quyền được giữ lại và sử dụng các nguyên vật liệu còn lại sau khi tháo dỡ.",
+            "question_type": "situational",
+            "law_id": {
+                "chapter_no": 7,
+                "section_no": 3,
+                "article_no": 102,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q081",
+            "question": "Khi Nhà nước thu hồi đất gây thiệt hại đối với vật nuôi là thủy sản đang nuôi trồng thì việc bồi thường thiệt hại được tính như thế nào?",
+            "answer": "Việc bồi thường đối với thủy sản được quy định: (1) Nếu thủy sản đến thời kỳ thu hoạch thì không được bồi thường; (2) Nếu thủy sản chưa đến thời kỳ thu hoạch thì được bồi thường thiệt hại thực tế do phải thu hoạch sớm; trường hợp có thể di chuyển được thì được bồi thường chi phí di chuyển và thiệt hại do di chuyển gây ra.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 7,
+                "section_no": 3,
+                "article_no": 103,
+                "clause_nos": [
+                    4
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q082",
+            "question": "Nhà tôi thuộc diện bị giải tỏa trắng, trên đất có 3 ngôi mộ của tổ tiên từ lâu đời. Khi Nhà nước thu hồi đất thì gia đình tôi được bồi thường chi phí di dời mồ mả như thế nào?",
+            "answer": "Đối với mồ mả phải di dời khi Nhà nước thu hồi đất, người có mồ mả được bồi thường chi phí di dời, xây dựng lại mồ mả mới và các chi phí hợp lý khác liên quan trực tiếp. Mức bồi thường cụ thể do Ủy ban nhân dân cấp tỉnh quy định phù hợp với tập quán và thực tế địa phương.",
+            "question_type": "situational",
+            "law_id": {
+                "chapter_no": 7,
+                "section_no": 3,
+                "article_no": 104,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q083",
+            "question": "Tôi có dựng một cái quán tạm trên đất, giấy phép xây dựng là loại có thời hạn và hiện nay đã hết hạn mất rồi. Sắp tới nhà nước thu hồi mảnh đất này thì cái quán của tôi có được đền bù tiền không?",
+            "answer": "Không. Pháp luật quy định tài sản gắn liền với đất là phần công trình xây dựng theo giấy phép xây dựng có thời hạn, mà đến thời điểm thu hồi đất giấy phép đó đã hết thời hạn thì sẽ không thuộc diện được Nhà nước bồi thường tài sản.",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 7,
+                "section_no": 3,
+                "article_no": 105,
+                "clause_nos": [
+                    3
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q084",
+            "question": "Hồi trước tôi có bỏ tiền túi đổ mấy trăm khối đất để san lấp mặt bằng mảnh ruộng thuê của xã để tiện sản xuất. Giờ xã thu hồi lại thì tôi có được đền bù tiền san lấp mặt bằng đó không?",
+            "answer": "Có. Chi phí san lấp mặt bằng được pháp luật xếp vào nhóm chi phí đầu tư vào đất còn lại. Do đó, khi Nhà nước thu hồi đất thuộc trường hợp không được bồi thường về đất (như đất thuê trả tiền hằng năm, đất công ích của xã), bạn vẫn sẽ được Nhà nước bồi thường khoản chi phí san lấp hợp lý mà bạn đã đầu tư trực tiếp vào đất.",
+            "question_type": "situational",
+            "law_id": {
+                "chapter_no": 7,
+                "section_no": 3,
+                "article_no": 107,
+                "clause_nos": [
+                    1,
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q085",
+            "question": "Các khoản hỗ trợ khi Nhà nước thu hồi đất bao gồm những khoản nào?",
+            "answer": "Hỗ trợ khi Nhà nước thu hồi đất bao gồm: (a) Hỗ trợ ổn định đời sống; (b) Hỗ trợ ổn định sản xuất, kinh doanh; (c) Hỗ trợ di dời vật nuôi; (d) Hỗ trợ đào tạo, chuyển đổi nghề và tìm kiếm việc làm; (đ) Hỗ trợ tái định cư đối với trường hợp người có đất ở thu hồi mà phải di chuyển chỗ ở không đủ tiền bồi thường để mua suất tái định cư tối thiểu; (e) Hỗ trợ để tháo dỡ, phá dỡ, di dời tài sản gắn liền với đất là phần công trình xây dựng theo giấy phép xây dựng có thời hạn đã hết hạn.",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 7,
+                "section_no": 4,
+                "article_no": 108,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": [
+                    105,
+                    111
+                ]
+            }
+        },
+        {
+            "id": "Q086",
+            "question": "Bà Thùy bị thu hồi đất ở để làm dự án và được Nhà nước lên phương án bồi thường bằng tài sản trên đất kèm một suất tái định cư. Tuy nhiên, bà Thùy hiện tại không thường xuyên sinh sống tại thửa đất bị thu hồi này (không ở thực tế). Vậy bà có được hưởng các khoản hỗ trợ di chuyển (di dời) khác không?",
+            "answer": "Bà Thùy vẫn có thể được xem xét nhận các khoản hỗ trợ như hỗ trợ tháo dỡ, phá dỡ, di dời tài sản. Đồng thời, ngoài các khoản hỗ trợ cứng, pháp luật cho phép UBND cấp tỉnh căn cứ vào tình hình thực tế để ra quyết định các biện pháp, mức hỗ trợ khác nhằm đảm bảo ổn định đời sống cho người có đất thu hồi.",
+            "question_type": "situational",
+            "law_id": {
+                "chapter_no": 7,
+                "section_no": 4,
+                "article_no": 108,
+                "clause_nos": [
+                    1,
+                    2
+                ],
+                "ref_article_nos": [
+                    105
+                ]
+            }
+        },
+        {
+            "id": "Q087",
+            "question": "Nhà tôi bị lấy mất một nửa đất để làm đường, phần đất còn lại quá nhỏ nên không xây nhà ở được nữa. Liệu nhà nước có hỗ trợ cho gia đình tôi một chỗ ở mới đàng hoàng không?",
+            "answer": "Theo quy định, nếu tiền bồi thường về đất ở không đủ so với giá trị của một suất tái định cư tối thiểu thì bạn sẽ được Nhà nước hỗ trợ khoản tiền còn thiếu . Do đó, gia đình bạn vẫn sẽ được hỗ trợ đủ để giao một suất tái định cư tối thiểu nhằm đảm bảo có chỗ ở đàng hoàng .",
+            "question_type": "situational",
+            "law_id": {
+                "chapter_no": 7,
+                "section_no": 4,
+                "article_no": 111,
+                "clause_nos": [
+                    3
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q088",
+            "question": "Quỹ phát triển đất của địa phương do cơ quan nào thành lập và hoạt động với mục đích gì?",
+            "answer": "Quỹ phát triển đất của địa phương do Ủy ban nhân dân cấp tỉnh thành lập. Đây là quỹ tài chính nhà nước ngoài ngân sách, hoạt động không vì mục đích lợi nhuận, có trách nhiệm bảo toàn và phát triển vốn nhằm ứng vốn phục vụ các nhiệm vụ thuộc chức năng của tổ chức phát triển quỹ đất và thực hiện chính sách hỗ trợ đất đai đối với đồng bào dân tộc thiểu số.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 7,
+                "section_no": 5,
+                "article_no": 114,
+                "clause_nos": [
+                    1,
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q089",
+            "question": "Nguồn tiền lớn để chi trả bồi thường giải phóng mặt bằng cho người dân ở các tỉnh lấy từ đâu ra? Có quỹ riêng nào chuyên lo việc này không?",
+            "answer": "Có. Ở mỗi địa phương sẽ có Quỹ phát triển đất do Ủy ban nhân dân cấp tỉnh thành lập. Đây là quỹ tài chính nhà nước ngoài ngân sách, hoạt động không vì lợi nhuận, được phân bổ vốn từ ngân sách địa phương và các nguồn huy động khác nhằm ứng vốn phục vụ cho việc bồi thường, hỗ trợ, tái định cư và giải phóng mặt bằng.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 7,
+                "section_no": 5,
+                "article_no": 114,
+                "clause_nos": [
+                    1,
+                    2,
+                    3
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q090",
+            "question": "Tổ chức phát triển quỹ đất của địa phương có chức năng và nhiệm vụ gì?",
+            "answer": "Tổ chức phát triển quỹ đất có chức năng: (1) Tạo quỹ đất thông qua việc thu hồi đất, nhận chuyển nhượng; (2) Thực hiện bồi thường, giải phóng mặt bằng; (3) Quản lý quỹ đất đã thu hồi; (4) Tổ chức đấu giá quyền sử dụng đất; (5) Đầu tư xây dựng hạ tầng kỹ thuật trên quỹ đất được giao quản lý để đấu giá.",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 8,
+                "section_no": null,
+                "article_no": 115,
+                "clause_nos": [
+                    1,
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q091",
+            "question": "Cá nhân trực tiếp sản xuất nông nghiệp có phải trả tiền khi được Nhà nước giao đất nông nghiệp trong hạn mức không?",
+            "answer": "Không, cá nhân trực tiếp sản xuất nông nghiệp được giao đất nông nghiệp trong hạn mức không phải trả tiền sử dụng đất (giao đất không thu tiền sử dụng đất).",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 9,
+                "section_no": null,
+                "article_no": 118,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": [
+                    176
+                ]
+            }
+        },
+        {
+            "id": "Q092",
+            "question": "Những trường hợp nào được giao đất không thu tiền sử dụng đất?",
+            "answer": "Các trường hợp được giao đất không thu tiền sử dụng đất bao gồm: (1) Cá nhân trực tiếp sản xuất nông nghiệp trong hạn mức; (2) Đất xây dựng trụ sở cơ quan, đất quốc phòng an ninh, đất công cộng phi kinh doanh, đất nghĩa trang; (3) Người sử dụng đất rừng; (4) Đơn vị sự nghiệp công lập; (5) Cộng đồng dân cư, tổ chức tôn giáo; (6) Cơ quan, tổ chức xây dựng nhà ở công vụ; (7) Đồng bào dân tộc thiểu số theo chính sách; (8) Tổ chức xây dựng nhà tái định cư.",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 9,
+                "section_no": null,
+                "article_no": 118,
+                "clause_nos": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8
+                ],
+                "ref_article_nos": [
+                    16,
+                    119,
+                    124,
+                    176,
+                    213
+                ]
+            }
+        },
+        {
+            "id": "Q093",
+            "question": "Các trường hợp chuyển mục đích sử dụng đất nào phải được cơ quan nhà nước cho phép?",
+            "answer": "Các trường hợp phải xin phép: (a) Chuyển đất trồng lúa, đất rừng đặc dụng, đất rừng phòng hộ, đất rừng sản xuất sang loại đất khác trong nhóm đất nông nghiệp; (b) Chuyển đất nông nghiệp sang đất phi nông nghiệp; (c) Chuyển các loại đất khác sang đất chăn nuôi tập trung; (d) Chuyển đất phi nông nghiệp giao không thu tiền sang phi nông nghiệp có thu tiền hoặc cho thuê; (đ) Chuyển đất phi nông nghiệp không phải đất ở sang đất ở; (e) Chuyển đất xây dựng công trình sự nghiệp sang đất sản xuất kinh doanh phi nông nghiệp; (g) Chuyển đất sản xuất kinh doanh phi nông nghiệp sang đất thương mại dịch vụ.",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 9,
+                "section_no": null,
+                "article_no": 121,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q094",
+            "question": "Một cá nhân muốn chuyển mục đích sử dụng đất nông nghiệp sang đất ở có cần xin phép không và phải nộp tiền gì?",
+            "answer": "Có, việc chuyển đất nông nghiệp sang đất phi nông nghiệp (bao gồm đất ở) thuộc trường hợp phải được cơ quan nhà nước có thẩm quyền cho phép theo Điều 121 khoản 1 điểm b. Khi chuyển mục đích, người sử dụng đất phải nộp tiền sử dụng đất bằng mức chênh lệch giữa tiền sử dụng đất của loại đất sau khi chuyển và trước khi chuyển cho thời gian còn lại (Điều 156 khoản 1 điểm a), hoặc nộp tiền thuê đất hằng năm theo loại đất sau khi chuyển.",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 9,
+                    "section_no": null,
+                    "article_no": 121,
+                    "clause_nos": [
+                        1
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 11,
+                    "section_no": 1,
+                    "article_no": 156,
+                    "clause_nos": [
+                        1
+                    ],
+                    "ref_article_nos": [
+                        121
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "Q095",
+            "question": "Tôi có mảnh đất trồng cây lâu năm, giờ tôi muốn gom lại xây chuồng trại chăn nuôi lợn gà quy mô lớn thì có phải xin phép ai không hay cứ thế xây thôi?",
+            "answer": "Bạn không được tự ý xây dựng mà bắt buộc phải xin phép cơ quan chức năng . Việc chuyển từ các loại đất khác (như đất trồng cây lâu năm) sang đất chăn nuôi tập trung thuộc trường hợp chuyển mục đích sử dụng đất và phải được cơ quan nhà nước có thẩm quyền cho phép .",
+            "question_type": "situational",
+            "law_id": {
+                "chapter_no": 9,
+                "section_no": null,
+                "article_no": 121,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q096",
+            "question": "Người được Nhà nước giao đất để thực hiện dự án đầu tư phải đáp ứng những điều kiện gì? Và ai có thẩm quyền giao đất cho tổ chức trong nước?",
+            "answer": "Người được giao đất phải đáp ứng: (a) Ký quỹ hoặc các hình thức bảo đảm khác theo quy định của pháp luật về đầu tư; (b) Có năng lực tài chính để bảo đảm sử dụng đất theo tiến độ dự án; (c) Không vi phạm quy định pháp luật về đất đai hoặc đã chấp hành xong quyết định, bản án có hiệu lực (Điều 122 khoản 2). Thẩm quyền giao đất cho tổ chức trong nước thuộc Ủy ban nhân dân cấp tỉnh (Điều 123 khoản 1 điểm a).",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 9,
+                    "section_no": null,
+                    "article_no": 122,
+                    "clause_nos": [
+                        2
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 9,
+                    "section_no": null,
+                    "article_no": 123,
+                    "clause_nos": [
+                        1
+                    ],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q097",
+            "question": "Ai có thẩm quyền giao đất, cho thuê đất đối với tổ chức nước ngoài có chức năng ngoại giao?",
+            "answer": "Ủy ban nhân dân cấp tỉnh có thẩm quyền cho thuê đất đối với tổ chức nước ngoài có chức năng ngoại giao.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 9,
+                "section_no": null,
+                "article_no": 123,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q098",
+            "question": "Ủy ban nhân dân cấp huyện có thẩm quyền giao đất, cho thuê đất cho những đối tượng nào?",
+            "answer": "Ủy ban nhân dân cấp huyện quyết định giao đất, cho thuê đất, cho phép chuyển mục đích sử dụng đất đối với: (a) Cá nhân (trường hợp cho cá nhân thuê đất thương mại, dịch vụ từ 0,5 ha trở lên phải có văn bản chấp thuận của UBND cấp tỉnh); (b) Cộng đồng dân cư.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 9,
+                "section_no": null,
+                "article_no": 123,
+                "clause_nos": [
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q099",
+            "question": "Trong trường hợp đấu giá quyền sử dụng đất không thành 2 lần, việc giao đất được thực hiện như thế nào?",
+            "answer": "Trường hợp đất đưa ra đấu giá quyền sử dụng đất 02 lần không thành hoặc không có người tham gia, thì được giao đất, cho thuê đất không qua đấu giá, không đấu thầu theo Điều 124 khoản 6. Thời gian giao đất, cho thuê đất trong trường hợp này chỉ được thực hiện trong vòng 12 tháng kể từ ngày đấu giá không thành lần 2.",
+            "question_type": "conditional",
+            "law_id": [
+                {
+                    "chapter_no": 9,
+                    "section_no": null,
+                    "article_no": 124,
+                    "clause_nos": [
+                        6
+                    ],
+                    "ref_article_nos": [
+                        125
+                    ]
+                },
+                {
+                    "chapter_no": 9,
+                    "section_no": null,
+                    "article_no": 125,
+                    "clause_nos": [
+                        6
+                    ],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q100",
+            "question": "Chính quyền tổ chức đấu giá một lô đất hai lần rồi mà chẳng có ai tham gia trả giá. Vậy giờ họ có được phép giao thẳng lô đất đó cho người có nhu cầu mà không cần đấu giá nữa không?",
+            "answer": "Được phép. Trường hợp đất đưa ra đấu giá quyền sử dụng đất 02 lần không thành hoặc không có người tham gia thì Nhà nước sẽ tiến hành giao đất, cho thuê đất mà không thông qua đấu giá hay đấu thầu. Tuy nhiên, thời gian giao đất trong trường hợp này chỉ được thực hiện trong vòng 12 tháng kể từ ngày đấu giá lần 2 không thành.",
+            "question_type": "conditional",
+            "law_id": {
+                "chapter_no": 9,
+                "section_no": null,
+                "article_no": 124,
+                "clause_nos": [
+                    6
+                ],
+                "ref_article_nos": [
+                    125
+                ]
+            }
+        },
+        {
+            "id": "Q101",
+            "question": "Điều kiện để tổ chức tham gia đấu giá quyền sử dụng đất là gì?",
+            "answer": "Tổ chức tham gia đấu giá phải có đủ các điều kiện: (a) Thuộc đối tượng được Nhà nước giao đất, cho thuê đất theo quy định tại Điều 119 và Điều 120; (b) Bảo đảm các điều kiện tại Điều 122 đối với trường hợp giao đất, cho thuê đất để thực hiện dự án đầu tư; có năng lực, kinh nghiệm trong việc phát triển dự án; (c) Điều kiện khác theo quy định của pháp luật về đấu giá tài sản.",
+            "question_type": "conditional",
+            "law_id": {
+                "chapter_no": 9,
+                "section_no": null,
+                "article_no": 125,
+                "clause_nos": [
+                    3
+                ],
+                "ref_article_nos": [
+                    119,
+                    120,
+                    122
+                ]
+            }
+        },
+        {
+            "id": "Q102",
+            "question": "Công ty cổ phần X muốn tham gia đấu thầu lựa chọn nhà đầu tư để thực hiện một dự án khu đô thị có sử dụng đất (dự án thuộc diện Nhà nước thu hồi đất). Để hợp lệ tham gia đấu thầu, Công ty X phải đáp ứng các điều kiện pháp lý nào về mặt đất đai?",
+            "answer": "Để tham gia đấu thầu, Công ty X phải đáp ứng 2 điều kiện cốt lõi về đất đai: Thứ nhất, phải thuộc đối tượng được Nhà nước giao đất có thu tiền sử dụng đất hoặc cho thuê đất. Thứ hai, phải bảo đảm các điều kiện giao đất, cho thuê đất để thực hiện dự án đầu tư.",
+            "question_type": "situational",
+            "law_id": {
+                "chapter_no": 9,
+                "section_no": null,
+                "article_no": 126,
+                "clause_nos": [
+                    3
+                ],
+                "ref_article_nos": [
+                    4,
+                    5,
+                    6
+                ]
+            }
+        },
+        {
+            "id": "Q103",
+            "question": "Hồ sơ địa chính được lập dưới dạng số bao gồm các loại tài liệu nào?",
+            "answer": "Hồ sơ địa chính bao gồm các tài liệu sau đây: (a) Bản đồ địa chính; (b) Sổ mục kê đất đai; (c) Sổ địa chính; (d) Bản sao các loại giấy chứng nhận về quyền sử dụng đất, quyền sở hữu nhà ở và tài sản khác gắn liền với đất.",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 10,
+                "section_no": null,
+                "article_no": 129,
+                "clause_nos": [
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q104",
+            "question": "Đăng ký đất đai lần đầu được thực hiện đối với những trường hợp thửa đất nào?",
+            "answer": "Đăng ký lần đầu thực hiện đối với: (a) Thửa đất đang sử dụng mà chưa đăng ký; (b) Thửa đất được Nhà nước giao, cho thuê để sử dụng; (c) Thửa đất được giao để quản lý mà chưa đăng ký.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 10,
+                "section_no": null,
+                "article_no": 132,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q105",
+            "question": "Đăng ký đất đai có phải là thủ tục bắt buộc đối với mọi người sử dụng đất và người được giao đất quản lý không?",
+            "answer": "Có. Đăng ký đất đai, tài sản gắn liền với đất là bắt buộc đối với người sử dụng đất và người được giao đất để quản lý; đăng ký quyền sở hữu tài sản gắn liền với đất thực hiện theo yêu cầu của chủ sở hữu.",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 10,
+                "section_no": null,
+                "article_no": 132,
+                "clause_nos": [
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q106",
+            "question": "Người sử dụng đất phải thực hiện thủ tục đăng ký biến động đất đai trong những trường hợp biến đổi thông tin nào?",
+            "answer": "Đăng ký biến động được thực hiện khi: (1) Người sử dụng đất thực hiện các quyền chuyển nhượng, tặng cho, cho thuê, thế chấp, góp vốn; (2) Thay đổi tên, thay đổi thông tin về hộ tịch, giấy tờ pháp lý của người sử dụng đất; (3) Thay đổi địa chỉ thửa đất; (4) Thay đổi hình thức sử dụng đất (giao đất sang thuê đất); (5) Thay đổi mục đích sử dụng đất; (6) Thay đổi thời hạn sử dụng đất; (7) Chuyển từ thuê hằng năm sang thuê một lần; (8) Thay đổi diện tích, kích thước thửa đất; (9) Thay đổi tài sản gắn liền với đất.",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 10,
+                "section_no": null,
+                "article_no": 133,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q107",
+            "question": "Trong thời hạn bao nhiêu ngày kể từ ngày ký hợp đồng chuyển nhượng quyền sử dụng đất, các bên phải làm thủ tục đăng ký biến động tại cơ quan đăng ký đất đai?",
+            "answer": "Trong thời hạn không quá 30 ngày kể từ ngày có biến động (ngày ký hợp đồng chuyển nhượng hoặc văn bản thỏa thuận có hiệu lực), người sử dụng đất phải nộp hồ sơ đăng ký biến động đất đai.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 10,
+                "section_no": null,
+                "article_no": 133,
+                "clause_nos": [
+                    3
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q108",
+            "question": "Mảnh đất nhà tôi sử dụng từ năm 1980 không có sổ đỏ, nhưng tôi còn giữ tờ Đơn xin đăng ký quyền sử dụng ruộng đất có mộc đỏ hồi đó. Tờ giấy này có giá trị để xin cấp sổ đỏ bây giờ không?",
+            "answer": "Có. Theo quy định, Đơn xin đăng ký quyền sử dụng ruộng đất được lập trong quá trình thực hiện đăng ký ruộng đất theo Chỉ thị số 299/TTg (năm 1980) do cơ quan nhà nước đang quản lý và có tên người sử dụng đất, được pháp luật công nhận là một trong những loại giấy tờ hợp pháp để làm căn cứ xét cấp Giấy chứng nhận quyền sử dụng đất (Sổ đỏ).",
+            "question_type": "situational",
+            "law_id": {
+                "chapter_no": 10,
+                "section_no": null,
+                "article_no": 137,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q109",
+            "question": "Tôi có mua một mảnh đất hồi năm 2012 chỉ làm giấy viết tay với nhau thôi, giờ tôi muốn xin cấp sổ đỏ đứng tên tôi thì nhà nước có công nhận tờ giấy viết tay đó không?",
+            "answer": "Tờ giấy viết tay đó có thể được công nhận để cấp sổ . Đối với hộ gia đình, cá nhân đã nhận chuyển nhượng quyền sử dụng đất bằng giấy viết tay trước ngày 01/8/2024 và đang sử dụng đất ổn định, nếu đáp ứng đủ điều kiện sẽ được cấp Giấy chứng nhận quyền sử dụng đất mới trực tiếp mà không cần làm thủ tục sang tên từ chủ cũ .",
+            "question_type": "situational",
+            "law_id": {
+                "chapter_no": 10,
+                "section_no": null,
+                "article_no": 137,
+                "clause_nos": [
+                    5
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q110",
+            "question": "Gia đình ông A sử dụng một mảnh đất có xây nhà ở từ năm 1979 đến nay. Mảnh đất này hoàn toàn không có giấy tờ về quyền sử dụng đất, nhưng được UBND xã xác nhận là không có tranh chấp. Mảnh đất này nhỏ hơn hạn mức đất ở của địa phương. Vậy ông A có được cấp Sổ đỏ không và có phải nộp tiền sử dụng đất không?",
+            "answer": "Gia đình ông A đủ điều kiện được cấp Sổ đỏ và không phải nộp tiền sử dụng đất. Do thời điểm bắt đầu sử dụng là từ năm 1979 (trước ngày 18/12/1980) và diện tích đất nhỏ hơn hạn mức công nhận đất ở, nên toàn bộ diện tích thửa đất đó được xác định là đất ở hợp pháp.",
+            "question_type": "situational",
+            "law_id": {
+                "chapter_no": 10,
+                "section_no": null,
+                "article_no": 138,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": [
+                    2
+                ]
+            }
+        },
+        {
+            "id": "Q111",
+            "question": "Bố tôi để lại mảnh đất từ hồi năm 1990, chẳng có giấy tờ gì cả, nhưng nhà tôi ở yên ổn từ đó đến giờ không ai tranh chấp. Giờ tôi đi làm sổ đỏ thì có bị phạt hay phải đóng tiền đất không?",
+            "answer": "Gia đình bạn đủ điều kiện làm sổ đỏ và có thể không phải nộp tiền sử dụng đất . Diện tích đất sử dụng từ ngày 18/12/1980 đến trước ngày 15/10/1993, nay được Ủy ban nhân dân cấp xã xác nhận không có tranh chấp thì sẽ được xem xét cấp Giấy chứng nhận . Nếu diện tích đất có nhà ở nằm trong hạn mức công nhận đất ở của địa phương, gia đình sẽ không phải nộp tiền sử dụng đất .",
+            "question_type": "situational",
+            "law_id": {
+                "chapter_no": 10,
+                "section_no": null,
+                "article_no": 138,
+                "clause_nos": [
+                    5
+                ],
+                "ref_article_nos": [
+                    12
+                ]
+            }
+        },
+        {
+            "id": "Q112",
+            "question": "Hộ gia đình đang sử dụng đất nông nghiệp do tự khai hoang mà diện tích vượt hạn mức giao đất của địa phương thì phần vượt hạn mức đó được xử lý thế nào khi cấp Sổ đỏ?",
+            "answer": "Trong trường hợp hộ gia đình, cá nhân đang sử dụng đất nông nghiệp do tự khai hoang, không có tranh chấp thì được cấp Giấy chứng nhận quyền sử dụng đất theo hạn mức giao đất nông nghiệp do Ủy ban nhân dân cấp tỉnh quy định. Đối với phần diện tích vượt hạn mức do Ủy ban nhân dân cấp tỉnh quy định thì phần diện tích vượt hạn mức đó phải chuyển sang thuê đất của Nhà nước.",
+            "question_type": "conditional",
+            "law_id": {
+                "chapter_no": 10,
+                "section_no": null,
+                "article_no": 139,
+                "clause_nos": [
+                    4
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q113",
+            "question": "Thửa đất đang sử dụng được hình thành trước ngày quy định về diện tích tối thiểu được tách thửa có hiệu lực, nhưng lại có diện tích nhỏ hơn diện tích tối thiểu thì có được cấp Sổ đỏ không?",
+            "answer": "Có. Căn cứ khoản 1 Điều 146, thửa đất đang sử dụng được hình thành trước ngày văn bản quy định của Ủy ban nhân dân cấp tỉnh về diện tích tối thiểu được tách thửa có hiệu lực thi hành mà diện tích thửa đất nhỏ hơn diện tích tối thiểu nhưng có đủ điều kiện cấp Giấy chứng nhận thì người đang sử dụng đất vẫn được cấp Giấy chứng nhận quyền sử dụng đất.",
+            "question_type": "conditional",
+            "law_id": {
+                "chapter_no": 10,
+                "section_no": null,
+                "article_no": 146,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q114",
+            "question": "Tôi đi làm thủ tục sang tên sổ đỏ thì cơ quan đăng ký phát hiện ra Sổ đỏ của tôi cấp trước đây bị sai diện tích do cán bộ đo đạc tính toán nhầm. Nhà nước xử lý trường hợp này như thế nào và có thu hồi Sổ đỏ của tôi không?",
+            "answer": "Cơ quan đăng ký đất đai sẽ thực hiện đính chính hoặc tiến hành thu hồi Giấy chứng nhận đã cấp. Theo quy định, Nhà nước thu hồi Giấy chứng nhận đã cấp trong trường hợp Giấy chứng nhận cấp không đúng diện tích đất, không đúng loại đất, không đúng đối tượng sử dụng, hoặc không đúng hạn mức đất quy định, trừ trường hợp người được cấp Giấy chứng nhận đã thực hiện chuyển quyền sử dụng đất, chuyển mục đích sử dụng đất theo quy định pháp luật.",
+            "question_type": "situational",
+            "law_id": {
+                "chapter_no": 10,
+                "section_no": null,
+                "article_no": 152,
+                "clause_nos": [
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q115",
+            "question": "Công ty tôi trúng thầu dự án, đã được nhà nước giao đất nhưng do thiếu vốn nên chậm đưa đất vào sử dụng. Vậy ngoài tiền thuê đất, công ty có bị phạt hay thu thêm khoản tiền nào khác không?",
+            "answer": "Có. Theo quy định về tài chính đất đai, một trong các khoản thu ngân sách từ đất đai là khoản tiền sử dụng đất tăng thêm, hoặc tiền thuê đất tăng thêm đối với các dự án không đưa đất vào sử dụng hoặc chậm tiến độ sử dụng so với cam kết.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 11,
+                "section_no": 1,
+                "article_no": 153,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q116",
+            "question": "Theo Luật Đất đai 2024, các khoản thu ngân sách từ đất đai bao gồm những khoản thu nào?",
+            "answer": "Các khoản thu ngân sách từ đất đai bao gồm: (a) Tiền sử dụng đất; (b) Tiền thuê đất; (c) Tiền thu từ việc xử phạt vi phạm hành chính về đất đai; (d) Tiền bồi thường cho Nhà nước khi gây thiệt hại; (đ) Tiền sử dụng/thuê đất tăng thêm đối với dự án chậm tiến độ; (e) Thuế sử dụng đất; (g) Thuế thu nhập từ chuyển quyền sử dụng đất; và các loại phí, lệ phí liên quan.",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 11,
+                "section_no": 1,
+                "article_no": 153,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q117",
+            "question": "Tôi chuẩn bị lên cơ quan tài nguyên để xin trích lục bản đồ địa chính và nhờ tư vấn giá đất mảnh vườn nhà mình, thì hiện nay những dịch vụ công nào về đất đai sẽ bị thu tiền?",
+            "answer": "Theo Luật Đất đai 2024, các khoản thu từ dịch vụ công về đất đai bao gồm 4 nhóm dịch vụ chính: (1) Dịch vụ cung cấp thông tin, dữ liệu về đất đai; (2) Dịch vụ đo đạc địa chính; (3) Dịch vụ đăng ký đất đai, cấp Giấy chứng nhận (Sổ đỏ); và (4) Dịch vụ tư vấn xác định giá đất.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 11,
+                "section_no": 1,
+                "article_no": 154,
+                "clause_nos": [
+                    1,
+                    2,
+                    3,
+                    4
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q118",
+            "question": "Những đối tượng nào được Nhà nước xem xét miễn, giảm tiền sử dụng đất, tiền thuê đất theo Luật Đất đai 2024?",
+            "answer": "Các trường hợp được miễn, giảm bao gồm: (1) Sử dụng đất vào mục đích công ích, quốc phòng, an ninh, cơ sở tôn giáo; (2) Sử dụng đất thực hiện dự án ưu đãi đầu tư; (3) Hộ gia đình, cá nhân thuộc diện nghèo, cận nghèo, đồng bào dân tộc thiểu số tại vùng khó khăn; (4) Sử dụng đất xây dựng nhà ở xã hội, nhà ở công vụ; (5) Đất sản xuất nông nghiệp của đồng bào dân tộc thiểu số; (6) Đất xây dựng công trình công cộng có mục đích kinh doanh; (7) Đối tượng chính sách, người có công với cách mạng.",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 11,
+                "section_no": 1,
+                "article_no": 157,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q119",
+            "question": "Việc định giá đất phải bảo đảm những nguyên tắc gì?",
+            "answer": "Việc định giá đất phải bảo đảm: (a) Phương pháp định giá đất theo nguyên tắc thị trường; (b) Tuân thủ đúng phương pháp, trình tự, thủ tục định giá đất; (c) Bảo đảm trung thực, khách quan, công khai, minh bạch; (d) Bảo đảm tính độc lập giữa tổ chức tư vấn, Hội đồng thẩm định và cơ quan quyết định giá đất; (đ) Bảo đảm hài hòa lợi ích giữa Nhà nước, người sử dụng đất và nhà đầu tư.",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 11,
+                "section_no": 2,
+                "article_no": 158,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q120",
+            "question": "Tôi nghe nói luật mới bỏ khung giá đất rồi, vậy hiện nay nhà nước đang áp dụng những cách nào để định giá một mảnh đất vậy?",
+            "answer": "Theo Luật Đất đai 2024, hiện nay có 4 phương pháp định giá đất chính được áp dụng bao gồm: Phương pháp so sánh, Phương pháp thu nhập, Phương pháp thặng dư và Phương pháp hệ số điều chỉnh giá đất. Ngoài ra, Chính phủ có thể quy định phương pháp khác sau khi được Ủy ban Thường vụ Quốc hội đồng ý.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 11,
+                "section_no": 2,
+                "article_no": 158,
+                "clause_nos": [
+                    5
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q121",
+            "question": "Có những phương pháp định giá đất nào theo Luật Đất đai 2024?",
+            "answer": "Có 4 phương pháp định giá đất chính: (a) Phương pháp so sánh; (b) Phương pháp thu nhập; (c) Phương pháp thặng dư; (d) Phương pháp hệ số điều chỉnh giá đất. Ngoài ra, Chính phủ có thể quy định phương pháp khác sau khi được Ủy ban Thường vụ Quốc hội đồng ý.",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 11,
+                "section_no": 2,
+                "article_no": 158,
+                "clause_nos": [
+                    5
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q122",
+            "question": "Bảng giá đất được áp dụng trong những trường hợp nào?",
+            "answer": "Bảng giá đất được áp dụng cho: (a) Tính tiền sử dụng đất khi Nhà nước công nhận quyền sử dụng đất ở của hộ gia đình, cá nhân; (b) Tính tiền thuê đất hằng năm; (c) Tính thuế sử dụng đất; (d) Tính thuế thu nhập từ chuyển quyền sử dụng đất; (đ) Tính lệ phí đất đai; (e) Tính tiền xử phạt vi phạm; (g) Tính tiền bồi thường khi gây thiệt hại; (h) Tính tiền sử dụng đất cho hộ gia đình, cá nhân; (i) Tính giá khởi điểm đấu giá; (k) Tính tiền sử dụng đất giao không qua đấu giá; (l) Tính tiền bán nhà ở thuộc sở hữu nhà nước.",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 11,
+                "section_no": 2,
+                "article_no": 159,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q123",
+            "question": "Hệ thống thông tin quốc gia về đất đai được xây dựng tập trung thống nhất gồm những thành phần dữ liệu chính nào?",
+            "answer": "Hệ thống thông tin quốc gia về đất đai bao gồm: (1) Hạ tầng kỹ thuật công nghệ thông tin; (2) Phần mềm hệ thống và phần mềm ứng dụng; (3) Cơ sở dữ liệu quốc gia về đất đai.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 12,
+                "section_no": null,
+                "article_no": 163,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q124",
+            "question": "Cơ sở dữ liệu quốc gia về đất đai bao gồm những thành phần dữ liệu chuyên ngành nào?",
+            "answer": "Cơ sở dữ liệu quốc gia về đất đai bao gồm: (a) Cơ sở dữ liệu về văn bản quy phạm pháp luật đất đai; (b) Cơ sở dữ liệu địa chính; (c) Cơ sở dữ liệu điều tra cơ bản về đất đai; (d) Cơ sở dữ liệu quy hoạch, kế hoạch sử dụng đất; (đ) Cơ sở dữ liệu giá đất; (e) Cơ sở dữ liệu thống kê, kiểm kê đất đai; (g) Cơ sở dữ liệu thanh tra, kiểm tra, tranh chấp, khiếu nại, tố cáo; (h) Cơ sở dữ liệu khác liên quan đến đất đai.",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 12,
+                "section_no": null,
+                "article_no": 165,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q125",
+            "question": "Có một đại sứ quán nước ngoài đang muốn thuê đất ở khu tôi sống để xây dựng trụ sở làm việc, họ có được phép thuê thời hạn rất dài lên tới tận 99 năm không?",
+            "answer": "Có. Pháp luật cho phép thời hạn Nhà nước cho thuê đất để xây dựng trụ sở làm việc của tổ chức nước ngoài có chức năng ngoại giao là không quá 99 năm.",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 13,
+                "section_no": null,
+                "article_no": 172,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q126",
+            "question": "Hạn mức tối đa giao đất trồng cây lâu năm cho cá nhân tại các xã, phường, thị trấn ở khu vực đồng bằng là bao nhiêu?",
+            "answer": "Hạn mức giao đất trồng cây lâu năm cho cá nhân không quá 10 ha đối với xã, phường, thị trấn ở đồng bằng.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 13,
+                "section_no": null,
+                "article_no": 176,
+                "clause_nos": [
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q127",
+            "question": "Tôi muốn xin chính quyền giao cho một khu đất trống chưa ai sử dụng để khai hoang trồng cây nông nghiệp, vậy pháp luật quy định diện tích tối đa tôi được nhận là bao nhiêu?",
+            "answer": "Hạn mức giao đất chưa sử dụng cho cá nhân để sản xuất nông nghiệp, lâm nghiệp, nuôi trồng thủy sản, làm muối không được vượt quá hạn mức giao đất nông nghiệp thông thường tương ứng với từng loại đất. Điểm đặc biệt là diện tích này sẽ không bị tính gộp chung vào hạn mức giao đất nông nghiệp mà cá nhân bạn đang có.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 13,
+                "section_no": null,
+                "article_no": 176,
+                "clause_nos": [
+                    5
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q128",
+            "question": "Đất trồng lúa được phân thành những loại nào và đất chuyên trồng lúa được quy định ra sao?",
+            "answer": "Đất trồng lúa bao gồm đất chuyên trồng lúa và đất trồng lúa còn lại. Trong đó, đất chuyên trồng lúa là đất trồng từ 02 vụ lúa trở lên.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 13,
+                "section_no": null,
+                "article_no": 182,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q129",
+            "question": "Người sử dụng đất trồng lúa có được sử dụng một phần diện tích đất để nuôi trồng thủy sản kết hợp hoặc trồng cây hằng năm khác không?",
+            "answer": "Có được phép. Người sử dụng đất trồng lúa được sử dụng một phần diện tích đất để nuôi trồng thủy sản hoặc trồng cây hằng năm khác kết hợp nhưng không làm mất đi các điều kiện cần thiết để trồng lúa trở lại, và phải báo cáo Ủy ban nhân dân cấp xã nơi có đất.",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 13,
+                "section_no": null,
+                "article_no": 182,
+                "clause_nos": [
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q130",
+            "question": "Nhà nước giao đất rừng sản xuất là rừng tự nhiên cho những đối tượng nào quản lý và bảo vệ?",
+            "answer": "Nhà nước giao đất rừng sản xuất là rừng tự nhiên cho tổ chức quản lý rừng để quản lý, bảo vệ và phát triển rừng; không giao đất rừng tự nhiên cho cá nhân sử dụng trực tiếp.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 13,
+                "section_no": null,
+                "article_no": 184,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q131",
+            "question": "Tổ chức kinh tế có được Nhà nước cho thuê đất rừng sản xuất là rừng trồng để thực hiện dự án lâm nghiệp kết hợp du lịch sinh thái không?",
+            "answer": "Có được phép. Nhà nước cho thuê đất rừng sản xuất là rừng trồng đối với tổ chức kinh tế, cá nhân để sản xuất lâm nghiệp, kết hợp đầu tư xây dựng các công trình phục vụ du lịch sinh thái, nghỉ dưỡng dưới tán rừng phù hợp với phương án quản lý rừng bền vững.",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 13,
+                "section_no": null,
+                "article_no": 184,
+                "clause_nos": [
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q132",
+            "question": "Nhà nước khuyến khích sử dụng những vùng đất nào để làm muối và phát triển nghề muối?",
+            "answer": "Nhà nước khuyến khích sử dụng các vùng đất có khả năng làm muối để sản xuất muối; ưu tiên đầu tư nghiên cứu, ứng dụng khoa học và công nghệ vào sản xuất muối, bảo tồn và phát triển nghề làm muối truyền thống tại địa phương.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 13,
+                "section_no": null,
+                "article_no": 188,
+                "clause_nos": [
+                    1,
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q133",
+            "question": "Tổ chức kinh tế được cấp phép khai thác khoáng sản muốn sử dụng đất để xây dựng bãi chứa quặng và nhà xưởng tuyển khoáng thì phải thuê đất theo hình thức nào?",
+            "answer": "Tổ chức kinh tế sử dụng đất cho hoạt động khoáng sản phải thuê đất của Nhà nước theo hình thức thuê đất trả tiền thuê đất hằng năm hoặc thuê đất trả tiền một lần cho cả thời gian thuê, phù hợp với thời hạn khai thác khoáng sản ghi trên Giấy phép khai thác khoáng sản.",
+            "question_type": "conditional",
+            "law_id": {
+                "chapter_no": 13,
+                "section_no": null,
+                "article_no": 199,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q134",
+            "question": "Các đơn vị quản lý, sử dụng đất quốc phòng, an ninh kết hợp với hoạt động lao động sản xuất, xây dựng kinh tế có được phép tự ý chuyển mục đích sử dụng đất không?",
+            "answer": "Không. Đối tượng sử dụng đất quốc phòng, an ninh kết hợp với hoạt động lao động sản xuất, xây dựng kinh tế không được tự ý chuyển mục đích sử dụng đất.",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 13,
+                "section_no": null,
+                "article_no": 201,
+                "clause_nos": [
+                    3
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q135",
+            "question": "Đất sử dụng cho khu kinh tế bao gồm những diện tích đất sử dụng cho các khu chức năng nào?",
+            "answer": "Đất sử dụng cho khu kinh tế bao gồm: (a) Đất sử dụng cho khu phi thuế quan, khu bảo thuế, khu chế xuất, khu công nghiệp; (b) Đất sử dụng cho khu giải trí, khu du lịch; (c) Đất sử dụng cho khu đô thị, khu dân cư; (d) Đất sử dụng cho khu hành chính và khu chức năng khác nhằm tạo môi trường đầu tư kinh doanh thuận lợi.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 13,
+                "section_no": null,
+                "article_no": 203,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q136",
+            "question": "Một công ty muốn thuê lại phần mặt nước ao hồ công cộng của địa phương để nuôi cá tra xuất khẩu thì có được không và cơ quan nào có thẩm quyền cho thuê?",
+            "answer": "Được thuê sử dụng. Đất có mặt nước chuyên dùng là ao, hồ, đầm do các cơ quan, tổ chức của Nhà nước hoặc cá nhân quản lý sử dụng. Nhà nước cho thuê đất có mặt nước chuyên dùng đối với tổ chức kinh tế để thực hiện dự án nuôi trồng thủy sản, sản xuất nông nghiệp kết hợp thương mại dịch vụ. Thẩm quyền cho thuê đất thuộc về Ủy ban nhân dân cấp tỉnh hoặc cấp huyện tùy thuộc vào đối tượng thuê.",
+            "question_type": "situational",
+            "law_id": {
+                "chapter_no": 13,
+                "section_no": null,
+                "article_no": 211,
+                "clause_nos": [
+                    1,
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q137",
+            "question": "Các thủ tục hành chính về đất đai theo quy định của Luật Đất đai 2024 bao gồm những thủ tục nào?",
+            "answer": "Các thủ tục hành chính về đất đai bao gồm: (a) Thủ tục thu hồi đất, giao đất, cho thuê đất, chuyển mục đích sử dụng đất, gia hạn sử dụng đất, điều chỉnh thời hạn sử dụng đất; (b) Thủ tục đăng ký đất đai, tài sản gắn liền với đất; (c) Thủ tục cấp Giấy chứng nhận quyền sử dụng đất, quyền sở hữu tài sản gắn liền với đất; thủ tục đính chính, thu hồi, hủy giấy nhận đã cấp; (d) Thủ tục thực hiện các quyền của người sử dụng đất; (đ) Thủ tục tách thửa đất, hợp thửa đất; (e) Thủ tục cưỡng chế thực hiện quyết định kiểm đếm bắt buộc, cưỡng chế thu hồi đất; (g) Thủ tục hòa giải tranh chấp đất đai, giải quyết tranh chấp đất đai tại cơ quan hành chính; (h) Thủ tục xử phạt vi phạm hành chính trong lĩnh vực đất đai; (i) Thủ tục cung cấp thông tin, dữ liệu đất đai; (k) Thủ tục hành chính khác về đất đai.",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 14,
+                "section_no": null,
+                "article_no": 223,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q138",
+            "question": "Các thủ tục hành chính về đất đai được thực hiện bằng hình thức trực tuyến trên môi trường điện tử có giá trị pháp lý tương đương với hình thức nộp trực tiếp không?",
+            "answer": "Có. Các thủ tục hành chính về đất đai được thực hiện bằng hình thức trực tiếp, qua hệ thống bưu chính hoặc trên môi trường điện tử và các hình thức này có giá trị pháp lý hoàn toàn như nhau.",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 14,
+                "section_no": null,
+                "article_no": 224,
+                "clause_nos": [
+                    4
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q139",
+            "question": "Doanh nghiệp của tôi muốn xin xây dựng một bãi đỗ xe ngầm sâu dưới lòng đất khu vực công viên thành phố thì phải tuân thủ các nguyên tắc cốt lõi nào?",
+            "answer": "Việc sử dụng đất để xây dựng công trình ngầm phải đáp ứng 5 nguyên tắc: (1) Bảo đảm quốc phòng, an ninh, bảo vệ môi trường, di tích lịch sử - văn hóa; (2) Phù hợp với quy hoạch xây dựng, quy hoạch đô thị; (3) Bồi thường thiệt hại nếu gây ảnh hưởng đến người sử dụng đất trên bề mặt; (4) Phải được thực hiện theo dự án đầu tư hợp pháp; và (5) Tuân thủ quy định của pháp luật về xây dựng.",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 15,
+                "section_no": null,
+                "article_no": 216,
+                "clause_nos": [
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q140",
+            "question": "Nhà tôi có mảnh đất nông nghiệp trồng cây lâu năm, giờ tôi muốn kết hợp dựng thêm mấy tấm pin năng lượng mặt trời trên đất để bán điện thì có được phép không?",
+            "answer": "Được phép. Pháp luật quy định đất nông nghiệp được phép sử dụng kết hợp đa mục đích, bao gồm việc xây dựng công trình điện mặt trời. Tuy nhiên, việc kết hợp này phải đáp ứng điều kiện là không làm thay đổi loại đất ban đầu và không làm mất đi điều kiện cần thiết để có thể quay lại sử dụng vào mục đích trồng trọt chính.",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 15,
+                "section_no": null,
+                "article_no": 218,
+                "clause_nos": [
+                    1,
+                    2
+                ],
+                "ref_article_nos": [
+                    9
+                ]
+            }
+        },
+        {
+            "id": "Q141",
+            "question": "Nhà tôi có mảnh đất thổ cư bề ngang hơi nhỏ. Giờ tôi muốn cắt đôi ra chia cho hai đứa con trai thì xã bảo không đủ kích thước tối thiểu nên không cho tách. Họ làm thế đúng không?",
+            "answer": "Cơ quan chức năng trả lời như vậy là đúng pháp luật. Một trong những nguyên tắc bắt buộc khi thực hiện việc tách thửa đất là các thửa đất sau khi tách phải bảo đảm diện tích và kích thước tối thiểu theo quy định cụ thể của Ủy ban nhân dân cấp tỉnh nơi có đất.",
+            "question_type": "situational",
+            "law_id": {
+                "chapter_no": 15,
+                "section_no": null,
+                "article_no": 220,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q142",
+            "question": "Trường hợp phân chia quyền sử dụng đất theo bản án của Tòa án nhưng việc phân chia lại không bảo đảm các điều kiện về diện tích, kích thước tách thửa tối thiểu thì giải quyết như thế nào?",
+            "answer": "Trường hợp phân chia quyền sử dụng đất theo bản án, quyết định của Tòa án mà việc phân chia không bảo đảm các điều kiện, diện tích, kích thước tách thửa theo quy định thì không thực hiện tách thửa.",
+            "question_type": "conditional",
+            "law_id": {
+                "chapter_no": 15,
+                "section_no": null,
+                "article_no": 220,
+                "clause_nos": [
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q143",
+            "question": "Hai nhà hàng xóm cãi nhau xem ranh giới mảnh đất nằm ở đoạn nào, có bắt buộc phải lôi nhau ra ủy ban xã nhờ hòa giải trước khi đưa đơn lên Tòa án kiện không?",
+            "answer": "Có, việc này là bắt buộc theo quy định của pháp luật . Đối với tranh chấp để xác định ai là người có quyền sử dụng đất, pháp luật bắt buộc các bên phải thực hiện thủ tục hòa giải tại Ủy ban nhân dân cấp xã nơi có đất trước khi khởi kiện . Nếu bỏ qua bước này, Tòa án sẽ trả lại đơn khởi kiện của bạn .",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 15,
+                "section_no": null,
+                "article_no": 235,
+                "clause_nos": [
+                    5
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q144",
+            "question": "Cơ quan nào thực hiện quyền giám sát tối cao đối với việc quản lý và sử dụng đất đai trên phạm vi cả nước?",
+            "answer": "Quốc hội thực hiện quyền giám sát tối cao đối với việc quản lý và sử dụng đất đai trên phạm vi cả nước theo quy định của Hiến pháp và Luật Hoạt động giám sát của Quốc hội và Hội đồng nhân dân.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 15,
+                "section_no": 1,
+                "article_no": 230,
+                "clause_nos": [],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q145",
+            "question": "Công dân thực hiện quyền giám sát đối với việc quản lý và sử dụng đất đai bằng những hình thức nào?",
+            "answer": "Công dân tự mình hoặc thông qua các tổ chức đại diện (như Mặt trận Tổ quốc Việt Nam, các tổ chức thành viên của Mặt trận, ban thanh tra nhân dân, ban giám sát đầu tư của cộng đồng) thực hiện quyền giám sát, phản ánh và yêu cầu, kiến nghị cơ quan có thẩm quyền xử lý các sai phạm trong quản lý, sử dụng đất đai.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 15,
+                "section_no": 1,
+                "article_no": 231,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q146",
+            "question": "Tranh chấp đất đai mà đương sự có Giấy chứng nhận quyền sử dụng đất hoặc có một trong các loại giấy tờ quy định tại Điều 137 thì do cơ quan nào có thẩm quyền giải quyết?",
+            "answer": "Tranh chấp đất đai mà đương sự có Giấy chứng nhận quyền sử dụng đất hoặc có một trong các loại giấy tờ quy định tại Điều 137 và tranh chấp về tài sản gắn liền với đất thì do Tòa án nhân dân giải quyết theo quy định của pháp luật về tố tụng dân sự.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 15,
+                "section_no": 2,
+                "article_no": 236,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": [
+                    137
+                ]
+            }
+        },
+        {
+            "id": "Q147",
+            "question": "Đối với tranh chấp đất đai mà các bên đương sự hoàn toàn không có Giấy chứng nhận hoặc giấy tờ hợp pháp quy định tại Điều 137 thì thẩm quyền giải quyết thuộc về những cơ quan nào?",
+            "answer": "Trường hợp tranh chấp không có Giấy chứng nhận hoặc giấy tờ tại Điều 137, đương sự được lựa chọn một trong hai hình thức giải quyết: (1) Nộp đơn yêu cầu giải quyết tranh chấp tại Ủy ban nhân dân cấp có thẩm quyền (cấp huyện hoặc cấp tỉnh); (2) Khởi kiện tại Tòa án nhân dân theo quy định của pháp luật tố tụng dân sự.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 15,
+                "section_no": 2,
+                "article_no": 236,
+                "clause_nos": [
+                    2
+                ],
+                "ref_article_nos": [
+                    137
+                ]
+            }
+        },
+        {
+            "id": "Q148",
+            "question": "Trong trường hợp tranh chấp đất đai giữa hai tổ chức tôn giáo với nhau mà không có giấy tờ hợp pháp thì cơ quan nào giải quyết lần đầu và lần hai?",
+            "answer": "Tranh chấp đất đai giữa các tổ chức, tổ chức tôn giáo, tổ chức tôn giáo trực thuộc, tổ chức nước ngoài, cá nhân nước ngoài với nhau hoặc với hộ gia đình, cá nhân thì Chủ tịch Ủy ban nhân dân cấp tỉnh giải quyết lần đầu. Nếu các bên không đồng ý với quyết định giải quyết thì có quyền khiếu nại đến Bộ trưởng Bộ Tài nguyên và Môi trường hoặc khởi kiện tại Tòa án nhân dân.",
+            "question_type": "conditional",
+            "law_id": {
+                "chapter_no": 15,
+                "section_no": 2,
+                "article_no": 236,
+                "clause_nos": [
+                    3
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q149",
+            "question": "Thanh tra chuyên ngành về đất đai có những nhiệm vụ và nội dung thanh tra chính nào?",
+            "answer": "Nội dung thanh tra chuyên ngành bao gồm: (1) Thanh tra việc chấp hành pháp luật đất đai của Ủy ban nhân dân các cấp; (2) Thanh tra việc chấp hành pháp luật đất đai của người sử dụng đất và các tổ chức dịch vụ công về đất đai; (3) Thanh tra việc thực hiện các thủ tục hành chính, quy hoạch và quản lý tài chính đất đai.",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 15,
+                "section_no": 2,
+                "article_no": 237,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q150",
+            "question": "Luật Đất đai 2024 có hiệu lực thi hành từ ngày nào?",
+            "answer": "Luật Đất đai 2024 có hiệu lực thi hành từ ngày 01 tháng 01 năm 2025, trừ Điều 190 và Điều 248 có hiệu lực từ ngày 01 tháng 4 năm 2024.",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 16,
+                "section_no": 2,
+                "article_no": 252,
+                "clause_nos": [
+                    1,
+                    2
+                ],
+                "ref_article_nos": [
+                    190,
+                    248
+                ]
+            }
+        },
+        {
+            "id": "Q151",
+            "question": "Kinh phí lập, điều chỉnh, thẩm định, quyết định, phê duyệt và công bố quy hoạch, kế hoạch sử dụng đất có phải do cá nhân hay doanh nghiệp tự chi trả không?",
+            "answer": "Không. Theo quy định, toàn bộ kinh phí lập, điều chỉnh, thẩm định, quyết định, phê duyệt và công bố quy hoạch, kế hoạch sử dụng đất đều do ngân sách nhà nước bảo đảm từ nguồn sự nghiệp kinh tế [1].",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 5,
+                "section_no": null,
+                "article_no": 63,
+                "clause_nos": [],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q152",
+            "question": "Khi đã kết thúc thời kỳ quy hoạch sử dụng đất mà quy hoạch thời kỳ tiếp theo chưa được cơ quan nhà nước phê duyệt thì các chỉ tiêu sử dụng đất chưa thực hiện hết có bị hủy bỏ ngay lập tức không?",
+            "answer": "Không. Khi kết thúc thời kỳ quy hoạch sử dụng đất mà quy hoạch sử dụng đất thời kỳ tiếp theo chưa được cấp có thẩm quyền quyết định, phê duyệt thì các chỉ tiêu sử dụng đất chưa thực hiện hết vẫn được tiếp tục thực hiện cho đến khi quy hoạch sử dụng đất thời kỳ tiếp theo được cơ quan nhà nước có thẩm quyền quyết định, phê duyệt [2].",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 5,
+                "section_no": null,
+                "article_no": 60,
+                "clause_nos": [
+                    9
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q153",
+            "question": "Theo Luật Đất đai 2024, thời kỳ quy hoạch sử dụng đất cấp huyện và tầm nhìn quy hoạch sử dụng đất cấp huyện được pháp luật quy định cụ thể là bao nhiêu năm?",
+            "answer": "Thời kỳ quy hoạch sử dụng đất cấp huyện là 10 năm, và tầm nhìn quy hoạch sử dụng đất cấp huyện là 20 năm [3].",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 5,
+                "section_no": null,
+                "article_no": 62,
+                "clause_nos": [
+                    3
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q154",
+            "question": "Ủy ban nhân dân cấp tỉnh có trách nhiệm phải thực hiện công bố công khai quy hoạch, kế hoạch sử dụng đất cấp tỉnh sau khi phê duyệt tại những địa điểm nào?",
+            "answer": "Ủy ban nhân dân cấp tỉnh có trách nhiệm công bố công khai quy hoạch, kế hoạch sử dụng đất cấp tỉnh tại trụ sở cơ quan và trên cổng thông tin điện tử của Ủy ban nhân dân cấp tỉnh [4].",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 5,
+                "section_no": null,
+                "article_no": 75,
+                "clause_nos": [
+                    3
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q155",
+            "question": "Nếu quận hoặc thành phố thuộc thành phố trực thuộc Trung ương đã có quy hoạch chung hoặc quy hoạch phân khu đô thị được phê duyệt, địa phương đó có bắt buộc phải lập thêm quy hoạch sử dụng đất cấp huyện riêng biệt nữa không?",
+            "answer": "Không bắt buộc. Trong trường hợp này, địa phương không phải lập quy hoạch sử dụng đất cấp huyện mà căn cứ vào quy hoạch chung hoặc quy hoạch phân khu đô thị kết hợp với chỉ tiêu sử dụng đất cấp tỉnh phân bổ để lập kế hoạch sử dụng đất hằng năm cấp huyện [5].",
+            "question_type": "conditional",
+            "law_id": {
+                "chapter_no": 5,
+                "section_no": null,
+                "article_no": 66,
+                "clause_nos": [
+                    4
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q156",
+            "question": "Trường hợp đất đã nằm trong kế hoạch sử dụng đất hằng năm cấp huyện được phê duyệt thu hồi để làm dự án, nhưng sau 02 năm liên tục vẫn chưa có quyết định thu hồi đất thì cơ quan có thẩm quyền phê duyệt kế hoạch phải xử lý diện tích đất đó như thế nào?",
+            "answer": "Cơ quan có thẩm quyền phê duyệt kế hoạch sử dụng đất hằng năm cấp huyện phải tiến hành xem xét, đánh giá điều chỉnh, hủy bỏ và phải công bố công khai việc điều chỉnh, hủy bỏ việc thu hồi đất hoặc chuyển mục đích sử dụng đất đối với phần diện tích đất đó [6].",
+            "question_type": "conditional",
+            "law_id": {
+                "chapter_no": 5,
+                "section_no": null,
+                "article_no": 76,
+                "clause_nos": [
+                    7
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q157",
+            "question": "Gia đình tôi có một thửa đất nằm trong khu vực đã công bố quy hoạch sử dụng đất của tỉnh nhưng huyện vẫn chưa lập kế hoạch sử dụng đất hằng năm. Trong thời kỳ chờ đợi này, chúng tôi có bị hạn chế quyền sử dụng hay quyền mua bán đất không?",
+            "answer": "Không bị hạn chế. Trường hợp quy hoạch sử dụng đất đã được công bố công khai mà chưa có kế hoạch sử dụng đất hằng năm cấp huyện thì người sử dụng đất vẫn được tiếp tục sử dụng và thực hiện đầy đủ các quyền của người sử dụng đất theo quy định của Luật [6].",
+            "question_type": "situational",
+            "law_id": {
+                "chapter_no": 5,
+                "section_no": null,
+                "article_no": 76,
+                "clause_nos": [
+                    4
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q158",
+            "question": "Công ty chúng tôi có dự án đầu tư công đã được Thủ tướng Chính phủ phê duyệt quyết định đầu tư, nhưng dự án này hiện tại chưa có tên trong kế hoạch sử dụng đất hằng năm cấp huyện. Chúng tôi có phải nộp hồ sơ xin bổ sung dự án vào kế hoạch sử dụng đất của huyện trước khi bàn giao đất không?",
+            "answer": "Không cần thiết. Dự án đầu tư công đã có quyết định đầu tư thuộc thẩm quyền quyết định chủ trương đầu tư của Thủ tướng Chính phủ (hoặc Quốc hội, người đứng đầu Bộ, cơ quan trung ương, Hội đồng nhân dân cấp tỉnh) thì được phép thực hiện mà không phải bổ sung vào kế hoạch sử dụng đất hằng năm cấp huyện [7, 8].",
+            "question_type": "situational",
+            "law_id": {
+                "chapter_no": 5,
+                "section_no": null,
+                "article_no": 67,
+                "clause_nos": [
+                    4
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q159",
+            "question": "Đối với một thành phố trực thuộc Trung ương đã được phê duyệt quy hoạch chung đô thị, thành phố này có cần phải lập quy hoạch sử dụng đất cấp tỉnh nữa không, và cơ quan nào có thẩm quyền phê duyệt kế hoạch sử dụng đất cấp tỉnh của thành phố này?",
+            "answer": "Thành phố trực thuộc Trung ương đã có quy hoạch chung đô thị được phê duyệt thì không phải lập quy hoạch sử dụng đất cấp tỉnh mà căn cứ quy hoạch chung đó để lập kế hoạch sử dụng đất cấp tỉnh [9]. Thẩm quyền phê duyệt kế hoạch sử dụng đất cấp tỉnh đối với thành phố này thuộc về Thủ tướng Chính phủ [10].",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 5,
+                    "section_no": null,
+                    "article_no": 65,
+                    "clause_nos": [
+                        5
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 5,
+                    "section_no": null,
+                    "article_no": 72,
+                    "clause_nos": [
+                        3
+                    ],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q160",
+            "question": "Trong quy trình xây dựng quy hoạch sử dụng đất cấp huyện, cơ quan lập quy hoạch phải thực hiện lấy ý kiến nhân dân về phương án quy hoạch trong thời gian bao nhiêu ngày, và kể từ ngày được phê duyệt chính thức thì chậm nhất sau bao nhiêu ngày quy hoạch phải được công bố công khai?",
+            "answer": "Thời gian tổ chức lấy ý kiến của cơ quan, tổ chức, cộng đồng dân cư và cá nhân về quy hoạch sử dụng đất cấp huyện là 30 ngày kể từ ngày công khai thông tin [11]. Sau khi quy hoạch sử dụng đất cấp huyện được phê duyệt, chậm nhất là 15 ngày kể từ ngày phê duyệt thì quy hoạch phải được công bố công khai rộng rãi [12].",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 5,
+                    "section_no": null,
+                    "article_no": 70,
+                    "clause_nos": [
+                        3
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 5,
+                    "section_no": null,
+                    "article_no": 75,
+                    "clause_nos": [
+                        4
+                    ],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q161",
+            "question": "Theo quy định mới, việc nộp hồ sơ xin gia hạn thời hạn sử dụng đất cho các dự án sản xuất kinh doanh phải hoàn thành chậm nhất là khi nào? Nếu người sử dụng đất nộp muộn sau mốc quy định thì cơ quan nhà nước xử lý thế nào?",
+            "answer": "Bạn phải nộp hồ sơ đề nghị gia hạn sử dụng đất chậm nhất là 06 tháng trước khi hết thời hạn sử dụng đất . Nếu quá thời hạn quy định này mà người sử dụng đất không nộp hồ sơ đề nghị gia hạn thì sẽ không được gia hạn sử dụng đất (trừ trường hợp bất khả kháng), và cơ quan nhà nước có thẩm quyền sẽ thực hiện việc thu hồi đất .",
+            "question_type": "conditional",
+            "law_id": {
+                "chapter_no": 13,
+                "section_no": 1,
+                "article_no": 172,
+                "clause_nos": [
+                    3
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q162",
+            "question": "Trường học công lập của chúng tôi được Nhà nước giao đất không thu tiền sử dụng đất. Bây giờ trường tôi muốn dùng một phần đất để liên doanh, liên kết với một doanh nghiệp nhằm mở nhà sách phục vụ học sinh thì có phải nộp tiền gì không? Hay cứ thế thực hiện liên doanh?",
+            "answer": "Trường học (đơn vị sự nghiệp công lập) không được tự ý thực hiện liên doanh khi đang sử dụng đất giao không thu tiền [1]. Trường muốn sử dụng một phần diện tích đất này để liên doanh, liên kết thì bắt buộc phải chuyển sang hình thức Nhà nước cho thuê đất thu tiền thuê đất hằng năm đối với phần diện tích kết hợp đó [2, 3].",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 3,
+                    "section_no": 1,
+                    "article_no": 30,
+                    "clause_nos": [
+                        3
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 13,
+                    "section_no": 2,
+                    "article_no": 218,
+                    "clause_nos": [
+                        3
+                    ],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q163",
+            "question": "Gia đình tôi bị thu hồi đất ở và thuộc diện được bố trí tái định cư. Nhưng số tiền bồi thường đất ở của tôi quá thấp, không đủ để tôi mua nổi một suất tái định cư tối thiểu ở khu mới. Trường hợp này nhà nước có hỗ trợ gì thêm để tôi không bị ra đường không?",
+            "answer": "Có, bạn sẽ được Nhà nước hỗ trợ thêm tiền đủ để được giao một suất tái định cư tối thiểu [4]. Đây là khoản hỗ trợ tái định cư bắt buộc theo chính sách hỗ trợ khi thu hồi đất [5].",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 7,
+                    "section_no": 4,
+                    "article_no": 108,
+                    "clause_nos": [
+                        1
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 7,
+                    "section_no": 5,
+                    "article_no": 111,
+                    "clause_nos": [
+                        8
+                    ],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q164",
+            "question": "Tôi đang canh tác trên một mảnh ruộng do cha ông khai hoang để lại từ trước năm 1993, hoàn toàn không có giấy tờ gì nhưng không có tranh chấp. Diện tích mảnh ruộng này của tôi lớn hơn nhiều so với hạn mức giao đất nông nghiệp của tỉnh. Nếu bây giờ tôi đi xin cấp Sổ đỏ thì phần diện tích đất nông nghiệp vượt hạn mức đó có được cấp sổ đỏ miễn phí không?",
+            "answer": "Phần diện tích đất nông nghiệp trong hạn mức giao đất nông nghiệp cho cá nhân (quy định tại Điều 176) sẽ được công nhận và cấp Sổ đỏ theo hình thức giao đất không thu tiền sử dụng đất [6]. Đối với phần diện tích vượt hạn mức còn lại, bạn không được công nhận miễn phí mà bắt buộc phải chuyển sang thuê đất của Nhà nước [6].",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 10,
+                    "section_no": 3,
+                    "article_no": 138,
+                    "clause_nos": [
+                        6
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 13,
+                    "section_no": 2,
+                    "article_no": 176,
+                    "clause_nos": [],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q165",
+            "question": "Tôi được Nhà nước cho thuê đất thu tiền thuê đất hằng năm để làm nhà xưởng sản xuất và đã xây dựng nhà xưởng kiên cố trên đó. Nay tôi muốn bán lại toàn bộ nhà xưởng này kèm theo quyền thuê đất cho một công ty khác thì tôi cần đáp ứng những điều kiện gì theo luật?",
+            "answer": "Bạn có quyền bán tài sản gắn liền với đất và quyền thuê trong hợp đồng thuê đất [7]. Tuy nhiên, bạn phải đáp ứng đầy đủ các điều kiện tại Điều 46 bao gồm: tài sản được tạo lập hợp pháp và đã đăng ký quyền sở hữu; hoàn thành xây dựng theo đúng quy hoạch chi tiết và dự án đầu tư đã duyệt; đồng thời phải đáp ứng điều kiện về việc đã ứng trước tiền bồi thường, hỗ trợ, tái định cư mà chưa khấu trừ hết vào tiền thuê đất phải nộp (nếu có) [8-10].",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 3,
+                    "section_no": 3,
+                    "article_no": 37,
+                    "clause_nos": [
+                        2
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 3,
+                    "section_no": 5,
+                    "article_no": 46,
+                    "clause_nos": [
+                        1,
+                        2
+                    ],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q166",
+            "question": "Hộ gia đình tôi có đất nông nghiệp trồng lúa bị thu hồi để làm khu công nghiệp. Cho tôi hỏi diện tích đất nông nghiệp tối đa mà gia đình tôi có thể được Nhà nước xem xét tính toán bồi thường về đất là bao nhiêu héc-ta?",
+            "answer": "Diện tích đất nông nghiệp được bồi thường về đất chỉ bao gồm diện tích nằm trong hạn mức giao đất nông nghiệp (quy định tại Điều 176) và diện tích đất do được nhận thừa kế [11]. Cụ thể, hạn mức giao đất trồng cây hằng năm (như đất trồng lúa) không quá 03 ha đối với khu vực Đông Nam Bộ và đồng bằng sông Cửu Long, và không quá 02 ha đối với các tỉnh, thành phố khác [12].",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 7,
+                    "section_no": 2,
+                    "article_no": 96,
+                    "clause_nos": [
+                        2
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 13,
+                    "section_no": 2,
+                    "article_no": 176,
+                    "clause_nos": [
+                        1
+                    ],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q167",
+            "question": "Một người hàng xóm tự ý đào bới, múc đất sâu hoắm ở phần đất nông nghiệp giáp ranh làm biến dạng địa hình và gây sạt lở nghiêm trọng sang vườn nhà tôi. Hành vi này có bị cấm không và người này có bị Nhà nước thu hồi đất luôn hay không?",
+            "answer": "Hành vi tự ý đào bới làm biến dạng địa hình là hành vi hủy hoại đất và bị nghiêm cấm trong lĩnh vực đất đai [13, 14]. Tuy nhiên, người này không bị thu hồi đất ngay lập tức mà phải bị xử phạt vi phạm hành chính trước; nếu tiếp tục vi phạm hành vi hủy hoại đất sau khi đã bị phạt thì Nhà nước mới tiến hành thu hồi đất [15-17].",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 1,
+                    "section_no": null,
+                    "article_no": 11,
+                    "clause_nos": [
+                        1
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 6,
+                    "section_no": null,
+                    "article_no": 81,
+                    "clause_nos": [
+                        2
+                    ],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q168",
+            "question": "Công ty tôi đang thực hiện dự án sản xuất nông nghiệp trên đất thuê của Nhà nước có thời hạn 50 năm. Năm nay là năm cuối cùng của thời hạn thuê đất và công ty muốn tiếp tục gia hạn sử dụng đất. Cho tôi hỏi chúng tôi phải nộp hồ sơ xin gia hạn trước bao lâu và cơ quan nào có quyền quyết định việc gia hạn này?",
+            "answer": "Công ty phải nộp hồ sơ đề nghị gia hạn sử dụng đất chậm nhất là 06 tháng trước khi hết thời hạn sử dụng đất [18]. Thẩm quyền quyết định việc gia hạn sử dụng đất thuộc về cơ quan nhà nước có thẩm quyền giao đất, cho thuê đất ban đầu đối với công ty (ở đây là Ủy ban nhân dân cấp tỉnh quyết định) [19, 20].",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 9,
+                    "section_no": null,
+                    "article_no": 123,
+                    "clause_nos": [
+                        1,
+                        4
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 13,
+                    "section_no": 1,
+                    "article_no": 172,
+                    "clause_nos": [
+                        3
+                    ],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q169",
+            "question": "Ông tôi là người gốc Việt Nam đã định cư ở nước ngoài nhiều năm nhưng vẫn được phép nhập cảnh vào Việt Nam. Nay ông tôi qua đời và để lại di chúc thừa kế một thửa đất gồm căn nhà ở gắn liền với đất cho tôi (tôi cũng là người gốc Việt Nam định cư ở nước ngoài). Tôi có được phép nhận thừa kế thửa đất này hay không và có được cấp Sổ đỏ không?",
+            "answer": "Bạn hoàn toàn được quyền nhận thừa kế quyền sử dụng đất ở này vì bạn là người gốc Việt Nam định cư ở nước ngoài được phép nhập cảnh vào Việt Nam [21-23]. Tuy nhiên, bạn chỉ được cấp Giấy chứng nhận (Sổ đỏ) đối với đất ở và các loại đất khác trong cùng thửa đất có nhà ở thừa kế đó [21, 24]; trường hợp thửa đất thừa kế không có nhà ở hoặc bạn không thuộc đối tượng được sở hữu nhà ở tại Việt Nam thì bạn chỉ được hưởng giá trị của phần thừa kế đó mà không được cấp Giấy chứng nhận [23, 25].",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 3,
+                    "section_no": 3,
+                    "article_no": 37,
+                    "clause_nos": [
+                        1
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 3,
+                    "section_no": 1,
+                    "article_no": 28,
+                    "clause_nos": [
+                        1
+                    ],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q170",
+            "question": "Tôi đang sử dụng một mảnh đất trồng cây hằng năm và muốn xin chuyển mục đích sử dụng sang đất ở để xây nhà cho con. Việc chuyển mục đích này tôi có phải xin phép ai không và tiền sử dụng đất tôi phải đóng được tính toán thế nào?",
+            "answer": "Việc chuyển từ đất nông nghiệp sang đất ở (đất phi nông nghiệp) thuộc trường hợp phải xin phép và được Ủy ban nhân dân cấp huyện quyết định cho phép chuyển mục đích sử dụng [20, 26]. Khi chuyển mục đích, bạn phải nộp tiền sử dụng đất bằng mức chênh lệch giữa tiền sử dụng đất của loại đất sau khi chuyển và tiền sử dụng đất của loại đất trước khi chuyển cho thời gian sử dụng đất còn lại [27, 28].",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 9,
+                    "section_no": null,
+                    "article_no": 121,
+                    "clause_nos": [
+                        1
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 11,
+                    "section_no": 1,
+                    "article_no": 156,
+                    "clause_nos": [
+                        1
+                    ],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q171",
+            "question": "Tôi là người dân tộc thiểu số thuộc diện hộ nghèo tại địa phương, được Nhà nước giao đất nông nghiệp không thu tiền sử dụng đất theo chính sách hỗ trợ. Nay tôi muốn thế chấp mảnh đất này để lấy vốn làm ăn thì pháp luật có cho phép hay không?",
+            "answer": "Bạn được phép thế chấp quyền sử dụng đất này để lấy vốn làm ăn, tuy nhiên pháp luật quy định hạn chế chỉ được thế chấp quyền sử dụng đất tại ngân hàng chính sách chứ không được thế chấp tại ngân hàng thương mại thông thường [29].",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 2,
+                    "section_no": 1,
+                    "article_no": 16,
+                    "clause_nos": [
+                        2
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 3,
+                    "section_no": 5,
+                    "article_no": 48,
+                    "clause_nos": [
+                        2,
+                        3
+                    ],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q172",
+            "question": "Ông A đang sử dụng một thửa đất có Giấy chứng nhận, đất không có tranh chấp và vẫn còn thời hạn sử dụng. Ông A muốn chuyển nhượng quyền sử dụng đất cho ông B. Theo Luật Đất đai 2024, ông A cần đáp ứng những điều kiện nào để có thể thực hiện việc chuyển nhượng?",
+            "answer": "Để thực hiện việc chuyển nhượng, ông A phải đáp ứng các điều kiện đối với đất bao gồm: thửa đất phải có Giấy chứng nhận (trừ trường hợp thừa kế quyền sử dụng đất, chuyển đổi đất nông nghiệp khi dồn điền, đổi thửa, nhận thừa kế), đất không có tranh chấp hoặc tranh chấp đã được giải quyết bằng bản án/quyết định có hiệu lực, quyền sử dụng đất không bị kê biên hoặc áp dụng biện pháp bảo đảm thi hành án, đất còn trong thời hạn sử dụng, và không bị áp dụng biện pháp khẩn cấp tạm thời. Về mặt hình thức, hợp đồng chuyển nhượng giữa ông A và ông B phải được công chứng hoặc chứng thực, đồng thời phải thực hiện đăng ký biến động đất đai trong thời hạn 30 ngày kể từ ngày có biến động theo quy định.",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 3,
+                    "section_no": 1,
+                    "article_no": 27,
+                    "clause_nos": [
+                        3
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 3,
+                    "section_no": 5,
+                    "article_no": 45,
+                    "clause_nos": [
+                        1
+                    ],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q173",
+            "question": "Một người sử dụng đất muốn thế chế quyền sử dụng đất tại ngân hàng. Thửa đất đã được cấp Giấy chứng nhận nhưng đang có tranh chấp. Người này có thể thực hiện việc thế chấp không? Hãy căn cứ vào các điều kiện thực hiện quyền của người sử dụng đất và quy định liên quan đến tình trạng tranh chấp của thửa đất.",
+            "answer": "Người sử dụng đất không thể thế chấp thửa đất này. Theo quy định, một trong những điều kiện tiên quyết và bắt buộc để người sử dụng đất thực hiện quyền thế chấp là đất phải không có tranh chấp. Đồng thời, đất đang có tranh chấp được giải thích là thửa đất có tranh chấp đất đai mà đang trong quá trình được cơ quan có thẩm quyền giải quyết. Vì thửa đất đang có tranh chấp chưa được giải quyết triệt để, người sử dụng đất chưa đủ điều kiện thực hiện quyền thế chấp theo quy định tại khoản 1 Điều 45.",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 1,
+                    "section_no": null,
+                    "article_no": 3,
+                    "clause_nos": [
+                        16
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 3,
+                    "section_no": 5,
+                    "article_no": 45,
+                    "clause_nos": [
+                        1
+                    ],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q174",
+            "question": "Ông A muốn chuyển nhượng quyền sử dụng một thửa đất nhưng Giấy chứng nhận của ông đang được dùng để bảo đảm cho một khoản vay tại ngân hàng. Việc chuyển nhượng có thể được thực hiện không và cần xem xét những điều kiện nào theo Luật Đất đai 2024?",
+            "answer": "Việc chuyển nhượng vẫn có thể thực hiện được nếu đáp ứng hai khía cạnh: Thứ nhất, phải có sự đồng ý bằng văn bản của ngân hàng nhận thế chấp (bên nhận bảo đảm). Thứ hai, ông A phải đáp ứng các điều kiện chuyển nhượng đất đai thông thường. Về mặt thực tế, nếu bên nhận thế chấp (ngân hàng) đồng ý, việc xử lý tài sản thế chấp có thể được thực hiện theo thỏa thuận của các bên phù hợp với quy định của pháp luật dân sự, không bắt buộc phải thực hiện giải chấp tài sản trước khi ký hợp đồng chuyển nhượng",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 3,
+                    "section_no": 3,
+                    "article_no": 37,
+                    "clause_nos": [
+                        1,
+                        2
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 3,
+                    "section_no": 5,
+                    "article_no": 45,
+                    "clause_nos": [
+                        1
+                    ],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q175",
+            "question": "Một hộ gia đình đang sử dụng đất nông nghiệp và muốn chuyển nhượng quyền sử dụng đất cho một cá nhân không trực tiếp sản xuất nông nghiệp. Ngoài các điều kiện chung để chuyển nhượng quyền sử dụng đất, cần kiểm tra thêm những quy định nào liên quan đến loại đất và đối tượng nhận chuyển nhượng?",
+            "answer": "Ngoài các điều kiện chung, cần kiểm tra 2 quy định đặc thù sau: Thứ nhất, đối với đất trồng lúa, cá nhân không trực tiếp sản xuất nông nghiệp được nhận chuyển nhượng trong hạn mức giao đất nông nghiệp (không quá 02 ha hoặc 03 ha tùy vùng); nếu nhận vượt quá hạn mức này thì bắt buộc phải thành lập tổ chức kinh tế và có phương án sử dụng đất trồng lúa được Ủy ban nhân dân cấp huyện phê duyệt. Thứ hai, người nhận chuyển nhượng phải không thuộc các trường hợp bị cấm nhận chuyển nhượng (ví dụ không được nhận chuyển quyền sử dụng đất ở, đất nông nghiệp trong phân khu bảo vệ nghiêm ngặt, phân khu phục hồi sinh thái thuộc rừng đặc dụng nếu không sinh sống trong khu vực rừng phòng hộ, rừng đặc dụng đó).",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 3,
+                    "section_no": 5,
+                    "article_no": 45,
+                    "clause_nos": [
+                        7,
+                        8
+                    ],
+                    "ref_article_nos": [
+                        176
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "Q176",
+            "question": "Một cá nhân đang sử dụng đất trồng lúa muốn chuyển nhượng diện tích đất này cho người khác. Người nhận chuyển nhượng không trực tiếp sản xuất nông nghiệp. Theo Luật Đất đai 2024, cần đồng thời xem xét những điều kiện nào về quyền chuyển nhượng và hạn mức nhận chuyển quyền sử dụng đất nông nghiệp?",
+            "answer": "Cần xem xét đồng thời hai giới hạn về hạn mức: Thứ nhất, điều kiện nhận chuyển nhượng đất trồng lúa của cá nhân không trực tiếp sản xuất nông nghiệp (nếu diện tích nhận chuyển nhượng vượt quá hạn mức giao đất quy định tại Điều 176 là 02 ha hoặc 03 ha tùy vùng thì bắt buộc phải thành lập tổ chức kinh tế và có phương án sử dụng đất trồng lúa được UBND cấp huyện phê duyệt). Thứ hai, tổng diện tích nhận chuyển quyền sử dụng đất nông nghiệp của cá nhân không được vượt quá 15 lần hạn mức giao đất nông nghiệp đối với mỗi loại đất (tương đương tối đa không quá 30 ha hoặc 45 ha đất trồng lúa tùy thuộc vào từng khu vực địa lý cụ thể).",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 3,
+                    "section_no": 5,
+                    "article_no": 45,
+                    "clause_nos": [
+                        7
+                    ],
+                    "ref_article_nos": [
+                        176
+                    ]
+                },
+                {
+                    "chapter_no": 13,
+                    "section_no": 2,
+                    "article_no": 177,
+                    "clause_nos": [
+                        1
+                    ],
+                    "ref_article_nos": [
+                        176
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "Q177",
+            "question": "Nếu tôi được nhận thừa kế một diện tích đất nông nghiệp từ bố mẹ, diện tích này có bị tính gộp vào hạn mức giao đất nông nghiệp tối đa mà tôi được nhận từ Nhà nước hay không? Và khi Nhà nước thu hồi, diện tích đất nhận thừa kế này có được bồi thường không?",
+            "answer": "Diện tích đất nông nghiệp nhận thừa kế sẽ không bị tính gộp vào hạn mức giao đất nông nghiệp của cá nhân bạn (theo Khoản 7 Điều 176). Khi Nhà nước thu hồi đất nông nghiệp đó, nếu bạn đủ điều kiện bồi thường thì phần diện tích do được nhận thừa kế vẫn được bồi thường về đất nông nghiệp (theo Điểm a Khoản 2 Điều 96).",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 13,
+                    "section_no": 2,
+                    "article_no": 176,
+                    "clause_nos": [
+                        7
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 7,
+                    "section_no": 2,
+                    "article_no": 96,
+                    "clause_nos": [
+                        2
+                    ],
+                    "ref_article_nos": [
+                        176,
+                        177
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "Q178",
+            "question": "Bố tôi định cư ở nước ngoài và không còn quốc tịch Việt Nam (người gốc Việt Nam định cư ở nước ngoài), thuộc diện không được sở hữu nhà ở tại Việt Nam. Bác tôi ở trong nước qua đời và để lại di chúc thừa kế cho bố tôi một căn nhà gắn liền với đất ở. Bố tôi có được cấp Sổ đỏ cho mảnh đất này không và được thực hiện những quyền gì đối với di sản này?",
+            "answer": "Bố bạn không được cấp Giấy chứng nhận quyền sử dụng đất, quyền sở hữu tài sản gắn liền với đất (Sổ đỏ) (theo Khoản 3 Điều 44). Tuy nhiên, bố bạn được quyền chuyển nhượng hoặc tặng cho quyền sử dụng đất thừa kế đó cho người khác (nếu chuyển nhượng thì bố bạn đứng tên bên chuyển nhượng, nếu tặng cho thì người nhận tặng cho phải là đối tượng hợp pháp) (theo Khoản 3 Điều 44). Nếu chưa chuyển nhượng hoặc tặng cho, bố bạn hoặc người đại diện phải nộp hồ sơ nhận thừa kế để cập nhật vào Sổ địa chính và có thể ủy quyền bằng văn bản cho người khác trông nom hoặc tạm sử dụng thửa đất đó (theo Khoản 3 và Khoản 5 Điều 44).",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 3,
+                    "section_no": 4,
+                    "article_no": 44,
+                    "clause_nos": [
+                        3,
+                        5
+                    ],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q179",
+            "question": "Tôi được nhận thừa kế một mảnh đất từ ông bà để lại. Mảnh đất này hiện chưa được cấp Sổ đỏ nhưng có đầy đủ các giấy tờ cũ từ trước năm 1993 và hoàn toàn đủ điều kiện để được cấp Sổ đỏ. Tôi có phải chờ đến khi được cấp Sổ đỏ xong mới được thực hiện các quyền của người thừa kế hay không?",
+            "answer": "Không bắt buộc phải chờ có Sổ đỏ. Việc nhận thừa kế quyền sử dụng đất là trường hợp ngoại lệ không bắt buộc phải có Giấy chứng nhận (Sổ đỏ) tại thời điểm thực hiện giao dịch nhận thừa kế (theo Điểm a Khoản 1 Điều 45). Bạn (người nhận thừa kế) được phép thực hiện các quyền của người sử dụng đất khi thửa đất đó đã có Giấy chứng nhận hoặc khi thửa đất đó đủ điều kiện để cấp Giấy chứng nhận quyền sử dụng đất, quyền sở hữu tài sản gắn liền với đất theo quy định của Luật này (theo Khoản 4 Điều 45).",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 3,
+                    "section_no": 5,
+                    "article_no": 45,
+                    "clause_nos": [
+                        1,
+                        4
+                    ],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q180",
+            "question": "Bố tôi được Nhà nước cho thuê một khu đất thu tiền thuê đất hằng năm để làm xưởng sản xuất và có xây dựng nhà xưởng kiên cố đã đăng ký sở hữu hợp pháp. Sau khi bố tôi mất, tôi là người nhận thừa kế nhà xưởng và quyền thuê đất này thì Nhà nước có tiếp tục cho tôi thuê đất không? Và tôi có được thừa kế quyền thuê đất này không?",
+            "answer": "Bạn hoàn toàn được thừa kế tài sản gắn liền với đất và quyền thuê trong hợp đồng thuê đất của bố bạn nếu tài sản gắn liền với đất thuê được tạo lập hợp pháp và đã được đăng ký (theo Điểm c Khoản 2 Điều 37 và Khoản 1 Điều 46). Sau khi nhận thừa kế, bạn sẽ được Nhà nước tiếp tục cho thuê đất theo đúng mục đích sử dụng đất đã được xác định trước đó (theo Điểm c Khoản 2 Điều 37).",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 3,
+                    "section_no": 3,
+                    "article_no": 37,
+                    "clause_nos": [
+                        2
+                    ],
+                    "ref_article_nos": [
+                        46
+                    ]
+                },
+                {
+                    "chapter_no": 3,
+                    "section_no": 5,
+                    "article_no": 46,
+                    "clause_nos": [
+                        1
+                    ],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q181",
+            "question": "Chú tôi là người dân tộc thiểu số nghèo, được Nhà nước giao đất nông nghiệp theo chính sách hỗ trợ tại Khoản 3 Điều 16. Chú tôi mới qua đời đột ngột và không có con cái, cũng không có người thừa kế nào khác thuộc diện nghèo hay cận nghèo ở vùng đồng bào dân tộc thiểu số theo quy định. Mảnh đất này của chú tôi sẽ được giải quyết như thế nào và ai sẽ quản lý?",
+            "answer": "Trường hợp người sử dụng đất chết mà không có người nhận thừa kế thuộc hàng thừa kế là đối tượng được hưởng chính sách hỗ trợ đất đai cho đồng bào dân tộc thiểu số (hộ nghèo, hộ cận nghèo tại vùng dân tộc thiểu số và miền núi), Nhà nước sẽ tiến hành thu hồi diện tích đất đó và thực hiện bồi thường tài sản gắn liền với đất cho người thừa kế hợp pháp của chú bạn theo quy định pháp luật (theo Khoản 1 Điều 48). Diện tích đất sau khi bị thu hồi sẽ được bàn giao cho Ủy ban nhân dân cấp xã quản lý để dùng vào việc tiếp tục giao đất, cho thuê đất cho cá nhân khác là người dân tộc thiểu số đủ điều kiện chính sách (theo Khoản 1 và Khoản 4 Điều 48).",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 3,
+                    "section_no": 5,
+                    "article_no": 48,
+                    "clause_nos": [
+                        1,
+                        4
+                    ],
+                    "ref_article_nos": [
+                        16
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "Q182",
+            "question": "Sau khi hoàn thành việc phân chia di sản thừa kế là một mảnh đất ở tại địa phương, trong thời hạn bao nhiêu ngày tôi phải đi đăng ký sang tên trên Giấy chứng nhận và tôi phải nộp hồ sơ tại cơ quan nào để giải quyết?",
+            "answer": "Trong thời hạn 30 ngày kể từ ngày phân chia xong quyền sử dụng đất là di sản thừa kế theo quy định của pháp luật về dân sự (hoặc kể từ ngày bản án, quyết định của Tòa án phân chia thừa kế có hiệu lực pháp lý), bạn bắt buộc phải thực hiện thủ tục đăng ký biến động đất đai (theo Khoản 3 Điều 133). Bạn phải nộp hồ sơ tại Chi nhánh của tổ chức đăng ký đất đai hoặc Tổ chức đăng ký đất đai nơi có đất để được thực hiện xác nhận thay đổi hoặc cấp mới Sổ đỏ (theo Điểm b Khoản 2 Điều 136).",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 10,
+                    "section_no": 2,
+                    "article_no": 133,
+                    "clause_nos": [
+                        3
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 10,
+                    "section_no": 3,
+                    "article_no": 136,
+                    "clause_nos": [
+                        2
+                    ],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q183",
+            "question": "Bố mẹ tôi mất có để lại một mảnh đất ở thừa kế chung cho 3 anh em chúng tôi và cả 3 anh em đều đồng ý cùng đứng tên chung trên Sổ đỏ mà không chia tách đất. Vậy khi cấp Sổ đỏ, Nhà nước sẽ cấp chung một tờ hay cấp riêng cho mỗi người một tờ? Và nếu sau này có một người muốn tách phần quyền của mình ra để bán thì phải làm thế nào?",
+            "answer": "Trường hợp thửa đất có nhiều người chung quyền sử dụng đất do nhận thừa kế chung, Nhà nước sẽ cấp cho mỗi người 01 Giấy chứng nhận (Sổ đỏ) riêng biệt; trừ trường hợp các anh em bạn có yêu cầu chung thì sẽ chỉ cấp chung 01 Giấy chứng nhận và trao cho người đại diện thửa đất (theo Khoản 2 Điều 135). Sau này, nếu một thành viên muốn thực hiện quyền đối với phần quyền sử dụng đất của mình thì phải tiến hành thủ tục đăng ký biến động hoặc thực hiện tách thửa theo quy định, làm thủ tục cấp Giấy chứng nhận riêng cho phần đất đó thì mới được thực hiện việc bán đất (theo Điểm b Khoản 2 Điều 27).",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 10,
+                    "section_no": 3,
+                    "article_no": 135,
+                    "clause_nos": [
+                        2
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 3,
+                    "section_no": 1,
+                    "article_no": 27,
+                    "clause_nos": [
+                        2
+                    ],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q184",
+            "question": "Ở xóm tôi có một cụ già sống neo đơn không có người thân thích, cụ vừa qua đời và cũng không để lại di chúc hay còn người thừa kế nào. Mảnh đất của cụ sau khi cụ mất sẽ được xử lý ra sao, cơ quan nào ra quyết định và ai đứng ra quản lý mảnh đất này?",
+            "answer": "Mảnh đất của cụ sẽ bị Nhà nước thu hồi đất do cá nhân sử dụng đất chết mà không có người nhận thừa kế sau khi đã thực hiện xong các nghĩa vụ về tài sản theo pháp luật dân sự (theo Điểm b Khoản 1 Điều 82). Thẩm quyền quyết định thu hồi đất đối với cá nhân trong trường hợp này thuộc về Ủy ban nhân dân cấp huyện (theo Điểm b Khoản 2 Điều 83). Về việc quản lý thửa đất sau khi thu hồi: Nếu thửa đất nằm tại khu vực đô thị, đất được bàn giao cho Tổ chức phát triển quỹ đất quản lý, khai thác sử dụng (theo Điểm c Khoản 1 Điều 113). Nếu thửa đất nằm ngoài khu vực đô thị, đất được bàn giao cho địa phương (Ủy ban nhân dân cấp xã) quản lý để tiếp tục giao hoặc cho người khác thuê sử dụng theo quy định",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 6,
+                    "section_no": null,
+                    "article_no": 82,
+                    "clause_nos": [
+                        1
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 6,
+                    "section_no": null,
+                    "article_no": 83,
+                    "clause_nos": [
+                        2
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 8,
+                    "section_no": null,
+                    "article_no": 113,
+                    "clause_nos": [
+                        1
+                    ],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q185",
+            "question": "Cộng đồng dân cư ở bản tôi được Nhà nước giao cho một khu đất rừng sản xuất để kết hợp sản xuất nông nghiệp nhằm bảo tồn bản sắc văn hóa của địa phương. Cộng đồng dân cư có quyền để lại thừa kế quyền sử dụng đất này cho con cháu trong bản khi có thành viên qua đời không?",
+            "answer": "Cộng đồng dân cư không được phép thừa kế quyền sử dụng đất. Pháp luật đất đai quy định rõ cộng đồng dân cư sử dụng đất có quyền và nghĩa vụ như quyền và nghĩa vụ của cá nhân có hình thức sử dụng đất tương ứng, nhưng loại trừ quyền để lại thừa kế (theo Khoản 2 Điều 39). Cộng đồng dân cư có trách nhiệm bảo vệ đất được giao, sử dụng chung và không được tự ý chuyển sang sử dụng vào mục đích khác (theo Điểm b Khoản 4 Điều 178).",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 3,
+                    "section_no": 3,
+                    "article_no": 39,
+                    "clause_nos": [
+                        2
+                    ],
+                    "ref_article_nos": []
+                },
+                {
+                    "chapter_no": 13,
+                    "section_no": 2,
+                    "article_no": 178,
+                    "clause_nos": [
+                        4
+                    ],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q186",
+            "question": "Tôi là người gốc Việt Nam định cư ở nước ngoài và được phép nhập cảnh vào Việt Nam hợp pháp. Ông nội tôi có một thửa đất gồm căn nhà ở xây dựng trên đất và một phần diện tích đất trồng cây hằng năm nằm chung trong thửa đất đó. Khi ông nội mất có để lại di chúc thừa kế thửa đất này cho tôi. Tôi có được phép nhận thừa kế toàn bộ thửa đất có cả nhà ở và đất nông nghiệp đó không và có được cấp Sổ đỏ không?",
+            "answer": "Bạn hoàn toàn được phép nhận thừa kế toàn bộ thửa đất này và được cấp Giấy chứng nhận (Sổ đỏ). Người gốc Việt Nam định cư ở nước ngoài được phép nhập cảnh vào Việt Nam được quyền sở hữu nhà ở gắn liền với quyền sử dụng đất ở tại Việt Nam, đồng thời được nhận thừa kế quyền sử dụng đất ở và các loại đất khác nằm trong cùng thửa đất có nhà ở đó theo quy định của pháp luật dân sự (theo Điểm h Khoản 1 Điều 28 và Khoản 1 Điều 44). Do bạn thuộc đối tượng được sở hữu nhà ở tại Việt Nam và thửa đất nhận thừa kế có nhà ở, bạn sẽ được Nhà nước xem xét cấp Giấy chứng nhận quyền sử dụng đất, quyền sở hữu tài sản gắn liền với đất theo đúng quy định (theo Điểm b Khoản 2 Điều 44).",
+            "question_type": "multi_hop",
+            "law_id": [
+                {
+                    "chapter_no": 3,
+                    "section_no": 1,
+                    "article_no": 28,
+                    "clause_nos": [
+                        1
+                    ],
+                    "ref_article_nos": [
+                        44
+                    ]
+                },
+                {
+                    "chapter_no": 3,
+                    "section_no": 4,
+                    "article_no": 44,
+                    "clause_nos": [
+                        1,
+                        2
+                    ],
+                    "ref_article_nos": []
+                }
+            ]
+        },
+        {
+            "id": "Q187",
+            "question": "Theo Luật Đất đai 2024, hoạt động Điều tra, đánh giá đất đai theo chuyên đề được hiểu như thế nào?",
+            "answer": "Điều tra, đánh giá đất đai theo chuyên đề được thực hiện để điều tra, đánh giá về chất lượng đất, tiềm năng đất đai, thoái hóa đất, ô nhiễm đất đối với loại đất cụ thể theo yêu cầu quản lý nhà nước về đất đai tại một thời điểm xác định .",
+            "question_type": "definition",
+            "law_id": {
+                "chapter_no": 4,
+                "section_no": 2,
+                "article_no": 52,
+                "clause_nos": [
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q188",
+            "question": "Bản đồ địa chính đóng vai trò là cơ sở để phục vụ cho các công tác gì theo quy định tại Chương IV?",
+            "answer": "Bản đồ địa chính là cơ sở để phục vụ công tác quản lý nhà nước về đất đai và xây dựng cơ sở dữ liệu quốc gia về đất đai .",
+            "question_type": "definition",
+            "law_id": {
+                "chapter_no": 4,
+                "section_no": 1,
+                "article_no": 50,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q189",
+            "question": "Các hoạt động điều tra, đánh giá định kỳ về chất lượng đất, tiềm năng đất đai, thoái hóa đất và ô nhiễm đất nông nghiệp, đất chưa sử dụng được thực hiện theo chu kỳ bao nhiêu năm một lần?",
+            "answer": "Các hoạt động điều tra, đánh giá định kỳ này được thực hiện theo định kỳ 05 năm một lần .",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 4,
+                "section_no": 2,
+                "article_no": 52,
+                "clause_nos": [
+                    3
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q190",
+            "question": "Kết quả thống kê đất đai hằng năm của địa phương phải được Ủy ban nhân dân cấp tỉnh công bố và báo cáo về Bộ Tài nguyên và Môi trường trước ngày nào của năm kế tiếp?",
+            "answer": "Ủy ban nhân dân cấp tỉnh có trách nhiệm công bố kết quả thống kê đất đai và báo cáo Bộ Tài nguyên và Môi trường trước ngày 31 tháng 3 của năm kế tiếp, trừ năm kiểm kê đất đai .",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 4,
+                "section_no": 3,
+                "article_no": 59,
+                "clause_nos": [
+                    3
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q191",
+            "question": "Trường hợp phạm vi quản lý đất đai cấp huyện hoặc cấp xã chưa xác định được do chưa thống nhất về địa giới hành chính, Ủy ban nhân dân cấp dưới có quyền tự quyết định phương án giải quyết mà không cần báo cáo lên Ủy ban nhân dân cấp tỉnh hay không?",
+            "answer": "Không. Ủy ban nhân dân cấp dưới không được tự ý quyết định. Trường hợp phạm vi quản lý đất đai cấp huyện, cấp xã chưa xác định được, Ủy ban nhân dân cấp trên trực tiếp sẽ chỉ đạo Ủy ban nhân dân cấp dưới phối hợp giải quyết. Nếu không thống nhất được phương án giải quyết thì Ủy ban nhân dân cấp tỉnh bắt buộc phải lập hồ sơ trình lên Chính phủ xem xét giải quyết .",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 4,
+                "section_no": 1,
+                "article_no": 49,
+                "clause_nos": [
+                    5
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q192",
+            "question": "Hoạt động thống kê đất đai có phải được thực hiện theo chu kỳ 05 năm một lần tương tự như hoạt động kiểm kê đất đai hay không?",
+            "answer": "Không. Theo quy định, thống kê đất đai được thực hiện hằng năm, tính đến hết ngày 31 tháng 12 của năm thống kê (trừ năm thực hiện kiểm kê đất đai) . Trong khi đó, kiểm kê đất đai mới thực hiện theo chu kỳ định kỳ 05 năm một lần .",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 4,
+                "section_no": 3,
+                "article_no": 57,
+                "clause_nos": [
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q193",
+            "question": "Nội dung điều tra, đánh giá chất lượng đất, tiềm năng đất đai theo quy định của Luật Đất đai 2024 bao gồm những nội dung cụ thể nào?",
+            "answer": "Nội dung điều tra bao gồm: (a) Khoanh vùng, xác định vị trí, diện tích và phân mức chất lượng đất đối với các loại đất nông nghiệp, đất chưa sử dụng theo các đặc điểm thổ nhưỡng, địa hình, tính chất vật lý, hóa học, sinh học và điều kiện khác ; (b) Khoanh vùng, xác định vị trí, diện tích và phân mức tiềm năng đất đai đối với các loại đất nông nghiệp, đất phi nông nghiệp, đất chưa sử dụng ; (c) Khoanh vùng các khu vực đất cần bảo vệ, xử lý, cải tạo và phục hồi ; (d) Lập bản đồ chất lượng đất, bản đồ tiềm năng đất đai, xây dựng và cập nhật dữ liệu vào cơ sở dữ liệu quốc gia về đất đai .",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 4,
+                "section_no": 2,
+                "article_no": 53,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q194",
+            "question": "Chỉ tiêu thống kê, kiểm kê đất đai đối với các loại đất quy định tại Luật Đất đai 2024 bao gồm những chỉ tiêu nào?",
+            "answer": "Chỉ tiêu thống kê, kiểm kê đất đai đối với các loại đất bao gồm: (a) Diện tích ; (b) Đối tượng sử dụng đất ; (c) Đối tượng được giao quản lý đất .",
+            "question_type": "listing",
+            "law_id": {
+                "chapter_no": 4,
+                "section_no": 3,
+                "article_no": 58,
+                "clause_nos": [
+                    1
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q195",
+            "question": "Trường hợp phạm vi quản lý đất đai cấp tỉnh chưa xác định được do chưa xác định được địa giới đơn vị hành chính thì cơ quan nào chịu trách nhiệm lập hồ sơ trình Chính phủ giải quyết?",
+            "answer": "Trong trường hợp phạm vi quản lý đất đai cấp tỉnh chưa xác định được do chưa xác định được địa giới đơn vị hành chính, Bộ Nội vụ sẽ chủ trì phối hợp với Bộ Tài nguyên và Môi trường cùng các địa phương có liên quan để lập hồ sơ trình Chính phủ giải quyết .",
+            "question_type": "conditional",
+            "law_id": {
+                "chapter_no": 4,
+                "section_no": 1,
+                "article_no": 49,
+                "clause_nos": [
+                    4
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q196",
+            "question": "Khi có sự thay đổi thực tế về hình dạng, kích thước hay diện tích của thửa đất, cơ quan quản lý đất đai có nghĩa vụ xử lý và cập nhật thông tin này như thế nào đối với bản đồ địa chính?",
+            "answer": "Bản đồ địa chính bắt buộc phải được chỉnh lý khi có sự thay đổi về hình dạng, kích thước, diện tích thửa đất và các yếu tố khác có liên quan, đồng thời thông tin chỉnh lý này phải được cập nhật kịp thời vào cơ sở dữ liệu quốc gia về đất đai .",
+            "question_type": "conditional",
+            "law_id": {
+                "chapter_no": 4,
+                "section_no": 1,
+                "article_no": 50,
+                "clause_nos": [
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q197",
+            "question": "Tôi mới gom tiền mua mảnh đất nông nghiệp của người ta mà chưa làm sổ sách gì cả, tôi có bắt buộc phải đi khai báo đăng ký đất đai với chính quyền không? Ngôi nhà tôi định xây trên đó có phải bắt buộc đăng ký luôn không?",
+            "answer": "Theo Luật Đất đai 2024, việc đăng ký đất đai là bắt buộc đối với người sử dụng đất và người được giao đất để quản lý . Ngược lại, tài sản gắn liền với đất là nhà ở hay công trình xây dựng thì được đăng ký theo yêu cầu của chủ sở hữu chứ không bắt buộc .",
+            "question_type": "situational",
+            "law_id": {
+                "chapter_no": 10,
+                "section_no": 2,
+                "article_no": 131,
+                "clause_nos": [
+                    1,
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q198",
+            "question": "Nhà nước có ép buộc tất cả người dân đang sử dụng đất và sở hữu nhà ở phải đi đăng ký kê khai với cơ quan chức năng không, hay việc này là tự nguyện tùy theo nhu cầu?",
+            "answer": "Theo Luật Đất đai 2024, việc đăng ký đất đai là bắt buộc đối với người sử dụng đất và người được giao đất để quản lý . Ngược lại, tài sản gắn liền với đất là nhà ở hay công trình xây dựng thì được đăng ký theo yêu cầu của chủ sở hữu chứ không bắt buộc .",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 10,
+                "section_no": 2,
+                "article_no": 131,
+                "clause_nos": [
+                    1,
+                    2
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q199",
+            "question": "Tôi muốn đổi sào ruộng trồng lúa của mình lấy sào ruộng của một người bạn ở huyện khác bên cạnh nhưng cùng nằm trong tỉnh Lâm Đồng cho tiện canh tác có được không? Có phải đóng thuế thu nhập cá nhân hay tiền lệ phí trước bạ gì không?",
+            "answer": "Cá nhân sử dụng đất nông nghiệp hợp pháp chỉ được chuyển đổi quyền sử dụng đất nông nghiệp trong cùng đơn vị hành chính cấp tỉnh cho cá nhân khác . Trong trường hợp này, người thực hiện chuyển đổi sẽ không phải nộp thuế thu nhập từ việc chuyển đổi quyền sử dụng đất và lệ phí trước bạ .",
+            "question_type": "situational",
+            "law_id": {
+                "chapter_no": 3,
+                "section_no": 5,
+                "article_no": 47,
+                "clause_nos": [],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q200",
+            "question": "Pháp luật quy định như thế nào về điều kiện để người dân được tự trao đổi đất nông nghiệp với nhau? Việc đổi ruộng đất này có bị giới hạn địa giới hành chính hay được miễn nộp các loại thuế phí nào không?",
+            "answer": "Cá nhân sử dụng đất nông nghiệp hợp pháp chỉ được chuyển đổi quyền sử dụng đất nông nghiệp trong cùng đơn vị hành chính cấp tỉnh cho cá nhân khác . Trong trường hợp này, người thực hiện chuyển đổi sẽ không phải nộp thuế thu nhập từ việc chuyển đổi quyền sử dụng đất và lệ phí trước bạ .",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 3,
+                "section_no": 5,
+                "article_no": 47,
+                "clause_nos": [],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q201",
+            "question": "Tôi nghe nói luật mới sẽ bỏ khung giá đất cũ để ban hành bảng giá đất mới sát thực tế hơn. Vậy chính xác khi nào thì bảng giá đất mới này bắt đầu được công bố và áp dụng chính thức?",
+            "answer": "Bảng giá đất lần đầu theo Luật mới sẽ được Ủy ban nhân dân cấp tỉnh trình Hội đồng nhân dân cùng cấp quyết định để công bố và áp dụng chính thức từ ngày 01 tháng 01 năm 2026 . Kể từ sau đó, hằng năm, Ủy ban nhân dân cấp tỉnh có trách nhiệm trình Hội đồng nhân dân cấp tỉnh quyết định điều chỉnh, sửa đổi, bổ sung bảng giá đất để công bố và áp dụng từ ngày 01 tháng 01 của năm tiếp theo .",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 11,
+                "section_no": 2,
+                "article_no": 159,
+                "clause_nos": [
+                    3
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q202",
+            "question": "Ủy ban nhân dân tỉnh phải công bố bảng giá đất mới áp dụng theo Luật Đất đai 2024 vào ngày tháng năm nào? Bảng giá này có cố định lâu dài không hay sẽ có cập nhật hằng năm?",
+            "answer": "Bảng giá đất lần đầu theo Luật mới sẽ được Ủy ban nhân dân cấp tỉnh trình Hội đồng nhân dân cùng cấp quyết định để công bố và áp dụng chính thức từ ngày 01 tháng 01 năm 2026 . Kể từ sau đó, hằng năm, Ủy ban nhân dân cấp tỉnh có trách nhiệm trình Hội đồng nhân dân cấp tỉnh quyết định điều chỉnh, sửa đổi, bổ sung bảng giá đất để công bố và áp dụng từ ngày 01 tháng 01 của năm tiếp theo .",
+            "question_type": "factual",
+            "law_id": {
+                "chapter_no": 11,
+                "section_no": 2,
+                "article_no": 159,
+                "clause_nos": [
+                    3
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q203",
+            "question": "Nhà tôi ở thành phố đang định mua lại căn nhà cấp 4 cũ kèm đất vườn nằm trong phân khu phục hồi sinh thái của rừng đặc dụng ở quê để thỉnh thoảng về nghỉ mát. Người thành phố như tôi có được phép mua và sang tên sổ đỏ mảnh đất đó không?",
+            "answer": "Bạn không được phép nhận chuyển nhượng hay nhận tặng cho trong trường hợp này. Pháp luật quy định rõ cá nhân không sinh sống trong khu vực rừng phòng hộ, rừng đặc dụng thì không được nhận chuyển nhượng, nhận tặng cho quyền sử dụng đất ở và đất khác trong khu vực rừng phòng hộ, trong phân khu bảo vệ nghiêm ngặt, phân khu phục hồi sinh thái thuộc rừng đặc dụng đó .",
+            "question_type": "situational",
+            "law_id": {
+                "chapter_no": 3,
+                "section_no": 5,
+                "article_no": 45,
+                "clause_nos": [
+                    8
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q204",
+            "question": "Cá nhân không đăng ký thường trú hoặc không sinh sống thực tế tại địa bàn có được nhận chuyển nhượng hay tặng cho đất ở và các loại đất phi nông nghiệp nằm trong phạm vi khu vực rừng phòng hộ, rừng đặc dụng không?",
+            "answer": "Bạn không được phép nhận chuyển nhượng hay nhận tặng cho trong trường hợp này. Pháp luật quy định rõ cá nhân không sinh sống trong khu vực rừng phòng hộ, rừng đặc dụng thì không được nhận chuyển nhượng, nhận tặng cho quyền sử dụng đất ở và đất khác trong khu vực rừng phòng hộ, trong phân khu bảo vệ nghiêm ngặt, phân khu phục hồi sinh thái thuộc rừng đặc dụng đó .",
+            "question_type": "yes_no",
+            "law_id": {
+                "chapter_no": 3,
+                "section_no": 5,
+                "article_no": 45,
+                "clause_nos": [
+                    8
+                ],
+                "ref_article_nos": []
+            }
+        },
+        {
+            "id": "Q205",
+            "question": "Khu đất thuê làm nhà xưởng của cơ sở tôi sắp hết thời hạn sử dụng đất ghi trên sổ vào cuối năm sau. Nếu muốn xin Nhà nước gia hạn thuê tiếp thì cơ sở của tôi phải làm đơn nộp trước thời hạn bao lâu? Để quá hạn mới nộp thì bị sao không?",
+            "answer": "Bạn phải nộp hồ sơ đề nghị gia hạn sử dụng đất chậm nhất là 06 tháng trước khi hết thời hạn sử dụng đất . Nếu quá thời hạn quy định này mà người sử dụng đất không nộp hồ sơ đề nghị gia hạn thì sẽ không được gia hạn sử dụng đất (trừ trường hợp bất khả kháng), và cơ quan nhà nước có thẩm quyền sẽ thực hiện việc thu hồi đất .",
+            "question_type": "situational",
+            "law_id": {
+                "chapter_no": 13,
+                "section_no": 1,
+                "article_no": 172,
+                "clause_nos": [
+                    3
+                ],
+                "ref_article_nos": []
+            }
+        }
+    ]
+}

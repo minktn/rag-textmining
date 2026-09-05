@@ -9,6 +9,7 @@ Generation: F1, Exact Match, BLEU-1, ROUGE-L
 
 import math
 from collections import Counter
+from typing import Any, Dict, List, Optional
 
 # ── NLTK setup (tải tokenizer nếu chưa có) ────────────────────────────
 import nltk
@@ -378,8 +379,18 @@ class MetricsCalculator:
         }
 
     @staticmethod
-    def compute_generation_metrics(prediction: str, reference: str) -> dict:
+    def compute_generation_metrics(prediction: Any, reference: Any) -> dict:
         """Tính tất cả generation metrics cho 1 câu hỏi."""
+        if isinstance(prediction, list):
+            prediction = " ".join(str(x) for x in prediction)
+        else:
+            prediction = str(prediction or "")
+
+        if isinstance(reference, list):
+            reference = " ".join(str(x) for x in reference)
+        else:
+            reference = str(reference or "")
+
         return {
             'exact_match': MetricsCalculator.compute_exact_match(prediction, reference),
             'f1_score': round(MetricsCalculator.compute_f1(prediction, reference), 4),
