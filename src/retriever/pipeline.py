@@ -155,7 +155,7 @@ class Retriever:
 		"""Always run query_rewriter as the first step. Graceful fallback on failure."""
 		try:
 			from src.retriever.processing.preprocessing.query_rewriter import rewrite_query
-			rewritten = rewrite_query(query)
+			rewritten = rewrite_query(query, llm=self.sub_llm_manager)
 			if rewritten and rewritten != query:
 				logger.info(f"[Retriever] Query rewritten: '{query[:60]}' → '{rewritten[:60]}'")
 			return rewritten
