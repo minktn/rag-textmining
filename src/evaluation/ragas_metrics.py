@@ -134,6 +134,7 @@ class RagasJudge:
                 temperature=0.0,
                 max_tokens=16384,
                 rate_limiter=rate_limiter,
+                timeout=getattr(settings, "LLM_TIMEOUT", 60),
                 seed=42,
             )
         elif self.service == "groq":
@@ -144,6 +145,7 @@ class RagasJudge:
                 groq_api_key=self.api_key,
                 temperature=0.0,
                 rate_limiter=rate_limiter,
+                timeout=getattr(settings, "LLM_TIMEOUT", 60),
             )
         elif self.service == "google":
             from langchain_google_genai import ChatGoogleGenerativeAI
@@ -153,6 +155,8 @@ class RagasJudge:
                 google_api_key=self.api_key,
                 temperature=0.0,
                 rate_limiter=rate_limiter,
+                timeout=getattr(settings, "LLM_TIMEOUT", 60),
+                max_retries=3,
             )
         else:
             raise ValueError(f"Dịch vụ LLM '{self.service}' không được hỗ trợ.")

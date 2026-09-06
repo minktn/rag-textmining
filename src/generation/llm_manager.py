@@ -54,7 +54,7 @@ class LLMManager:
 		if self._groq_client is None:
 			if not self.groq_api_key:
 				raise ValueError("GROQ_KEY chưa được cấu hình trong .env hoặc settings")
-			self._groq_client = Groq(api_key=self.groq_api_key)
+			self._groq_client = Groq(api_key=self.groq_api_key, timeout=getattr(settings, "LLM_TIMEOUT", 60.0))
 		return self._groq_client
 
 	@property
@@ -62,7 +62,11 @@ class LLMManager:
 		if self._nvidia_client is None:
 			if not self.nvidia_api_key:
 				raise ValueError("NVIDIA_KEY chưa được cấu hình trong .env hoặc settings")
-			self._nvidia_client = OpenAI(api_key=self.nvidia_api_key, base_url=self.nvidia_base_url)
+			self._nvidia_client = OpenAI(
+				api_key=self.nvidia_api_key,
+				base_url=self.nvidia_base_url,
+				timeout=getattr(settings, "LLM_TIMEOUT", 60.0),
+			)
 		return self._nvidia_client
 
 	@property
@@ -76,6 +80,8 @@ class LLMManager:
 				google_api_key=self.gemini_key,
 				temperature=self.temperature,
 				max_output_tokens=self.max_tokens,
+				timeout=getattr(settings, "LLM_TIMEOUT", 60),
+				max_retries=3,
 			)
 		return self._google_client
 
@@ -186,11 +192,19 @@ class LLMManager:
 				google_api_key=self.gemini_key or settings.GEMINI_KEY,
 				temperature=curr_temp,
 				max_output_tokens=curr_max_tokens,
+				timeout=getattr(settings, "LLM_TIMEOUT", 60),
+				max_retries=3,
 			)
-			response = llm.invoke([
-				SystemMessage(content=self.system_prompt),
-				HumanMessage(content=prompt),
-			])
+			try:
+				response = llm.invoke([
+					SystemMessage(content=self.system_prompt),
+					HumanMessage(content=prompt),
+				])
+			except Exception as e:
+				import logging
+				logging.getLogger(__name__).warning(f"[LLMManager] Lỗi gọi Google API sau timeout/retry ({e}). Trả về rỗng.")
+				return ""
+
 			content = response.content
 			if isinstance(content, list):
 				parts = []

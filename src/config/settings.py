@@ -83,6 +83,7 @@ class Config:
 	BASE_MAX_TOKENS = 4096
 	REASONING_TEMP = 0.4
 	REASONING_MAX_TOKENS = 8192
+	LLM_TIMEOUT = int(os.getenv('LLM_TIMEOUT', 60))
 
 
 	# EMBEDDING MODEL (centralized)
