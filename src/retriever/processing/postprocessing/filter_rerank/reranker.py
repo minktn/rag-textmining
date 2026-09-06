@@ -33,7 +33,7 @@ class LLMReranker:
         else:
             self.sub_llm = SubLLMManager(service="nvidia")
 
-        self.model_name = model_name or getattr(settings, "NVIDIA_LLM", "nvidia/nemotron-3-ultra-550b-a55b")
+        self.model_name = model_name or self.sub_llm.get_default_model(self.sub_llm.service)
         logger.info(
             f"[LLMReranker] Khởi tạo Reranker với service='{self.sub_llm.service}', "
             f"model='{self.model_name}'"
@@ -57,7 +57,7 @@ class LLMReranker:
             raw_response = self.sub_llm.generate_response(
                 prompt=prompt,
                 model_name=self.model_name,
-                service="nvidia",
+                service=self.sub_llm.service,
             )
             if not raw_response:
                 return 0.5

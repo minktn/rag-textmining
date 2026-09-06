@@ -36,7 +36,11 @@ Passage:"""
         finally:
             self.llm_manager.system_prompt = original_system_prompt
             
-        return hypothetic_document.strip() if hypothetic_document else ""
+        if hypothetic_document:
+            if isinstance(hypothetic_document, list):
+                hypothetic_document = " ".join(str(x) for x in hypothetic_document)
+            return str(hypothetic_document).strip()
+        return ""
 
     def get_embeddings(self, document: str) -> list:
         """

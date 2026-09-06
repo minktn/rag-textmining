@@ -42,6 +42,10 @@ def rewrite_query(query: str, llm: Optional[Any] = None) -> str:
                 sub_llm.system_prompt = orig_system_prompt
 
         if rewritten:
+            if isinstance(rewritten, list):
+                rewritten = " ".join(str(x) for x in rewritten)
+            else:
+                rewritten = str(rewritten)
             rewritten = rewritten.strip().strip("'\"")
             # Nếu có nhiều dòng, lấy dòng đầu tiên không rỗng
             if "\n" in rewritten:

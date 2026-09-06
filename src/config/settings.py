@@ -89,10 +89,10 @@ class Config:
 	EMBEDDING_MODEL = "BAAI/bge-m3"
 	CONTRIEVER_MODEL = "facebook/mcontriever-msmarco"
 
-	LLM_SERVICE = "nvidia" # Or "google"/"groq"/"local"
+	LLM_SERVICE = "google" # Or "nvidia"/"groq"/"local"
 	LLM_MODE = "reason"  # Or "base"
 
-	SUB_LLM_SERVICE = "nvidia" # Or "google"/"groq"/"local"
+	SUB_LLM_SERVICE = "google" # Or "nvidia"/"groq"/"local"
 	SUB_LLM_MODE = "reason"  # Or "base"
 
 	# NLI SERVICE CONFIG

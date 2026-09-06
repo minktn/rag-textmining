@@ -56,7 +56,8 @@ class Preprocessor:
             from .preprocessing.hyde import HyDE
 
             embedder = getattr(retriever, "embedder", None) if retriever else None
-            hyde = HyDE(embedder=embedder)
+            sub_llm = getattr(retriever, "sub_llm_manager", None) if retriever else None
+            hyde = HyDE(llm_manager=sub_llm, embedder=embedder)
             result = hyde.process(query)
 
             if retriever is not None:

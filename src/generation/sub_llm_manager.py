@@ -191,7 +191,21 @@ class SubLLMManager:
 				SystemMessage(content=self.system_prompt),
 				HumanMessage(content=prompt),
 			])
-			return response.content
+			content = response.content
+			if isinstance(content, list):
+				parts = []
+				for item in content:
+					if isinstance(item, str):
+						parts.append(item)
+					elif isinstance(item, dict):
+						if item.get("type") == "thinking" or "thinking" in item:
+							continue
+						if "text" in item:
+							parts.append(str(item["text"]))
+					elif hasattr(item, "text"):
+						parts.append(str(item.text))
+				return " ".join(parts).strip()
+			return str(content or "").strip()
 
 		elif active_service == "local":
 			pipe = self.local_pipeline
