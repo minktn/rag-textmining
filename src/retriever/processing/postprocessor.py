@@ -60,12 +60,13 @@ class Postprocessor:
     ) -> List[Dict[str, Any]]:
         """Uỷ quyền xử lý cho module đóng gói tương ứng."""
         if method == "filter_rerank":
-            from .postprocessing.filter_rerank import FilterReranker
+            if not hasattr(self, "_filter_reranker") or self._filter_reranker is None:
+                from .postprocessing.filter_rerank import FilterReranker
+                sub_llm = getattr(retriever, "sub_llm_manager", None) if retriever else None
+                self._filter_reranker = FilterReranker(sub_llm_manager=sub_llm)
 
-            sub_llm = getattr(retriever, "sub_llm_manager", None) if retriever else None
             top_k = getattr(retriever, "rerank_limit", None) if retriever else None
-            processor = FilterReranker(sub_llm_manager=sub_llm)
-            return processor.process(query, chunks, top_k=top_k)
+            return self._filter_reranker.process(query, chunks, top_k=top_k)
 
         elif method == "crag":
             from .postprocessing.crag import CRAGProcessor

@@ -364,6 +364,8 @@ class RAGEvaluator:
         else:
             results = []
             for idx, item in enumerate(batch_items, 1):
+                if idx > 1:
+                    time.sleep(1.5)  # Khoảng nghỉ an toàn giữa các câu hỏi để tránh rate limit
                 qid = item.get("id", f"Q{idx}")
                 q_preview = item.get("question", "")[:50]
                 safe_print(
@@ -396,6 +398,8 @@ class RAGEvaluator:
             batch_results = self.evaluate_batch(batch, batch_idx=b_idx, total_batches=total_batches)
             all_results.extend(batch_results)
             safe_print(f"  ✓ Đã hoàn tất Batch {b_idx}/{total_batches}.")
+            if b_idx < total_batches:
+                time.sleep(2.0)  # Cooldown xả nghẽn API giữa các batch
 
         return all_results
 

@@ -180,6 +180,7 @@ class SubLLMManager:
 
 		if active_service in ("google", "gemini"):
 			from langchain_core.messages import HumanMessage, SystemMessage
+			from langchain_core.output_parsers import StrOutputParser
 			from langchain_google_genai import ChatGoogleGenerativeAI
 			llm = ChatGoogleGenerativeAI(
 				model=target_model,
@@ -187,11 +188,11 @@ class SubLLMManager:
 				temperature=curr_temp,
 				max_output_tokens=curr_max_tokens,
 			)
-			response = llm.invoke([
+			chain = llm | StrOutputParser()
+			return chain.invoke([
 				SystemMessage(content=self.system_prompt),
 				HumanMessage(content=prompt),
 			])
-			return response.content
 
 		elif active_service == "local":
 			pipe = self.local_pipeline

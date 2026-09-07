@@ -11,7 +11,10 @@ Ràng buộc cấu hình:
 
 import logging
 import re
+import time
 from typing import Any, Dict, List, Optional
+
+from tenacity import before_sleep_log, retry, stop_after_attempt, wait_exponential
 
 from src.config import settings
 from src.generation.sub_llm_manager import SubLLMManager
@@ -20,23 +23,42 @@ logger = logging.getLogger(__name__)
 
 
 class LLMReranker:
-    """Bộ xếp hạng lại các mẫu khó (Hard Samples) bằng Large Language Model (NVIDIA)."""
+    """Bộ xếp hạng lại các mẫu khó (Hard Samples) bằng Large Language Model."""
 
     def __init__(
         self,
         sub_llm_manager: Optional[SubLLMManager] = None,
         model_name: Optional[str] = None,
     ):
-        # Cấu hình cứng dịch vụ NVIDIA cho Large LLM Reranker theo yêu cầu
         if sub_llm_manager is not None and sub_llm_manager.service != "local":
             self.sub_llm = sub_llm_manager
         else:
             self.sub_llm = SubLLMManager(service="nvidia")
 
-        self.model_name = model_name or getattr(settings, "NVIDIA_LLM", "nvidia/nemotron-3-ultra-550b-a55b")
+        self.service = self.sub_llm.service
+        if model_name:
+            self.model_name = model_name
+        elif self.service == "nvidia":
+            self.model_name = getattr(settings, "NVIDIA_LLM", "nvidia/nemotron-3-ultra-550b-a55b")
+        else:
+            self.model_name = self.sub_llm.get_default_model(self.service)
+
         logger.info(
-            f"[LLMReranker] Khởi tạo Reranker với service='{self.sub_llm.service}', "
+            f"[LLMReranker] Khởi tạo Reranker với service='{self.service}', "
             f"model='{self.model_name}'"
+        )
+
+    @retry(
+        stop=stop_after_attempt(5),
+        wait=wait_exponential(multiplier=2, min=5, max=30),
+        before_sleep=before_sleep_log(logger, logging.WARNING),
+        reraise=True,
+    )
+    def _call_sub_llm(self, prompt: str) -> Optional[str]:
+        return self.sub_llm.generate_response(
+            prompt=prompt,
+            model_name=self.model_name,
+            service=self.service,
         )
 
     def score_hard_chunk(self, query: str, chunk_text: str) -> float:
@@ -54,16 +76,21 @@ class LLMReranker:
         )
 
         try:
-            raw_response = self.sub_llm.generate_response(
-                prompt=prompt,
-                model_name=self.model_name,
-                service="nvidia",
-            )
+            raw_response = self._call_sub_llm(prompt)
             if not raw_response:
                 return 0.5
 
+            if isinstance(raw_response, list):
+                raw_response = "".join(
+                    p if isinstance(p, str)
+                    else p.get("text", str(p)) if isinstance(p, dict)
+                    else getattr(p, "text", str(p))
+                    for p in raw_response
+                )
+            text_response = str(raw_response).strip()
+
             # Trích xuất số thực đầu tiên trong câu trả lời
-            match = re.search(r"(\d+(\.\d+)?)", raw_response.strip())
+            match = re.search(r"(\d+(\.\d+)?)", text_response)
             if match:
                 score_10 = float(match.group(1))
                 # Giới hạn trong khoảng [0, 10]
@@ -86,7 +113,9 @@ class LLMReranker:
             return []
 
         reranked_chunks: List[Dict[str, Any]] = []
-        for chunk in hard_chunks:
+        for i, chunk in enumerate(hard_chunks):
+            if i > 0:
+                time.sleep(1.0)  # Giảm tải burst request dồn dập giữa các chunk khó
             content = chunk.get("content") or chunk.get("text") or ""
             score = self.score_hard_chunk(query, content)
 
@@ -99,3 +128,4 @@ class LLMReranker:
         # Sắp xếp giảm dần theo điểm số rerank
         reranked_chunks.sort(key=lambda c: c.get("final_score", 0.0), reverse=True)
         return reranked_chunks
+
