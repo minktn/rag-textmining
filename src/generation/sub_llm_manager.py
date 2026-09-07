@@ -186,11 +186,55 @@ class SubLLMManager:
 				google_api_key=self.gemini_key or settings.GEMINI_KEY,
 				temperature=curr_temp,
 				max_output_tokens=curr_max_tokens,
+				timeout=getattr(settings, "LLM_TIMEOUT", 180),
 			)
-			response = llm.invoke([
-				SystemMessage(content=self.system_prompt),
-				HumanMessage(content=prompt),
-			])
+			response = None
+			attempt = 0
+			while True:
+				attempt += 1
+				try:
+					response = llm.invoke([
+						SystemMessage(content=self.system_prompt),
+						HumanMessage(content=prompt),
+					])
+					if response and response.content:
+						break
+					else:
+						import logging
+						logging.getLogger(__name__).warning(
+							f"[SubLLMManager] Google phản hồi nội dung rỗng. Đang chờ 5s để gửi lại câu hỏi (Lần thử {attempt})..."
+						)
+						time.sleep(5)
+				except Exception as e:
+					err_str = str(e)
+					if "401" in err_str or "403" in err_str or "API_KEY_INVALID" in err_str:
+						raise e
+
+					import logging, random
+					jitter = random.uniform(1.0, 4.0)
+
+					is_429 = "429" in err_str or "RESOURCE_EXHAUSTED" in err_str
+					is_5xx = any(code in err_str for code in ("500", "502", "503", "504", "INTERNAL", "DEADLINE_EXCEEDED", "UNAVAILABLE"))
+					is_timeout = "timeout" in err_str.lower() or "timed out" in err_str.lower()
+
+					if is_429:
+						wait_time = 55 + jitter
+						msg = f"Chạm rate limit (429 RESOURCE_EXHAUSTED). Đang chờ {int(wait_time)}s để Google hồi quota..."
+					elif is_5xx:
+						wait_time = min(attempt * 6, 60) + jitter
+						msg = f"Máy chủ Google gặp lỗi 5xx ({err_str[:90]}). Đang kiên trì chờ {int(wait_time)}s để thử lại..."
+					elif is_timeout:
+						wait_time = 15 + jitter
+						msg = f"Hết thời gian chờ (Timeout). Đang chờ {int(wait_time)}s để gửi lại câu hỏi..."
+					else:
+						wait_time = min(attempt * 5, 30) + jitter
+						msg = f"Lỗi kết nối ({err_str[:90]}). Đang chờ {int(wait_time)}s để thử lại..."
+
+					logging.getLogger(__name__).warning(
+						f"[SubLLMManager] {msg} (Lần thử {attempt} - Giữ tiến trình để xử lý xong câu hỏi)"
+					)
+					time.sleep(wait_time)
+
 			content = response.content
 			if isinstance(content, list):
 				parts = []
@@ -222,22 +266,54 @@ class SubLLMManager:
 			return generated.strip()
 
 		elif active_service == "nvidia":
-			response = self.nvidia_client.chat.completions.create(
-				model=target_model,
-				messages=messages,
-				temperature=curr_temp,
-				max_tokens=curr_max_tokens,
-			)
-			return response.choices[0].message.content
+			attempt = 0
+			while True:
+				attempt += 1
+				try:
+					response = self.nvidia_client.chat.completions.create(
+						model=target_model,
+						messages=messages,
+						temperature=curr_temp,
+						max_tokens=curr_max_tokens,
+					)
+					if response and response.choices and response.choices[0].message.content:
+						return response.choices[0].message.content
+					time.sleep(3)
+				except Exception as e:
+					err_str = str(e)
+					if "401" in err_str or "403" in err_str:
+						raise e
+					import logging, random
+					wait_time = min(attempt * 5, 45) + random.uniform(1.0, 3.0)
+					logging.getLogger(__name__).warning(
+						f"[SubLLMManager/NVIDIA] Máy chủ gặp sự cố ({err_str[:90]}). Đang chờ {int(wait_time)}s để thử lại lần {attempt} (Không bỏ qua câu hỏi)..."
+					)
+					time.sleep(wait_time)
 
 		else:  # groq
-			response = self.groq_client.chat.completions.create(
-				model=target_model,
-				messages=messages,
-				temperature=curr_temp,
-				max_tokens=curr_max_tokens,
-			)
-			return response.choices[0].message.content
+			attempt = 0
+			while True:
+				attempt += 1
+				try:
+					response = self.groq_client.chat.completions.create(
+						model=target_model,
+						messages=messages,
+						temperature=curr_temp,
+						max_tokens=curr_max_tokens,
+					)
+					if response and response.choices and response.choices[0].message.content:
+						return response.choices[0].message.content
+					time.sleep(3)
+				except Exception as e:
+					err_str = str(e)
+					if "401" in err_str or "403" in err_str:
+						raise e
+					import logging, random
+					wait_time = 15 + random.uniform(1.0, 3.0) if "429" in err_str else min(attempt * 5, 45)
+					logging.getLogger(__name__).warning(
+						f"[SubLLMManager/Groq] Máy chủ gặp sự cố ({err_str[:90]}). Đang chờ {int(wait_time)}s để thử lại lần {attempt} (Không bỏ qua câu hỏi)..."
+					)
+					time.sleep(wait_time)
 
 
 
