@@ -161,6 +161,10 @@ def parse_args():
 		"--no-resume", action="store_true",
 		help="Không tự động tiếp tục phiên chạy dang dở trước đó (chạy mới từ đầu)"
 	)
+	parser.add_argument(
+		"--skip-base", action="store_true",
+		help="Bỏ qua bước Retrieval & Generation (Phase 1), giải phóng GPU ngay và nhảy thẳng đến tính điểm RAGAS metric (Phase 3) dựa trên các câu trả lời đã có"
+	)
 	return parser.parse_args()
 
 
@@ -194,9 +198,10 @@ def main():
 		max_workers=args.max_workers,
 		ragas_max_workers=args.ragas_max_workers,
 		ragas_batch_size=ragas_batch_size,
+		skip_base=args.skip_base,
 	)
 
-	meta = evaluator.get_pipeline_metadata()
+	meta = evaluator.get_pipeline_metadata(skip_ragas=args.skip_ragas, skip_base=args.skip_base)
 	config_info = meta["configuration"]
 
 	print("=" * 60)
@@ -216,7 +221,8 @@ def main():
 	print(f"  RAGAS Batch: {config_info.get('ragas_batch_size', args.ragas_batch_size)} (Xong case nào lưu case đó)")
 	print(f"  Collection:  {config_info['collection_name']}")
 	print(f"  Embedding:   {config_info['embedding_model']}")
-	print(f"  RAGAS:       {'Skipped' if args.skip_ragas else 'Enabled'}")
+	print(f"  Phase 1 Base:{'Skipped (--skip-base)' if args.skip_base else 'Enabled'}")
+	print(f"  Phase 3 RAGAS:{'Skipped (--skip-ragas)' if args.skip_ragas else 'Enabled'}")
 	print(f"  Limit:       {args.limit or 'All'}")
 	print(f"  Random:      {'Enabled' if args.random else 'Disabled'} (Seed: {args.seed})")
 	if meta.get("notice"):
@@ -229,6 +235,7 @@ def main():
 		random_sample=args.random,
 		seed=args.seed,
 		skip_ragas=args.skip_ragas,
+		skip_base=args.skip_base,
 		save=True,
 		resume=not args.no_resume,
 		batch_size=args.batch_size,

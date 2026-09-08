@@ -23,6 +23,12 @@ DEFAULT_DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 class SLMFilter:
     """Document relevance filter driven by a local Small Language Model (SLM) in 4-bit."""
 
+    # Class-level shared model cache: Nạp đúng 1 lần duy nhất trong toàn bộ runtime
+    _shared_model = None
+    _shared_tokenizer = None
+    _shared_token_a_id: Optional[int] = None
+    _shared_token_b_id: Optional[int] = None
+
     def __init__(
         self,
         model_name: Optional[str] = None,
@@ -37,25 +43,29 @@ class SLMFilter:
         self.tau_low = tau_low
         self.batch_size = batch_size
 
-        self._tokenizer = None
-        self._model = None
-        self._token_a_id: Optional[int] = None
-        self._token_b_id: Optional[int] = None
+        self._tokenizer = SLMFilter._shared_tokenizer
+        self._model = SLMFilter._shared_model
+        self._token_a_id = SLMFilter._shared_token_a_id
+        self._token_b_id = SLMFilter._shared_token_b_id
 
     def _load_model(self) -> None:
-        """Lazily initialize the local SLM with 4-bit quantization and cache target choice token IDs."""
-        if self._model is not None and self._tokenizer is not None:
+        """Lazily initialize the local SLM with 4-bit quantization and cache target choice token IDs once."""
+        if SLMFilter._shared_model is not None and SLMFilter._shared_tokenizer is not None:
+            self._model = SLMFilter._shared_model
+            self._tokenizer = SLMFilter._shared_tokenizer
+            self._token_a_id = SLMFilter._shared_token_a_id
+            self._token_b_id = SLMFilter._shared_token_b_id
             return
 
         from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
-        logger.info(f"[SLMFilter] Loading 4-bit local SLM: '{self.model_name}' on device '{self.device}'...")
-        self._tokenizer = AutoTokenizer.from_pretrained(
+        logger.info(f"[SLMFilter] Loading 4-bit local SLM (Singleton): '{self.model_name}' on device '{self.device}'...")
+        SLMFilter._shared_tokenizer = AutoTokenizer.from_pretrained(
             self.model_name,
             trust_remote_code=True,
         )
-        if self._tokenizer.pad_token is None:
-            self._tokenizer.pad_token = self._tokenizer.eos_token
+        if SLMFilter._shared_tokenizer.pad_token is None:
+            SLMFilter._shared_tokenizer.pad_token = SLMFilter._shared_tokenizer.eos_token
 
         bnb_config = None
         if self.device == "cuda":
@@ -65,23 +75,30 @@ class SLMFilter:
                 load_in_4bit=True,
                 bnb_4bit_compute_dtype=torch.float16,
                 bnb_4bit_quant_type="nf4",
-                llm_int8_enable_fp32_cpu_offload=True,
             )
+            device_map = {"": 0}
+        else:
+            device_map = None
 
-        self._model = AutoModelForCausalLM.from_pretrained(
+        SLMFilter._shared_model = AutoModelForCausalLM.from_pretrained(
             self.model_name,
             quantization_config=bnb_config,
-            device_map="auto" if self.device == "cuda" else None,
+            device_map=device_map,
             trust_remote_code=True,
         )
         if self.device != "cuda":
-            self._model.to(self.device)
-        self._model.eval()
+            SLMFilter._shared_model.to(self.device)
+        SLMFilter._shared_model.eval()
 
         # Cache canonical ASCII token IDs for binary evaluation choices 'A' and 'B'
-        self._token_a_id = self._tokenizer.encode("A", add_special_tokens=False)[0]
-        self._token_b_id = self._tokenizer.encode("B", add_special_tokens=False)[0]
-        logger.info(f"[SLMFilter] Ready (4-bit). Choice token IDs: A={self._token_a_id}, B={self._token_b_id}")
+        SLMFilter._shared_token_a_id = SLMFilter._shared_tokenizer.encode("A", add_special_tokens=False)[0]
+        SLMFilter._shared_token_b_id = SLMFilter._shared_tokenizer.encode("B", add_special_tokens=False)[0]
+        logger.info(f"[SLMFilter] Ready (4-bit singleton). Choice token IDs: A={SLMFilter._shared_token_a_id}, B={SLMFilter._shared_token_b_id}")
+
+        self._model = SLMFilter._shared_model
+        self._tokenizer = SLMFilter._shared_tokenizer
+        self._token_a_id = SLMFilter._shared_token_a_id
+        self._token_b_id = SLMFilter._shared_token_b_id
 
     def score_chunk(self, query: str, chunk_text: str) -> float:
         """

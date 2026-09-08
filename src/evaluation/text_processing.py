@@ -7,6 +7,10 @@ Chuẩn hóa text và tokenize tiếng Việt sử dụng Underthesea.
 
 import re
 
+import threading
+
+_tokenizer_lock = threading.Lock()
+
 # ── Vietnamese tokenizer ──────────────────────────────────────────────
 # Underthesea cung cấp word segmentation tiếng Việt chính xác,
 # ví dụ: "Thành phố Hồ Chí Minh" → ["Thành_phố", "Hồ_Chí_Minh"]
@@ -32,16 +36,19 @@ def tokenize_vi(text: str) -> list[str]:
       "quyền sử dụng đất" → ["quyền", "sử_dụng", "đất"]
     thay vì split thô: ["quyền", "sử", "dụng", "đất"]
 
-    Fallback về simple split nếu underthesea chưa được cài đặt.
+    Thread-safe và fallback về simple split nếu underthesea chưa cài đặt hoặc gặp lỗi.
     """
     text = text.strip()
     if not text:
         return []
 
     if HAS_UNDERTHESEA:
-        # word_tokenize trả về chuỗi đã tách từ, vd: "quyền sử_dụng đất"
-        segmented = _underthesea_tokenize(text, format="text")
-        return normalize_text(segmented).split()
+        try:
+            with _tokenizer_lock:
+                segmented = _underthesea_tokenize(text, format="text")
+            return normalize_text(segmented).split()
+        except Exception:
+            return normalize_text(text).split()
     else:
         return normalize_text(text).split()
 

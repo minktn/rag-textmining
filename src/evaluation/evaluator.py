@@ -64,7 +64,10 @@ class RAGEvaluator:
         max_workers: Optional[int] = None,
         ragas_max_workers: Optional[int] = None,
         ragas_batch_size: Optional[int] = None,
+        skip_base: bool = False,
     ):
+        self.skip_base = skip_base
+
         # Batch & Concurrency
         self.batch_size = batch_size or getattr(settings, "EVAL_BATCH_SIZE", 10)
         self.max_workers = max_workers or getattr(settings, "EVAL_MAX_WORKERS", 4)
@@ -106,41 +109,53 @@ class RAGEvaluator:
         from src.common.legal_metadata import LegalMetadataProcessor
         self.metadata_processor = LegalMetadataProcessor()
 
-        # 4. Khởi tạo ProcessingManager (chuẩn OOP, không dùng flag rời rạc)
-        if processing_manager is not None:
-            self.processing_manager = processing_manager
-        elif advanced is not None or preprocessing is not None or postprocessing is not None:
-            self.processing_manager = ProcessingManager(
-                preprocessing=preprocessing,
-                postprocessing=postprocessing,
-                advanced=advanced,
-            )
+        # 4 & 5. Khởi tạo ProcessingManager & Retriever (BỎ QUA KHI SKIP_BASE)
+        if self.skip_base:
+            # Khi --skip-base được kích hoạt: Tuyệt đối KHÔNG load model Retriever/Embedder/Filter lên GPU
+            class DummyProcessing:
+                def __init__(self, adv, pre, post):
+                    self.advanced = adv
+                    self.preprocessing = pre or []
+                    self.postprocessing = post or []
+                def __str__(self):
+                    return f"DummyProcessing(advanced={self.advanced}, pre={self.preprocessing}, post={self.postprocessing})"
+            self.processing_manager = DummyProcessing(advanced, preprocessing, postprocessing)
+            self.retriever = None
+            safe_print("  [Init] Chế độ --skip-base: KHÔNG load Retriever, Embedder hay model GPU nào của session này.")
         else:
-            self.processing_manager = ProcessingManager.from_settings()
-
-        # 5. Khởi tạo Retriever
-        if retriever is not None:
-            self.retriever = retriever
-            self.retriever.rerank_limit = self.top_k
-        else:
-            if self.retriever_mode == "graph":
-                dense_model = settings.EMBEDDING_MODEL  # BAAI/bge-m3 (1024 chiều cho Graph DB)
-                coll_name = "graph"
-            elif self.retriever_mode == "contriever":
-                dense_model = settings.CONTRIEVER_MODEL  # Contriever (768 chiều)
-                coll_name = getattr(settings, "CONTRIEVER_COLLECTION_NAME", "landlaw_contriever")
+            if processing_manager is not None:
+                self.processing_manager = processing_manager
+            elif advanced is not None or preprocessing is not None or postprocessing is not None:
+                self.processing_manager = ProcessingManager(
+                    preprocessing=preprocessing,
+                    postprocessing=postprocessing,
+                    advanced=advanced,
+                )
             else:
-                dense_model = settings.EMBEDDING_MODEL  # BAAI/bge-m3 (1024 chiều cho Base)
-                coll_name = self.collection_name
-            self.retriever = Retriever(
-                db_manager=db_manager,
-                embedder=embedder,
-                collection_name=coll_name,
-                dense_model_name=dense_model,
-                rerank_limit=self.top_k,
-                processing_manager=self.processing_manager,
-                sub_llm_manager=self.sub_llm_manager,
-            )
+                self.processing_manager = ProcessingManager.from_settings()
+
+            if retriever is not None:
+                self.retriever = retriever
+                self.retriever.rerank_limit = self.top_k
+            else:
+                if self.retriever_mode == "graph":
+                    dense_model = settings.EMBEDDING_MODEL  # BAAI/bge-m3 (1024 chiều cho Graph DB)
+                    coll_name = "graph"
+                elif self.retriever_mode == "contriever":
+                    dense_model = settings.CONTRIEVER_MODEL  # Contriever (768 chiều)
+                    coll_name = getattr(settings, "CONTRIEVER_COLLECTION_NAME", "landlaw_contriever")
+                else:
+                    dense_model = settings.EMBEDDING_MODEL  # BAAI/bge-m3 (1024 chiều cho Base)
+                    coll_name = self.collection_name
+                self.retriever = Retriever(
+                    db_manager=db_manager,
+                    embedder=embedder,
+                    collection_name=coll_name,
+                    dense_model_name=dense_model,
+                    rerank_limit=self.top_k,
+                    processing_manager=self.processing_manager,
+                    sub_llm_manager=self.sub_llm_manager,
+                )
 
     # ─────────────────────────────────────────────────────────────
     # Metadata Introspection for UI Synchronization
@@ -153,6 +168,7 @@ class RAGEvaluator:
         random_sample: bool = False,
         seed: int = 42,
         skip_ragas: bool = False,
+        skip_base: bool = False,
     ) -> Dict[str, Any]:
         """Tự động đọc thông tin thực tế từ tất cả các module trong pipeline phục vụ hiển thị UI & checkpointing."""
         eval_file_name = Path(eval_file).name if eval_file else "eval_landlaw_2024.json"
@@ -184,6 +200,7 @@ class RAGEvaluator:
                 "random_sample": random_sample,
                 "seed": seed,
                 "skip_ragas": skip_ragas,
+                "skip_base": skip_base,
                 "graph_method": self.graph_method if self.use_graph else None,
                 "batch_size": self.batch_size,
                 "max_workers": self.max_workers,
@@ -575,6 +592,7 @@ class RAGEvaluator:
         random_sample: bool = False,
         seed: int = 42,
         skip_ragas: bool = False,
+        skip_base: bool = False,
         save: bool = True,
         batch_size: Optional[int] = None,
         max_workers: Optional[int] = None,
@@ -586,6 +604,8 @@ class RAGEvaluator:
         Chạy toàn bộ quy trình đánh giá hoàn chỉnh:
         - Tự động nhận diện phiên trước (Auto-Resume) nếu trùng metadata cấu hình.
         - Khởi tạo JSON ngay từ đầu và lưu theo phương thức append per-case.
+        - Option --skip-base: Bỏ qua Phase 1 (Retrieval & Generation), giải phóng GPU ngay
+          và nhảy thẳng sang Phase 3 (RAGAS Metrics) dựa trên các câu trả lời đã có.
         - Tính toán metrics và finalize báo cáo chuẩn hóa cho UI.
         """
         if batch_size is not None:
@@ -617,6 +637,7 @@ class RAGEvaluator:
             random_sample=random_sample,
             seed=seed,
             skip_ragas=skip_ragas,
+            skip_base=skip_base,
         )
         pipeline_meta["eval_dataset"] = {
             "law_name": dataset_meta.get("law_name", "Luật Đất đai 2024"),
@@ -641,8 +662,51 @@ class RAGEvaluator:
 
             safe_print(f"\n[Auto-Resume] Phát hiện phiên chạy gần nhất TRÙNG KHỚP metadata ({resumable_session['matched_file']})!")
             safe_print(f"  → Đã hoàn thành: {len(completed_ids)}/{len(questions)} câu hỏi.")
+        else:
+            # Nếu không tìm thấy qua matching config, kiểm tra nếu eval_file chính là file kết quả đã có câu trả lời
+            answers_found = [q for q in questions if q.get("generated_answer")]
+            if answers_found:
+                completed_results = answers_found
+                completed_ids = {r.get("id") for r in completed_results if r.get("id")}
+                report_path = Path(eval_file) if eval_file else self.reporter.get_latest_filepath(pipeline_meta["configuration"])
+                safe_print(f"\n[File-Resume] Đã nhận diện file kết quả với {len(completed_results)} câu trả lời có sẵn.")
 
-            # Tự động đảm bảo tất cả các case đã hoàn thành đều có đầy đủ tất cả các metric
+        # Xử lý đặc thù khi kích hoạt --skip-base
+        if skip_base:
+            if not completed_results:
+                answers_in_questions = [q for q in questions if q.get("generated_answer")]
+                if answers_in_questions:
+                    completed_results = answers_in_questions
+                    if not report_path and eval_file:
+                        report_path = Path(eval_file)
+
+            if not completed_results:
+                safe_print("\n[Skip-Base Lỗi] Không tìm thấy câu trả lời nào đã có sẵn!")
+                safe_print("  → Phiên chạy trùng khớp không có câu trả lời nào, hoặc file dữ liệu không chứa trường 'generated_answer'.")
+                safe_print("  → Vui lòng chạy pipeline sinh câu trả lời trước, hoặc truyền file kết quả qua --eval-file.")
+                return {}
+
+            safe_print(f"\n[Skip-Base] Đã kích hoạt --skip-base:")
+            safe_print(f"  ✓ Bỏ qua Phase 1 (Retrieval & Generation).")
+            safe_print(f"  ✓ KHÔNG load bất kỳ mô hình GPU nào của session này (giữ nguyên GPU cho tiến trình khác).")
+            safe_print(f"  ✓ Sử dụng {len(completed_results)} câu trả lời đã có để tiến hành đánh giá RAGAS metric.")
+            pending_questions = []
+        else:
+            if resumable_session:
+                pending_questions = [q for q in questions if q.get("id") not in completed_ids]
+                if not pending_questions:
+                    safe_print(f"  ✓ Toàn bộ {len(questions)} câu hỏi đã được thực hiện trước đó!")
+                else:
+                    safe_print(f"  → Tiếp tục thực hiện {len(pending_questions)} câu hỏi còn lại...\n")
+            else:
+                if save and not report_path:
+                    report_path = self.reporter.init_streaming_session(
+                        metadata=pipeline_meta,
+                        total_questions=len(questions),
+                    )
+
+        # Tự động đảm bảo tất cả các case đã hoàn thành đều có đầy đủ tất cả các metric
+        if completed_results:
             is_dirty = False
             for r in completed_results:
                 if not self.use_graph and ("retrieval_hit" not in r or r.get("retrieval_hit") is None):
@@ -664,19 +728,6 @@ class RAGEvaluator:
             if is_dirty and save and report_path:
                 safe_print("  → Đang bổ sung và chuẩn hóa toàn bộ metrics cho các case trước đó...")
                 self.reporter.update_ragas_batch(report_path, completed_results, {})
-
-            pending_questions = [q for q in questions if q.get("id") not in completed_ids]
-
-            if not pending_questions:
-                safe_print(f"  ✓ Toàn bộ {len(questions)} câu hỏi đã được thực hiện trước đó!")
-            else:
-                safe_print(f"  → Tiếp tục thực hiện {len(pending_questions)} câu hỏi còn lại...\n")
-        else:
-            if save:
-                report_path = self.reporter.init_streaming_session(
-                    metadata=pipeline_meta,
-                    total_questions=len(questions),
-                )
 
         # 4. Định nghĩa callback append per-case
         def on_case_done(case_res):
@@ -707,8 +758,9 @@ class RAGEvaluator:
             is_graph_mode=self.use_graph,
         )
 
-        # ── KẾT THÚC PHASE 2: GIẢI PHÓNG VRAM / FREE GPU CÁC MODEL THUỘC SESSION ──
-        self.free_gpu_resources()
+        # ── KẾT THÚC PHASE 2: GIẢI PHÓNG VRAM / FREE GPU CÁC MODEL THUỘC SESSION (chỉ khi có chạy Phase 1) ──
+        if not self.skip_base:
+            self.free_gpu_resources()
 
         ragas_scores = {}
         if not skip_ragas:

@@ -36,7 +36,9 @@ class EvalDataLoader:
             raw = json.load(f)
 
         metadata = raw.get("metadata", {})
-        data = raw.get("data", [])
+        data = raw.get("data")
+        if data is None:
+            data = raw.get("detailed_results", [])
 
         # Lọc theo question_types nếu có
         if question_types:
@@ -50,10 +52,13 @@ class EvalDataLoader:
         elif limit and limit > 0:
             data = data[:limit]
 
+        law_name = metadata.get("law_name") or metadata.get("eval_dataset", {}).get("law_name", "N/A")
+        version = metadata.get("version") or metadata.get("eval_dataset", {}).get("version", "N/A")
+
         safe_print(
             f"Loaded {len(data)} questions from {target_file.name} "
-            f"| Law: {metadata.get('law_name', 'N/A')} "
-            f"| Version: {metadata.get('version', 'N/A')}"
+            f"| Law: {law_name} "
+            f"| Version: {version}"
         )
         return metadata, data
 
