@@ -133,6 +133,7 @@ class RagasJudge:
                 base_url=self.base_url,
                 temperature=0.0,
                 max_tokens=16384,
+                extra_body={"chat_template_kwargs":{"enable_thinking":False}},
                 rate_limiter=rate_limiter,
                 timeout=getattr(settings, "LLM_TIMEOUT", 180),
                 seed=42,
