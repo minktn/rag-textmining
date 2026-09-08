@@ -130,8 +130,8 @@ class NLIEngine:
                     "label_id": pred_id,
                     "confidence": conf,
                     "probabilities": {
-                        "CONTRADICTION/LOSE": prob_contra,
-                        "ENTAILMENT/WIN": prob_entail,
+                        "CONTRADICTION/LOSE": p_contra,
+                        "ENTAILMENT/WIN": p_entail,
                     },
                 })
         return results
