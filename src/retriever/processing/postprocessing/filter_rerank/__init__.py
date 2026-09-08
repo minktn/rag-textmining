@@ -1,14 +1,14 @@
 """
 Filter-then-Rerank Postprocessing Module
 =========================================
-Triển khai phương pháp Filter-then-Rerank (EMNLP 2023):
-- SLMFilter: Sàng lọc nhanh các mẫu dễ/không liên quan bằng SLM Local (settings.LOCAL_LLM).
-- LLMReranker: Thẩm định chuyên sâu các mẫu khó (Hard Samples) bằng LLM Cloud (NVIDIA Nemotron).
-- FilterReranker: Bộ điều phối toàn diện cho bước hậu xử lý truy xuất.
+Implements the two-tier Filter-then-Rerank framework (EMNLP 2023):
+- SLMFilter: High-throughput preliminary candidate filtering via local SLM logits.
+- LLMReranker: Selective multi-choice reasoning for hard/ambiguous samples via Cloud LLM.
+- FilterReranker: Unified pipeline coordinator for retriever postprocessing.
 """
 
 from .filter import SLMFilter
-from .reranker import LLMReranker
 from .processor import FilterReranker
+from .reranker import LLMReranker
 
 __all__ = ["SLMFilter", "LLMReranker", "FilterReranker"]

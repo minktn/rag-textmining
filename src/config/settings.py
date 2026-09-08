@@ -78,7 +78,7 @@ class Config:
 	GROQ_LLM = 'llama-3.3-70b-versatile'
 	NVIDIA_LLM = 'nvidia/nemotron-3.5-lightning-30b-a3b'
 	GEMINI_LLM = 'gemma-4-31b-it'
-	LOCAL_LLM = 'ntphuc149/ViLegalQwen2.5-1.5B-Base'
+	LOCAL_LLM = 'Qwen/Qwen2.5-1.5B-Instruct'
 	BASE_TEMP = 0.0
 	BASE_MAX_TOKENS = 4096
 	REASONING_TEMP = 0.4

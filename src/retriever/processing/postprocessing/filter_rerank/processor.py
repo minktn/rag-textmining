@@ -1,9 +1,10 @@
 """
-Filter-then-Rerank Processor
-============================
-Bộ điều phối toàn diện cho mô hình Filter-then-Rerank (EMNLP 2023):
-Kết hợp sức mạnh phân loại nhanh của Small Language Model (SLM) local
-với năng lực suy luận chuyên sâu của Large Language Model (NVIDIA) cho các mẫu khó.
+Filter-then-Rerank Pipeline Coordinator
+========================================
+Orchestrates the two-stage Filter-then-Rerank framework (EMNLP 2023):
+1. Stage 1 (Filter): Fast local SLM classifies candidates by confidence score.
+2. Stage 2 (Rerank): Cloud LLM conducts in-depth multi-choice reasoning for hard samples.
+3. Stage 3 (Merge): Assembles, scores, and sorts final ranked context.
 """
 
 import logging
@@ -16,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class FilterReranker:
-    """Bộ điều phối quy trình Filter-then-Rerank cho bước hậu xử lý RAG."""
+    """Orchestrator for two-stage Filter-then-Rerank postprocessing."""
 
     def __init__(
         self,
@@ -24,7 +25,7 @@ class FilterReranker:
         llm_reranker: Optional[LLMReranker] = None,
         sub_llm_manager: Optional[Any] = None,
         tau_high: float = 0.70,
-        tau_low: float = 0.30,
+        tau_low: float = 0.20,
         **kwargs,
     ):
         self.slm_filter = slm_filter or SLMFilter(tau_high=tau_high, tau_low=tau_low)
@@ -38,51 +39,48 @@ class FilterReranker:
         top_k: Optional[int] = None,
     ) -> List[Dict[str, Any]]:
         """
-        Thực thi quy trình Filter-then-Rerank trên tập ứng viên chunks.
+        Execute the Filter-then-Rerank pipeline over retrieved candidates.
 
         Parameters
         ----------
         query : str
-            Câu hỏi của người dùng.
+            User query.
         chunks : List[Dict[str, Any]]
-            Danh sách chunks thu được từ bước truy xuất dense / rerank ban đầu.
+            Candidate document chunks from dense/hybrid retrieval.
+        retriever : Optional[Any]
+            Retriever instance for configuration fallback.
         top_k : Optional[int]
-            Số lượng chunks tối đa muốn giữ lại.
+            Maximum number of final chunks to return.
 
         Returns
         -------
         List[Dict[str, Any]]
-            Danh sách chunks đã qua lọc và tái xếp hạng.
+            Ranked, filtered candidates ordered by final relevance score.
         """
         if not chunks:
             return []
 
-        # ── Giai đoạn 1: Lọc bằng SLM Local ────────────────────────
+        # Stage 1: Preliminary screening via local SLM
         easy_chunks, hard_chunks, dropped_chunks = self.slm_filter.filter_chunks(query, chunks)
 
         for c in easy_chunks:
             c["final_score"] = c.get("slm_score", 1.0)
             c["source"] = "slm_filter_easy_kept"
 
-        # ── Giai đoạn 2: Tái thẩm định Hard Samples bằng LLM Cloud (NVIDIA) ─
-        if hard_chunks:
-            reranked_hard = self.llm_reranker.rerank_hard_samples(query, hard_chunks)
-        else:
-            reranked_hard = []
+        # Stage 2: In-depth multi-choice evaluation of hard samples via Cloud LLM
+        reranked_hard = self.llm_reranker.rerank_hard_samples(query, hard_chunks) if hard_chunks else []
 
-        # ── Giai đoạn 3: Hợp nhất & Sắp xếp ────────────────────────
+        # Stage 3: Merge, rank, and apply limit
         combined = easy_chunks + reranked_hard
 
-        # Fallback: nếu toàn bộ bị drop do threshold quá gắt, giữ lại các chunks từ dropped có điểm cao nhất
+        # Safety net: salvage top candidates if all chunks were filtered out
         if not combined and dropped_chunks:
-            logger.warning("[FilterReranker] Toàn bộ chunks bị loại bỏ bởi ngưỡng. Kích hoạt fallback giữ lại ứng viên tốt nhất.")
-            for c in dropped_chunks:
-                c["final_score"] = c.get("slm_score", 0.0)
-                c["source"] = "slm_filter_fallback"
-            dropped_chunks.sort(key=lambda x: x.get("final_score", 0.0), reverse=True)
-            combined = dropped_chunks[:3]
+            logger.warning("[FilterReranker] All candidates filtered by threshold. Reranking top-scoring fallbacks.")
+            dropped_chunks.sort(key=lambda x: x.get("slm_score", 0.0), reverse=True)
+            salvaged = dropped_chunks[:getattr(self.llm_reranker, "topk", 4)]
+            reranked_hard = self.llm_reranker.rerank_hard_samples(query, salvaged)
+            combined = reranked_hard or dropped_chunks[:3]
 
-        # Sắp xếp giảm dần theo điểm số cuối cùng
         combined.sort(key=lambda x: x.get("final_score", 0.0), reverse=True)
 
         effective_top_k = top_k or (getattr(retriever, "rerank_limit", None) if retriever else None)
@@ -90,7 +88,7 @@ class FilterReranker:
             combined = combined[:effective_top_k]
 
         logger.info(
-            f"[FilterReranker] Hoàn tất: Giữ lại {len(combined)} chunks "
+            f"[FilterReranker] Finished: Retained {len(combined)} chunks "
             f"(Easy: {len(easy_chunks)}, Hard-reranked: {len(reranked_hard)}, Dropped: {len(dropped_chunks)})"
         )
         return combined
