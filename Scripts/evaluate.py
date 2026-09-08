@@ -147,7 +147,15 @@ def parse_args():
 	)
 	parser.add_argument(
 		"--max-workers", type=int, default=getattr(settings, "EVAL_MAX_WORKERS", 4),
-		help="Số luồng đồng thời xử lý request (mặc định lấy từ settings.EVAL_MAX_WORKERS)"
+		help="Số luồng đồng thời xử lý request Phase 1 (mặc định lấy từ settings.EVAL_MAX_WORKERS)"
+	)
+	parser.add_argument(
+		"--ragas-max-workers", type=int, default=getattr(settings, "RAGAS_MAX_WORKERS", 4),
+		help="Số luồng đồng thời cho RAGAS LLM Judge (mặc định lấy từ settings.RAGAS_MAX_WORKERS = 4)"
+	)
+	parser.add_argument(
+		"--no-resume", action="store_true",
+		help="Không tự động tiếp tục phiên chạy dang dở trước đó (chạy mới từ đầu)"
 	)
 	return parser.parse_args()
 
@@ -177,6 +185,7 @@ def main():
 		graph_method=args.graph_method,
 		batch_size=args.batch_size,
 		max_workers=args.max_workers,
+		ragas_max_workers=args.ragas_max_workers,
 	)
 
 	meta = evaluator.get_pipeline_metadata()
@@ -195,6 +204,7 @@ def main():
 	print(f"  Top-K:       {config_info['top_k']}")
 	print(f"  Batch Size:  {config_info.get('batch_size')}")
 	print(f"  Workers:     {config_info.get('max_workers')}")
+	print(f"  RAGAS Wkrs:  {config_info.get('ragas_max_workers')}")
 	print(f"  Collection:  {config_info['collection_name']}")
 	print(f"  Embedding:   {config_info['embedding_model']}")
 	print(f"  RAGAS:       {'Skipped' if args.skip_ragas else 'Enabled'}")
@@ -211,8 +221,10 @@ def main():
 		seed=args.seed,
 		skip_ragas=args.skip_ragas,
 		save=True,
+		resume=not args.no_resume,
 		batch_size=args.batch_size,
 		max_workers=args.max_workers,
+		ragas_max_workers=args.ragas_max_workers,
 	)
 
 	print("\nEvaluation completed!")

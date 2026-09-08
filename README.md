@@ -137,34 +137,67 @@ uv run python Scripts/retrieve.py --query "Hạn mức giao đất ở là bao n
 
 ### Bước 5: Chạy đánh giá định lượng (Evaluation Pipeline)
 
-Chạy script đánh giá benchmark trên tập câu hỏi Luật Đất đai 2024:
+Chạy script đánh giá benchmark trên tập câu hỏi Luật Đất đai 2024 với cơ chế **Streaming per-case**, **Auto-Resume** và **Checkpointing per-batch cho RAGAS**.
 
-* **Đánh giá cơ bản nhanh (Basic Metrics: F1, BLEU, ROUGE-L, Recall@K, Precision@K)**:
+#### 5.1. Các chế độ Retriever chính (`--retriever-mode`)
+
+* **1. Chế độ Dense cơ bản (Base BGE-M3 trên Qdrant)**:
   ```bash
-  uv run python Scripts/evaluate.py --limit 10 --skip-ragas
+  uv run python Scripts/evaluate.py --retriever-mode base --postprocessing filter_rerank --limit 10
   ```
 
-* **Đánh giá đầy đủ có RAGAS (LLM-as-a-judge: Faithfulness, Answer Relevancy, Context Precision/Recall)**:
+* **2. Chế độ Contriever (facebook/contriever trên Qdrant)**:
   ```bash
-  uv run python Scripts/evaluate.py --limit 5
+  uv run python Scripts/evaluate.py --retriever-mode contriever --limit 10
   ```
 
-* **Đánh giá với Graph Database**:
+* **3. Chế độ Graph Database (Microsoft GraphRAG)**:
   ```bash
-  uv run python Scripts/evaluate.py --graph --limit 5
+  uv run python Scripts/evaluate.py --retriever-mode graph
+  # hoặc tùy chọn phương thức truy vấn Graph (local | global | drift | basic):
+  uv run python Scripts/evaluate.py --retriever-mode graph --graph-method local
+  # Cờ --graph là alias viết tắt tương đương:
+  uv run python Scripts/evaluate.py --graph
   ```
 
-* **Đánh giá với RAG-Fusion**:
+#### 5.2. Các kịch bản đánh giá nâng cao
+
+* **Đánh giá tiêu chuẩn đầy đủ (Phase 1 tuần tự an toàn GPU + RAGAS đa luồng)**:
   ```bash
-  uv run python Scripts/evaluate.py --advanced rag_fusion --limit 5
+  uv run python Scripts/evaluate.py --retriever-mode base --postprocessing filter_rerank --llm-service google --sub-llm-service google --ragas-service nvidia --max-workers 1 --ragas-max-workers 4
   ```
 
-* **Tùy chỉnh kích thước Batch và số Luồng xử lý**:
+* **Đánh giá cơ bản nhanh (Bỏ qua LLM Judge để tiết kiệm API call)**:
   ```bash
-  uv run python Scripts/evaluate.py --batch-size 10 --max-workers 4
+  uv run python Scripts/evaluate.py --retriever-mode base --limit 10 --skip-ragas
   ```
 
-> *Kết quả đánh giá được tự động lưu vào `db/results/eval_report_YYYYMMDD_HHMMSS.json` và đồng bộ tới `eval_latest.json`.*
+* **Đánh giá với RAG-Fusion & Tiền/Hậu xử lý nâng cao**:
+  ```bash
+  uv run python Scripts/evaluate.py --retriever-mode base --advanced rag_fusion --preprocessing hyde --postprocessing filter_rerank --limit 10
+  ```
+
+* **Kết hợp GraphRAG & RAG-Fusion**:
+  ```bash
+  uv run python Scripts/evaluate.py --retriever-mode graph --advanced rag_fusion
+  ```
+
+#### 5.3. Tùy chỉnh Concurrency & Auto-Resume
+
+* **Tùy chỉnh số luồng độc lập (Decoupled Concurrency)**:
+  - `--max-workers <N>`: Số luồng xử lý đồng thời cho Phase 1 (Retrieval & Generation). Đặt `1` khi dùng mô hình reranker trên CUDA để tránh nghẽn VRAM.
+  - `--ragas-max-workers <N>`: Số luồng xử lý đồng thời cho Phase 3 (RAGAS LLM-as-a-judge). Mặc định `4` để bắn song song các request LLM Judge giúp hoàn thành nhanh chóng.
+  - `--batch-size <N>`: Kích thước batch xử lý (mặc định: `10`).
+
+* **Cơ chế Bảo Lưu & Auto-Resume**:
+  - Hệ thống tự động nhận diện phiên trước nếu trùng khớp metadata cấu hình và tiếp tục các câu hỏi còn thiếu.
+  - **Bảo lưu 100%**: Các câu hỏi đã có đủ 4 điểm RAGAS hợp lệ sẽ không bị đánh giá lại, hệ thống chỉ chạy bổ sung cho các câu bị thiếu/lỗi (`None`).
+  - Dùng cờ `--no-resume` nếu muốn bỏ qua phiên trước và đánh giá mới hoàn toàn từ đầu:
+    ```bash
+    uv run python Scripts/evaluate.py --no-resume
+    ```
+
+> *Kết quả đánh giá được lưu streaming theo từng case vào `db/results/eval_report_YYYYMMDD_HHMMSS.json` và đồng bộ tới `eval_latest.json`. Ở đầu JSON luôn có khối `summary_metrics` tổng hợp điểm trung bình macro-average, và từng case trong `detailed_results` đều được ghi nhận đầy đủ 100% các metrics (Retrieval, Generation, Latency, RAGAS).*
 
 ---
 

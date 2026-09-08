@@ -7,9 +7,11 @@ In bảng tổng hợp kết quả ra console và lưu results/summary ra JSON f
 """
 
 import json
+import math
+import threading
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 from src.config import settings
 from .text_processing import HAS_UNDERTHESEA, safe_print
@@ -18,10 +20,25 @@ print = safe_print
 
 
 class EvaluationReporter:
-    """OOP Reporter để in bảng thống kê và lưu trữ kết quả đánh giá."""
+    """OOP Reporter để in bảng thống kê, streaming append kết quả theo case và tự động khôi phục phiên chạy (Auto-Resume)."""
+
+    CRITICAL_CONFIG_KEYS = [
+        "eval_file",
+        "retriever_mode",
+        "advanced_method",
+        "preprocessing",
+        "postprocessing",
+        "llm_service",
+        "llm_model",
+        "sub_llm_service",
+        "sub_llm_model",
+        "top_k",
+        "collection_name",
+    ]
 
     def __init__(self, output_dir: Optional[Path] = None):
         self.output_dir = Path(output_dir or settings.EVAL_RESULTS_DIR)
+        self._lock = threading.Lock()
 
     def print_summary_table(self, basic_metrics: Dict[str, Any], ragas_scores: Dict[str, Any], model_name: str):
         """In bảng tổng hợp kết quả ra console với định dạng chuẩn và cảnh báo Graph mode."""
@@ -80,9 +97,13 @@ class EvaluationReporter:
             print(f"  {thin_sep}")
             print(f"  {'Metric':<35} {'Value':>20}")
             print(f"  {thin_sep}")
-            for metric, value in ragas_scores.items():
-                label = metric.replace("_", " ").title()
-                print(f"  {label:<35} {value:>20.4f}")
+            metric_names = ["faithfulness", "answer_relevancy", "context_precision", "context_recall"]
+            for m in metric_names:
+                if m in ragas_scores:
+                    val = ragas_scores[m]
+                    label = m.replace("_", " ").title()
+                    val_str = f"{val:.4f}" if val is not None else "N/A"
+                    print(f"  {label:<35} {val_str:>20}")
             print()
         elif is_graph_mode:
             print(f"  {'RAGAS METRICS (LLM-as-Judge)':^58}")
@@ -122,6 +143,453 @@ class EvaluationReporter:
 
         print(f"{sep}\n")
 
+    # ─────────────────────────────────────────────────────────────
+    # Auto-Resume & Session Matching
+    # ─────────────────────────────────────────────────────────────
+
+    def find_resumable_session(
+        self,
+        current_config: Dict[str, Any],
+        output_dir: Optional[Path] = None,
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Kiểm tra file kết quả gần nhất xem có trùng các trường cấu hình quan trọng hay không.
+        Nếu trùng khớp, trả về session để tiếp tục append các câu hỏi chưa chạy.
+        """
+        target_dir = Path(output_dir or self.output_dir)
+        candidate_files: List[Path] = []
+
+        latest_path = target_dir / "eval_latest.json"
+        if latest_path.exists():
+            candidate_files.append(latest_path)
+
+        # Tìm các file eval_report_*.json gần nhất
+        report_files = sorted(
+            target_dir.glob("eval_report_*.json"),
+            key=lambda p: p.stat().st_mtime,
+            reverse=True,
+        )
+        for rf in report_files[:5]:
+            if rf not in candidate_files:
+                candidate_files.append(rf)
+
+        for filepath in candidate_files:
+            try:
+                with open(filepath, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+
+                meta = data.get("metadata") or {}
+                prev_config = meta.get("configuration") or {}
+                if not prev_config:
+                    continue
+
+                # So sánh các trường cấu hình quan trọng
+                is_match = True
+                for key in self.CRITICAL_CONFIG_KEYS:
+                    curr_val = current_config.get(key)
+                    prev_val = prev_config.get(key)
+
+                    # Chuẩn hóa so sánh cho danh sách (ví dụ: preprocessing/postprocessing)
+                    if isinstance(curr_val, list) and isinstance(prev_val, list):
+                        if sorted(curr_val) != sorted(prev_val):
+                            is_match = False
+                            break
+                    elif curr_val != prev_val:
+                        # Cho phép linh hoạt nếu một bên là None và bên kia là rỗng/mặc định
+                        if curr_val in (None, "") and prev_val in (None, ""):
+                            continue
+                        is_match = False
+                        break
+
+                if not is_match:
+                    continue
+
+                # Kiểm tra sampling ngẫu nhiên nếu có
+                if current_config.get("random_sample"):
+                    if not prev_config.get("random_sample") or current_config.get("seed") != prev_config.get("seed"):
+                        continue
+
+                detailed = data.get("detailed_results") or []
+                completed_ids: Set[str] = {
+                    item["id"] for item in detailed if isinstance(item, dict) and item.get("id")
+                }
+
+                # Xác định file báo cáo thực sự
+                report_filename = meta.get("report_filename")
+                actual_report_path = (target_dir / report_filename) if report_filename else filepath
+                if not actual_report_path.exists():
+                    actual_report_path = filepath
+
+                return {
+                    "report_path": actual_report_path,
+                    "report_data": data,
+                    "completed_ids": completed_ids,
+                    "completed_results": detailed,
+                    "matched_file": filepath.name,
+                }
+
+            except Exception as e:
+                logger_msg = f"[Reporter] Bỏ qua file '{filepath.name}' khi check resume: {e}"
+                continue
+
+        return None
+
+    # ─────────────────────────────────────────────────────────────
+    # Streaming Append & Lifecycle Management
+    # ─────────────────────────────────────────────────────────────
+
+    def init_streaming_session(
+        self,
+        metadata: Dict[str, Any],
+        total_questions: int,
+        output_dir: Optional[Path] = None,
+        existing_report_path: Optional[Path] = None,
+    ) -> Path:
+        """
+        Khởi tạo file JSON ngay từ đầu phiên để sẵn sàng lưu theo phương pháp append.
+        """
+        target_dir = Path(output_dir or self.output_dir)
+        target_dir.mkdir(parents=True, exist_ok=True)
+
+        if existing_report_path and existing_report_path.exists():
+            report_path = existing_report_path
+        else:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            report_filename = f"eval_report_{timestamp}.json"
+            report_path = target_dir / report_filename
+            metadata["report_filename"] = report_filename
+
+        metadata["status"] = "in_progress"
+        metadata["total_questions"] = total_questions
+        metadata["created_at"] = metadata.get("created_at") or datetime.now().isoformat()
+        metadata["last_updated_at"] = datetime.now().isoformat()
+
+        initial_data = {
+            "metadata": metadata,
+            "summary_metrics": {
+                "status": "in_progress",
+                "completed_count": 0,
+                "total_count": total_questions,
+                "is_graph_mode": metadata.get("is_graph_mode", False),
+                "retrieval": {},
+                "generation": {},
+                "ragas": {},
+            },
+            "detailed_results": [],
+        }
+
+        with self._lock:
+            with open(report_path, "w", encoding="utf-8") as f:
+                json.dump(initial_data, f, ensure_ascii=False, indent=4)
+
+            latest_path = target_dir / "eval_latest.json"
+            with open(latest_path, "w", encoding="utf-8") as f:
+                json.dump(initial_data, f, ensure_ascii=False, indent=4)
+
+        return report_path
+
+    def append_case_result(
+        self,
+        report_path: Path,
+        case_result: Dict[str, Any],
+        total_questions: int,
+        output_dir: Optional[Path] = None,
+    ):
+        """
+        Ghi nhận kết quả của 1 case vừa xử lý xong vào JSON theo cơ chế append an toàn.
+        """
+        target_dir = Path(output_dir or self.output_dir)
+        target_dir.mkdir(parents=True, exist_ok=True)
+
+        # Làm sạch payload không cần thiết trước khi lưu
+        clean_item = {k: v for k, v in case_result.items() if k != "retrieved_payloads"}
+
+        with self._lock:
+            # Đọc dữ liệu hiện tại
+            current_data = {}
+            if report_path.exists():
+                try:
+                    with open(report_path, "r", encoding="utf-8") as f:
+                        current_data = json.load(f)
+                except Exception:
+                    current_data = {}
+
+            if "detailed_results" not in current_data:
+                current_data["detailed_results"] = []
+
+            # Tránh ghi đè trùng case id nếu đã tồn tại
+            existing_indices = [
+                idx for idx, item in enumerate(current_data["detailed_results"])
+                if item.get("id") == clean_item.get("id")
+            ]
+            if existing_indices:
+                current_data["detailed_results"][existing_indices[0]] = clean_item
+            else:
+                current_data["detailed_results"].append(clean_item)
+
+            completed = len(current_data["detailed_results"])
+
+            if "metadata" not in current_data:
+                current_data["metadata"] = {}
+            current_data["metadata"]["completed_questions"] = completed
+            current_data["metadata"]["total_questions"] = total_questions
+            current_data["metadata"]["last_updated_at"] = datetime.now().isoformat()
+            current_data["metadata"]["status"] = "in_progress"
+
+            if "summary_metrics" not in current_data:
+                current_data["summary_metrics"] = {}
+            current_data["summary_metrics"]["status"] = "in_progress"
+            current_data["summary_metrics"]["completed_count"] = completed
+            current_data["summary_metrics"]["total_count"] = total_questions
+            current_data["summary_metrics"]["is_graph_mode"] = current_data.get("metadata", {}).get("is_graph_mode", False)
+
+            # Tính toán và tổng hợp kết quả trung bình lũy kế ở đầu JSON ngay khi có case mới
+            is_graph = current_data["summary_metrics"]["is_graph_mode"]
+            summary = self.compute_summary_from_detailed(current_data["detailed_results"], is_graph)
+            current_data["summary_metrics"].update(summary)
+
+            # Ghi đồng thời ra report_path và eval_latest.json
+            with open(report_path, "w", encoding="utf-8") as f:
+                json.dump(current_data, f, ensure_ascii=False, indent=4)
+
+            latest_path = target_dir / "eval_latest.json"
+            with open(latest_path, "w", encoding="utf-8") as f:
+                json.dump(current_data, f, ensure_ascii=False, indent=4)
+
+    def update_ragas_batch(
+        self,
+        report_path: Path,
+        batch_results: List[Dict[str, Any]],
+        current_ragas_summary: Dict[str, Any],
+        output_dir: Optional[Path] = None,
+    ):
+        """
+        Cập nhật kết quả RAGAS của từng batch vào file JSON ngay lập tức (Bảo lưu checkpoint).
+        Đảm bảo các case đã chấm RAGAS thành công được bảo lưu bền vững trên đĩa,
+        nếu tiến trình bị gián đoạn thì lần chạy tiếp theo không phải chấm lại.
+        """
+        target_dir = Path(output_dir or self.output_dir)
+        target_dir.mkdir(parents=True, exist_ok=True)
+
+        metric_keys = [
+            "ragas_faithfulness",
+            "ragas_answer_relevancy",
+            "ragas_context_precision",
+            "ragas_context_recall",
+        ]
+
+        with self._lock:
+            current_data = {}
+            if report_path.exists():
+                try:
+                    with open(report_path, "r", encoding="utf-8") as f:
+                        current_data = json.load(f)
+                except Exception:
+                    current_data = {}
+
+            if "detailed_results" not in current_data:
+                current_data["detailed_results"] = []
+
+            item_map = {
+                item.get("id"): item
+                for item in current_data["detailed_results"]
+                if isinstance(item, dict) and item.get("id")
+            }
+
+            for b_item in batch_results:
+                qid = b_item.get("id")
+                if qid and qid in item_map:
+                    target_item = item_map[qid]
+                    for mk in metric_keys:
+                        if mk in b_item:
+                            target_item[mk] = b_item[mk]
+                elif qid:
+                    clean_item = {k: v for k, v in b_item.items() if k != "retrieved_payloads"}
+                    current_data["detailed_results"].append(clean_item)
+                    item_map[qid] = clean_item
+
+            if "metadata" not in current_data:
+                current_data["metadata"] = {}
+            current_data["metadata"]["last_updated_at"] = datetime.now().isoformat()
+
+            if "summary_metrics" not in current_data:
+                current_data["summary_metrics"] = {}
+
+            # Cập nhật tổng hợp kết quả trung bình đầy đủ ở đầu JSON
+            is_graph = current_data.get("metadata", {}).get("is_graph_mode", False)
+            summary = self.compute_summary_from_detailed(current_data["detailed_results"], is_graph)
+            current_data["summary_metrics"].update(summary)
+            if current_ragas_summary:
+                current_data["summary_metrics"]["ragas"] = current_ragas_summary
+
+            with open(report_path, "w", encoding="utf-8") as f:
+                json.dump(current_data, f, ensure_ascii=False, indent=4)
+
+            latest_path = target_dir / "eval_latest.json"
+            with open(latest_path, "w", encoding="utf-8") as f:
+                json.dump(current_data, f, ensure_ascii=False, indent=4)
+
+    @staticmethod
+    def compute_summary_from_detailed(
+        detailed_results: List[Dict[str, Any]],
+        is_graph_mode: bool = False,
+    ) -> Dict[str, Any]:
+        """Tổng hợp macro-average cho toàn bộ các metric từ detailed_results."""
+        total = len(detailed_results)
+        if total == 0:
+            return {
+                "retrieval": {},
+                "generation": {},
+                "ragas": {},
+                "per_question_type": {},
+            }
+
+        def _avg(vals):
+            valid = [v for v in vals if v is not None and not (isinstance(v, float) and math.isnan(v))]
+            return round(sum(valid) / len(valid), 4) if valid else 0.0
+
+        # Retrieval metrics
+        hit_vals = [
+            1.0 if r.get("retrieval_hit") else 0.0
+            for r in detailed_results
+            if "retrieval_hit" in r and r.get("retrieval_hit") is not None
+        ]
+        mrr_vals = [r.get("mrr") for r in detailed_results if r.get("mrr") is not None]
+        rcl_vals = [r.get("recall_at_k") for r in detailed_results if r.get("recall_at_k") is not None]
+        prc_vals = [r.get("precision_at_k") for r in detailed_results if r.get("precision_at_k") is not None]
+        ndcg_vals = [r.get("ndcg") for r in detailed_results if r.get("ndcg") is not None]
+        ret_lat_vals = [r.get("retrieval_latency_ms") for r in detailed_results if r.get("retrieval_latency_ms") is not None]
+
+        retrieval_summary = {
+            "hit_rate": round(sum(hit_vals) / len(hit_vals), 4) if hit_vals else (None if is_graph_mode else 0.0),
+            "mrr": _avg(mrr_vals) if not is_graph_mode else None,
+            "recall_at_k": _avg(rcl_vals) if not is_graph_mode else None,
+            "precision_at_k": _avg(prc_vals) if not is_graph_mode else None,
+            "ndcg": _avg(ndcg_vals) if not is_graph_mode else None,
+            "latency_ms": _avg(ret_lat_vals),
+            "status": "N/A (Graph Mode)" if is_graph_mode else "OK",
+        }
+
+        # Generation metrics
+        em_vals = [
+            1.0 if r.get("exact_match") else 0.0
+            for r in detailed_results
+            if "exact_match" in r and r.get("exact_match") is not None
+        ]
+        f1_vals = [r.get("f1_score") for r in detailed_results if r.get("f1_score") is not None]
+        bleu_vals = [r.get("bleu_1") for r in detailed_results if r.get("bleu_1") is not None]
+        rouge_vals = [r.get("rouge_l") for r in detailed_results if r.get("rouge_l") is not None]
+        gen_lat_vals = [r.get("generation_latency_ms") for r in detailed_results if r.get("generation_latency_ms") is not None]
+        e2e_lat_vals = [r.get("e2e_latency_ms") for r in detailed_results if r.get("e2e_latency_ms") is not None]
+
+        generation_summary = {
+            "exact_match_rate": round(sum(em_vals) / len(em_vals), 4) if em_vals else 0.0,
+            "avg_f1": _avg(f1_vals),
+            "avg_bleu_1": _avg(bleu_vals),
+            "avg_rouge_l": _avg(rouge_vals),
+            "latency_ms": _avg(gen_lat_vals),
+            "e2e_latency_ms": _avg(e2e_lat_vals),
+        }
+
+        # RAGAS metrics
+        ragas_names = ["faithfulness", "answer_relevancy", "context_precision", "context_recall"]
+        ragas_summary = {}
+        for m in ragas_names:
+            k = f"ragas_{m}"
+            vals = [
+                r.get(k)
+                for r in detailed_results
+                if r.get(k) is not None and not (isinstance(r.get(k), float) and math.isnan(r.get(k)))
+            ]
+            ragas_summary[m] = round(sum(vals) / len(vals), 4) if vals else None
+
+        # Per question type
+        per_type = {}
+        for r in detailed_results:
+            qt = r.get("question_type") or "unknown"
+            if qt not in per_type:
+                per_type[qt] = {
+                    "count": 0,
+                    "hit_count": 0,
+                    "f1_sum": 0.0,
+                    "bleu_sum": 0.0,
+                    "rouge_sum": 0.0,
+                    "recall_sum": 0.0,
+                }
+            pt = per_type[qt]
+            pt["count"] += 1
+            if r.get("retrieval_hit"):
+                pt["hit_count"] += 1
+            pt["f1_sum"] += (r.get("f1_score") or 0.0)
+            pt["bleu_sum"] += (r.get("bleu_1") or 0.0)
+            pt["rouge_sum"] += (r.get("rouge_l") or 0.0)
+            pt["recall_sum"] += (r.get("recall_at_k") or 0.0)
+
+        per_type_summary = {}
+        for qt, pt in per_type.items():
+            c = pt["count"]
+            per_type_summary[qt] = {
+                "count": c,
+                "hit_rate": round(pt["hit_count"] / c, 4) if c else 0.0,
+                "avg_recall_at_k": round(pt["recall_sum"] / c, 4) if c else 0.0,
+                "avg_f1": round(pt["f1_sum"] / c, 4) if c else 0.0,
+                "avg_bleu_1": round(pt["bleu_sum"] / c, 4) if c else 0.0,
+                "avg_rouge_l": round(pt["rouge_sum"] / c, 4) if c else 0.0,
+            }
+
+        return {
+            "retrieval": retrieval_summary,
+            "generation": generation_summary,
+            "ragas": ragas_summary,
+            "per_question_type": per_type_summary,
+        }
+
+    def finalize_unified_report(
+        self,
+        unified_output: Dict[str, Any],
+        report_path: Optional[Path] = None,
+        output_dir: Optional[Path] = None,
+    ) -> Tuple[Path, Path]:
+        """
+        Hoàn tất báo cáo đánh giá (đánh dấu status='completed', cập nhật metrics và ghi file cuối cùng).
+        """
+        target_dir = Path(output_dir or self.output_dir)
+        target_dir.mkdir(parents=True, exist_ok=True)
+
+        if report_path is None:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            report_filename = f"eval_report_{timestamp}.json"
+            report_path = target_dir / report_filename
+        else:
+            report_filename = report_path.name
+
+        latest_path = target_dir / "eval_latest.json"
+
+        if "metadata" in unified_output:
+            unified_output["metadata"]["report_filename"] = report_filename
+            unified_output["metadata"]["saved_at"] = datetime.now().isoformat()
+            unified_output["metadata"]["completed_at"] = datetime.now().isoformat()
+            unified_output["metadata"]["status"] = "completed"
+
+        with self._lock:
+            with open(report_path, "w", encoding="utf-8") as f:
+                json.dump(unified_output, f, ensure_ascii=False, indent=4)
+
+            with open(latest_path, "w", encoding="utf-8") as f:
+                json.dump(unified_output, f, ensure_ascii=False, indent=4)
+
+        print(f"Báo cáo chi tiết đã lưu tại:  {report_path}")
+        print(f"Bản đồng bộ mới nhất đã lưu: {latest_path}")
+        return report_path, latest_path
+
+    # Backward compatibility
+    def save_unified_report(
+        self,
+        unified_output: Dict[str, Any],
+        output_dir: Optional[Path] = None,
+    ) -> Tuple[Path, Path]:
+        return self.finalize_unified_report(unified_output, output_dir=output_dir)
+
     def save_results(
         self,
         results: List[Dict[str, Any]],
@@ -132,17 +600,12 @@ class EvaluationReporter:
         top_k: int,
         output_dir: Optional[Path] = None,
     ) -> Tuple[Path, Path]:
-        """Lưu kết quả chi tiết và báo cáo tóm tắt ra các file JSON."""
+        """Lưu kết quả chi tiết và báo cáo tóm tắt ra các file JSON (tương thích ngược)."""
         target_dir = Path(output_dir or self.output_dir)
         target_dir.mkdir(parents=True, exist_ok=True)
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-        # Clean payloads để lưu JSON an toàn
-        clean_results = []
-        for r in results:
-            clean_item = {k: v for k, v in r.items() if k != "retrieved_payloads"}
-            clean_results.append(clean_item)
+        clean_results = [{k: v for k, v in r.items() if k != "retrieved_payloads"} for r in results]
 
         detail_path = target_dir / f"eval_results_{timestamp}.json"
         detail_data = {
@@ -179,34 +642,6 @@ class EvaluationReporter:
         print(f"Báo cáo tóm tắt lưu tại:  {summary_path}")
         return detail_path, summary_path
 
-    def save_unified_report(
-        self,
-        unified_output: Dict[str, Any],
-        output_dir: Optional[Path] = None,
-    ) -> Tuple[Path, Path]:
-        """Lưu báo cáo chuẩn hóa đồng bộ phục vụ giao diện UI và lưu trữ dài hạn theo template eval_report_YYYYMMDD_HHMMSS.json."""
-        target_dir = Path(output_dir or self.output_dir)
-        target_dir.mkdir(parents=True, exist_ok=True)
-
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        report_filename = f"eval_report_{timestamp}.json"
-        detail_path = target_dir / report_filename
-        latest_path = target_dir / "eval_latest.json"
-
-        if "metadata" in unified_output:
-            unified_output["metadata"]["report_filename"] = report_filename
-            unified_output["metadata"]["saved_at"] = datetime.now().isoformat()
-
-        with open(detail_path, "w", encoding="utf-8") as f:
-            json.dump(unified_output, f, ensure_ascii=False, indent=4)
-
-        with open(latest_path, "w", encoding="utf-8") as f:
-            json.dump(unified_output, f, ensure_ascii=False, indent=4)
-
-        print(f"Báo cáo chi tiết đã lưu tại:  {detail_path}")
-        print(f"Bản đồng bộ mới nhất đã lưu: {latest_path}")
-        return detail_path, latest_path
-
 
 # Backward compatibility
 def print_summary_table(basic_metrics: dict, ragas_scores: dict, model_name: str):
@@ -230,4 +665,4 @@ def save_results(results, basic_metrics, ragas_scores, eval_metadata, model_name
         },
         "detailed_results": clean_results,
     }
-    return reporter.save_unified_report(unified, output_dir=output_dir)
+    return reporter.finalize_unified_report(unified, output_dir=output_dir)

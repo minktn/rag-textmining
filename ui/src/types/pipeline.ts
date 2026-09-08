@@ -48,6 +48,10 @@ export interface EvalQuestionResult {
   retrieval_latency_ms: number;
   generation_latency_ms: number;
   e2e_latency_ms: number;
+  ragas_faithfulness?: number | null;
+  ragas_answer_relevancy?: number | null;
+  ragas_context_precision?: number | null;
+  ragas_context_recall?: number | null;
 }
 
 export interface EvalReport {
@@ -63,6 +67,11 @@ export interface EvalReport {
       sub_llm_service?: string;
       ragas_service?: string;
       top_k?: number;
+      skip_ragas?: boolean;
+      limit?: number | null;
+      random_sample?: boolean;
+      seed?: number;
+      graph_method?: string | null;
     };
     eval_dataset?: {
       file?: string;

@@ -62,10 +62,12 @@ class RAGEvaluator:
         # Batch & Concurrency params
         batch_size: Optional[int] = None,
         max_workers: Optional[int] = None,
+        ragas_max_workers: Optional[int] = None,
     ):
         # Batch & Concurrency
         self.batch_size = batch_size or getattr(settings, "EVAL_BATCH_SIZE", 10)
         self.max_workers = max_workers or getattr(settings, "EVAL_MAX_WORKERS", 4)
+        self.ragas_max_workers = ragas_max_workers or getattr(settings, "RAGAS_MAX_WORKERS", 4)
 
         # 1. Xác định chế độ Retriever
         if use_graph is not None:
@@ -95,7 +97,7 @@ class RAGEvaluator:
         self.ragas_judge = ragas_judge or RagasJudge(
             service=ragas_service,
             batch_size=self.batch_size,
-            max_workers=self.max_workers,
+            max_workers=self.ragas_max_workers,
         )
         self.reporter = reporter or EvaluationReporter()
 
@@ -142,11 +144,20 @@ class RAGEvaluator:
     # Metadata Introspection for UI Synchronization
     # ─────────────────────────────────────────────────────────────
 
-    def get_pipeline_metadata(self) -> Dict[str, Any]:
-        """Tự động đọc thông tin thực tế từ tất cả các module trong pipeline phục vụ hiển thị UI."""
+    def get_pipeline_metadata(
+        self,
+        eval_file: Optional[Union[str, Path]] = None,
+        limit: Optional[int] = None,
+        random_sample: bool = False,
+        seed: int = 42,
+        skip_ragas: bool = False,
+    ) -> Dict[str, Any]:
+        """Tự động đọc thông tin thực tế từ tất cả các module trong pipeline phục vụ hiển thị UI & checkpointing."""
+        eval_file_name = Path(eval_file).name if eval_file else "eval_landlaw_2024.json"
         return {
             "timestamp": datetime.now().isoformat(),
             "configuration": {
+                "eval_file": eval_file_name,
                 "retriever_mode": self.retriever_mode,
                 "advanced_method": self.processing_manager.advanced or None,
                 "preprocessing": self.processing_manager.preprocessing,
@@ -162,10 +173,19 @@ class RAGEvaluator:
                 ),
                 "sub_llm_mode": self.sub_llm_manager.mode if self.sub_llm_manager else None,
                 "embedding_model": settings.EMBEDDING_MODEL,
+                "reranker_model": getattr(settings, "RERANKER_MODEL", "BAAI/bge-reranker-v2-m3"),
+                "candidate_limit": getattr(settings, "RETRIEVAL_CANDIDATE_LIMIT", 20),
+                "device": getattr(settings, "DEVICE", "cpu"),
                 "collection_name": self.collection_name,
                 "top_k": self.top_k,
+                "limit": limit,
+                "random_sample": random_sample,
+                "seed": seed,
+                "skip_ragas": skip_ragas,
+                "graph_method": self.graph_method if self.use_graph else None,
                 "batch_size": self.batch_size,
                 "max_workers": self.max_workers,
+                "ragas_max_workers": self.ragas_max_workers,
                 "ragas_service": self.ragas_judge.service if self.ragas_judge else None,
                 "ragas_model": self.ragas_judge.model_name if self.ragas_judge else None,
             },
@@ -295,8 +315,9 @@ class RAGEvaluator:
     # ─────────────────────────────────────────────────────────────
 
     def evaluate_single(self, item: Dict[str, Any]) -> Dict[str, Any]:
-        """Thực hiện retrieve + generate cho 1 câu hỏi."""
+        """Thực hiện retrieve + generate cho 1 câu hỏi và tính ngay toàn bộ metrics cho case này."""
         question = item["question"]
+        ground_truth = item.get("answer", "") or item.get("ground_truth", "")
 
         retrieval = self.retrieve(question)
         generation = self.generate(question, retrieval["docs"])
@@ -308,11 +329,26 @@ class RAGEvaluator:
 
         retrieved_law_ids = MetricsCalculator.extract_law_ids_from_payloads(payloads)
 
+        # Tính ngay toàn bộ Retrieval Metrics cho từng case
+        if not self.use_graph:
+            ret_metrics = MetricsCalculator.compute_retrieval_metrics(payloads, item.get("law_id", {}))
+        else:
+            ret_metrics = {
+                "retrieval_hit": None,
+                "mrr": None,
+                "recall_at_k": None,
+                "precision_at_k": None,
+                "ndcg": None,
+            }
+
+        # Tính ngay toàn bộ Generation Metrics cho từng case
+        gen_metrics = MetricsCalculator.compute_generation_metrics(answer, ground_truth)
+
         return {
             "id": item.get("id"),
             "question": question,
             "question_type": item.get("question_type", ""),
-            "ground_truth": item.get("answer", ""),
+            "ground_truth": ground_truth,
             "generated_answer": answer,
             "retrieved_contexts": contexts,
             "retrieved_payloads": payloads,
@@ -322,6 +358,12 @@ class RAGEvaluator:
             "retrieval_latency_ms": round(retrieval_latency, 2),
             "generation_latency_ms": round(generation_latency, 2),
             "e2e_latency_ms": round(retrieval_latency + generation_latency, 2),
+            **ret_metrics,
+            **gen_metrics,
+            "ragas_faithfulness": None,
+            "ragas_answer_relevancy": None,
+            "ragas_context_precision": None,
+            "ragas_context_recall": None,
         }
 
     # ─────────────────────────────────────────────────────────────
@@ -333,6 +375,7 @@ class RAGEvaluator:
         batch_items: List[Dict[str, Any]],
         batch_idx: int = 1,
         total_batches: int = 1,
+        on_case_completed: Optional[Any] = None,
     ) -> List[Dict[str, Any]]:
         """Đánh giá 1 batch câu hỏi với multithreading để tăng tốc các request LLM/Retriever."""
         if not batch_items:
@@ -352,7 +395,10 @@ class RAGEvaluator:
                 completed = 0
                 for future in concurrent.futures.as_completed(future_to_idx):
                     i = future_to_idx[future]
-                    results[i] = future.result()
+                    res = future.result()
+                    results[i] = res
+                    if on_case_completed:
+                        on_case_completed(res)
                     completed += 1
                     safe_print(
                         f"\r  [Batch {batch_idx}/{total_batches}] Hoàn thành: {completed}/{len(batch_items)} câu...",
@@ -373,7 +419,10 @@ class RAGEvaluator:
                     end="",
                     flush=True,
                 )
-                results.append(self.evaluate_single(item))
+                res = self.evaluate_single(item)
+                results.append(res)
+                if on_case_completed:
+                    on_case_completed(res)
             safe_print()
             return results
 
@@ -381,6 +430,7 @@ class RAGEvaluator:
         self,
         questions: List[Dict[str, Any]],
         batch_size: Optional[int] = None,
+        on_case_completed: Optional[Any] = None,
     ) -> List[Dict[str, Any]]:
         """Đánh giá toàn bộ danh sách câu hỏi theo từng batch có multithreading."""
         bs = batch_size or self.batch_size
@@ -395,7 +445,12 @@ class RAGEvaluator:
             start_num = (b_idx - 1) * bs + 1
             end_num = min(b_idx * bs, total)
             safe_print(f"\n--- [Batch {b_idx}/{total_batches}] Đang xử lý câu hỏi {start_num} -> {end_num}/{total} ({len(batch)} câu) ---")
-            batch_results = self.evaluate_batch(batch, batch_idx=b_idx, total_batches=total_batches)
+            batch_results = self.evaluate_batch(
+                batch,
+                batch_idx=b_idx,
+                total_batches=total_batches,
+                on_case_completed=on_case_completed,
+            )
             all_results.extend(batch_results)
             safe_print(f"  ✓ Đã hoàn tất Batch {b_idx}/{total_batches}.")
             if b_idx < total_batches:
@@ -417,15 +472,21 @@ class RAGEvaluator:
         save: bool = True,
         batch_size: Optional[int] = None,
         max_workers: Optional[int] = None,
+        ragas_max_workers: Optional[int] = None,
+        resume: bool = True,
     ) -> Dict[str, Any]:
         """
-        Chạy toàn bộ quy trình đánh giá hoàn chỉnh và trả về cấu trúc JSON chuẩn hóa
-        đồng bộ 100% với lựa chọn trên UI.
+        Chạy toàn bộ quy trình đánh giá hoàn chỉnh:
+        - Tự động nhận diện phiên trước (Auto-Resume) nếu trùng metadata cấu hình.
+        - Khởi tạo JSON ngay từ đầu và lưu theo phương thức append per-case.
+        - Tính toán metrics và finalize báo cáo chuẩn hóa cho UI.
         """
         if batch_size is not None:
             self.batch_size = batch_size
         if max_workers is not None:
             self.max_workers = max_workers
+        if ragas_max_workers is not None:
+            self.ragas_max_workers = ragas_max_workers
 
         # 1. Load data
         loader = EvalDataLoader()
@@ -440,32 +501,14 @@ class RAGEvaluator:
             safe_print("Không có câu hỏi nào để đánh giá!")
             return {}
 
-        safe_print(f"\n[Phase 1] Đang chạy RAG pipeline ({self.retriever_mode}) cho {len(questions)} câu hỏi theo batch...")
-        results = self.evaluate_all(questions, batch_size=self.batch_size)
-
-        safe_print("\n[Phase 2] Tính toán các chỉ số cơ bản (Basic Metrics)...")
-        basic_metrics = MetricsCalculator.aggregate(
-            results,
-            top_k=self.top_k,
-            is_graph_mode=self.use_graph,
+        # 2. Xây dựng metadata cấu hình
+        pipeline_meta = self.get_pipeline_metadata(
+            eval_file=eval_file,
+            limit=limit,
+            random_sample=random_sample,
+            seed=seed,
+            skip_ragas=skip_ragas,
         )
-
-        ragas_scores = {}
-        if not skip_ragas:
-            safe_print("\n[Phase 3] Tính toán RAGAS Metrics (LLM-as-a-judge)...")
-            ragas_scores = self.ragas_judge.evaluate(
-                results,
-                batch_size=self.batch_size,
-                max_workers=self.max_workers,
-            )
-        else:
-            safe_print("\n[Phase 3] Bỏ qua RAGAS Metrics (--skip-ragas).")
-
-        # 2. In bảng kết quả
-        self.reporter.print_summary_table(basic_metrics, ragas_scores, self.model_name)
-
-        # 3. Đóng gói JSON chuẩn hóa đầy đủ metadata cho UI
-        pipeline_meta = self.get_pipeline_metadata()
         pipeline_meta["eval_dataset"] = {
             "law_name": dataset_meta.get("law_name", "Luật Đất đai 2024"),
             "law_number": dataset_meta.get("law_number", "31/2024/QH15"),
@@ -473,9 +516,115 @@ class RAGEvaluator:
             "version": dataset_meta.get("version", "2.1"),
         }
 
-        # Clean payloads để lưu JSON an toàn
+        # 3. Kiểm tra cơ chế Auto-Resume từ phiên trước
+        resumable_session = None
+        if resume and save:
+            resumable_session = self.reporter.find_resumable_session(pipeline_meta["configuration"])
+
+        completed_results = []
+        pending_questions = questions
+        report_path = None
+
+        if resumable_session:
+            report_path = resumable_session["report_path"]
+            completed_results = resumable_session["completed_results"]
+            completed_ids = resumable_session["completed_ids"]
+
+            safe_print(f"\n[Auto-Resume] Phát hiện phiên chạy gần nhất TRÙNG KHỚP metadata ({resumable_session['matched_file']})!")
+            safe_print(f"  → Đã hoàn thành: {len(completed_ids)}/{len(questions)} câu hỏi.")
+
+            # Tự động đảm bảo tất cả các case đã hoàn thành đều có đầy đủ tất cả các metric
+            is_dirty = False
+            for r in completed_results:
+                if not self.use_graph and ("retrieval_hit" not in r or r.get("retrieval_hit") is None):
+                    payloads = r.get("retrieved_payloads") or r.get("retrieved_law_ids") or []
+                    ret_m = MetricsCalculator.compute_retrieval_metrics(payloads, r.get("law_id", {}))
+                    r.update(ret_m)
+                    is_dirty = True
+                if "f1_score" not in r or r.get("f1_score") is None:
+                    pred = r.get("generated_answer", "")
+                    gt = r.get("ground_truth", "") or r.get("answer", "")
+                    gen_m = MetricsCalculator.compute_generation_metrics(pred, gt)
+                    r.update(gen_m)
+                    is_dirty = True
+                for mk in ["ragas_faithfulness", "ragas_answer_relevancy", "ragas_context_precision", "ragas_context_recall"]:
+                    if mk not in r:
+                        r[mk] = None
+                        is_dirty = True
+
+            if is_dirty and save and report_path:
+                safe_print("  → Đang bổ sung và chuẩn hóa toàn bộ metrics cho các case trước đó...")
+                self.reporter.update_ragas_batch(report_path, completed_results, {})
+
+            pending_questions = [q for q in questions if q.get("id") not in completed_ids]
+
+            if not pending_questions:
+                safe_print(f"  ✓ Toàn bộ {len(questions)} câu hỏi đã được thực hiện trước đó!")
+            else:
+                safe_print(f"  → Tiếp tục thực hiện {len(pending_questions)} câu hỏi còn lại...\n")
+        else:
+            if save:
+                report_path = self.reporter.init_streaming_session(
+                    metadata=pipeline_meta,
+                    total_questions=len(questions),
+                )
+
+        # 4. Định nghĩa callback append per-case
+        def on_case_done(case_res):
+            if save and report_path:
+                self.reporter.append_case_result(
+                    report_path=report_path,
+                    case_result=case_res,
+                    total_questions=len(questions),
+                )
+
+        # 5. Chạy các câu hỏi còn lại
+        new_results = []
+        if pending_questions:
+            safe_print(f"\n[Phase 1] Đang chạy RAG pipeline ({self.retriever_mode}) cho {len(pending_questions)} câu hỏi...")
+            new_results = self.evaluate_all(
+                pending_questions,
+                batch_size=self.batch_size,
+                on_case_completed=on_case_done,
+            )
+
+        # Hợp nhất toàn bộ kết quả để tính toán metrics
+        all_results = completed_results + new_results
+
+        safe_print("\n[Phase 2] Tính toán các chỉ số cơ bản (Basic Metrics)...")
+        basic_metrics = MetricsCalculator.aggregate(
+            all_results,
+            top_k=self.top_k,
+            is_graph_mode=self.use_graph,
+        )
+
+        ragas_scores = {}
+        if not skip_ragas:
+            safe_print("\n[Phase 3] Tính toán RAGAS Metrics (LLM-as-a-judge)...")
+
+            def on_ragas_batch_done(batch_items, cur_summary):
+                if save and report_path:
+                    self.reporter.update_ragas_batch(
+                        report_path=report_path,
+                        batch_results=batch_items,
+                        current_ragas_summary=cur_summary,
+                    )
+
+            ragas_scores = self.ragas_judge.evaluate(
+                all_results,
+                batch_size=self.batch_size,
+                max_workers=self.ragas_max_workers,
+                on_batch_completed=on_ragas_batch_done,
+            )
+        else:
+            safe_print("\n[Phase 3] Bỏ qua RAGAS Metrics (--skip-ragas).")
+
+        # 6. In bảng kết quả
+        self.reporter.print_summary_table(basic_metrics, ragas_scores, self.model_name)
+
+        # 7. Clean payloads để lưu JSON an toàn
         clean_results = []
-        for r in results:
+        for r in all_results:
             clean_item = {k: v for k, v in r.items() if k != "retrieved_payloads"}
             clean_results.append(clean_item)
 
@@ -506,8 +655,8 @@ class RAGEvaluator:
             "detailed_results": clean_results,
         }
 
-        # 4. Lưu file JSON
-        if save:
-            self.reporter.save_unified_report(unified_output)
+        # 8. Lưu và finalize file JSON
+        if save and report_path:
+            self.reporter.finalize_unified_report(unified_output, report_path=report_path)
 
         return unified_output

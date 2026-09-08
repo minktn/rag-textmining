@@ -101,7 +101,7 @@ class Config:
 	# EVAL CONFIG
 	EVAL_DATA_DIR = DB_DIR / 'eval'
 	EVAL_RESULTS_DIR = DB_DIR / 'results'
-	RAGAS_SERVICE = "nvidia" # Or "google"/"groq"
+	RAGAS_SERVICE = "google" # Or "google"/"groq"
 	EVAL_BATCH_SIZE = 10
 	EVAL_MAX_WORKERS = 4
 	RAGAS_MAX_WORKERS = 4

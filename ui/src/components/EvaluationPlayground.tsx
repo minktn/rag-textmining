@@ -41,7 +41,7 @@ export const EvaluationPlayground: React.FC = () => {
   const [sampleCount, setSampleCount] = useState<number>(1);
   const [isRandomSample, setIsRandomSample] = useState<boolean>(true);
   const [randomSeed, setRandomSeed] = useState<number>(42);
-  const [skipRagas, setSkipRagas] = useState<boolean>(true);
+  const [enableRagas, setEnableRagas] = useState<boolean>(false);
   const [ragasService, setRagasService] = useState<string>('nvidia');
 
   // ── UI Filter & Accordions ────────────────────────────────────
@@ -68,6 +68,9 @@ export const EvaluationPlayground: React.FC = () => {
       try {
         const latest = await getLatestEval();
         setReport(latest);
+        if (latest.summary_metrics?.ragas && Object.keys(latest.summary_metrics.ragas).length > 0) {
+          setEnableRagas(true);
+        }
       } catch (err) {
         // Chưa có kết quả gần đây
       }
@@ -128,6 +131,9 @@ export const EvaluationPlayground: React.FC = () => {
     try {
       const res = await getLatestEval();
       setReport(res);
+      if (res.summary_metrics?.ragas && Object.keys(res.summary_metrics.ragas).length > 0) {
+        setEnableRagas(true);
+      }
       setInfoMsg('Đã nạp báo cáo đánh giá mới nhất thành công.');
       setTimeout(() => setInfoMsg(null), 3000);
     } catch (err: any) {
@@ -156,7 +162,7 @@ export const EvaluationPlayground: React.FC = () => {
         llm_service: llmService,
         sub_llm_service: subLlmService,
         ragas_service: ragasService,
-        skip_ragas: skipRagas,
+        skip_ragas: !enableRagas,
         top_k: 5,
       });
       setReport(result);
@@ -258,10 +264,18 @@ export const EvaluationPlayground: React.FC = () => {
                   { id: 'contriever', name: 'Contriever', desc: 'mContriever Dense' },
                   { id: 'graph', name: 'Graph Database', desc: 'Microsoft GraphRAG' },
                 ].map((item) => (
-                  <label
+                  <div
                     key={item.id}
+                    role="button"
+                    tabIndex={0}
                     onClick={() => setDatabase(item.id as any)}
-                    className={`flex items-center justify-between p-2.5 rounded-xl border cursor-pointer text-xs transition-all ${
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setDatabase(item.id as any);
+                      }
+                    }}
+                    className={`flex items-center justify-between p-2.5 rounded-xl border cursor-pointer select-none text-xs transition-all ${
                       database === item.id
                         ? 'border-accentGreen bg-accentGreen/15 text-white font-medium shadow-sm'
                         : 'border-borderDark/60 bg-cardBg/30 hover:bg-cardBg/70 text-gray-300'
@@ -272,10 +286,11 @@ export const EvaluationPlayground: React.FC = () => {
                       type="radio"
                       name="eval_db"
                       checked={database === item.id}
-                      onChange={() => {}}
-                      className="text-accentGreen focus:ring-accentGreen h-3.5 w-3.5"
+                      readOnly
+                      tabIndex={-1}
+                      className="pointer-events-none text-accentGreen focus:ring-accentGreen h-3.5 w-3.5"
                     />
-                  </label>
+                  </div>
                 ))}
               </div>
             </div>
@@ -292,10 +307,18 @@ export const EvaluationPlayground: React.FC = () => {
                 ].map((item) => {
                   const checked = advanced === item.id;
                   return (
-                    <label
+                    <div
                       key={item.id}
+                      role="button"
+                      tabIndex={0}
                       onClick={() => handleToggleAdvanced(item.id)}
-                      className={`flex items-center justify-between p-2.5 rounded-xl border cursor-pointer text-xs transition-all ${
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          handleToggleAdvanced(item.id);
+                        }
+                      }}
+                      className={`flex items-center justify-between p-2.5 rounded-xl border cursor-pointer select-none text-xs transition-all ${
                         checked
                           ? 'border-amber-500/80 bg-amber-500/15 text-white font-medium shadow-sm'
                           : 'border-borderDark/60 bg-cardBg/30 hover:bg-cardBg/70 text-gray-300'
@@ -308,10 +331,11 @@ export const EvaluationPlayground: React.FC = () => {
                       <input
                         type="checkbox"
                         checked={checked}
-                        onChange={() => {}}
-                        className="rounded text-amber-500 focus:ring-amber-500 h-3.5 w-3.5 bg-inputBg border-gray-600"
+                        readOnly
+                        tabIndex={-1}
+                        className="pointer-events-none rounded text-amber-500 focus:ring-amber-500 h-3.5 w-3.5 bg-inputBg border-gray-600"
                       />
-                    </label>
+                    </div>
                   );
                 })}
               </div>
@@ -334,10 +358,20 @@ export const EvaluationPlayground: React.FC = () => {
                 ].map((item) => {
                   const checked = preprocessing.includes(item.id);
                   return (
-                    <label
+                    <div
                       key={item.id}
+                      role="button"
+                      tabIndex={isAdvancedSelected ? -1 : 0}
                       onClick={() => !isAdvancedSelected && handleTogglePreprocessing(item.id)}
-                      className={`flex items-center justify-between p-2.5 rounded-xl border cursor-pointer text-xs transition-all ${
+                      onKeyDown={(e) => {
+                        if (!isAdvancedSelected && (e.key === 'Enter' || e.key === ' ')) {
+                          e.preventDefault();
+                          handleTogglePreprocessing(item.id);
+                        }
+                      }}
+                      className={`flex items-center justify-between p-2.5 rounded-xl border select-none text-xs transition-all ${
+                        isAdvancedSelected ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'
+                      } ${
                         checked
                           ? 'border-cyan-500/80 bg-cyan-500/15 text-white font-medium shadow-sm'
                           : 'border-borderDark/60 bg-cardBg/30 hover:bg-cardBg/70 text-gray-300'
@@ -351,10 +385,11 @@ export const EvaluationPlayground: React.FC = () => {
                         type="checkbox"
                         checked={checked}
                         disabled={isAdvancedSelected}
-                        onChange={() => {}}
-                        className="rounded text-cyan-500 focus:ring-cyan-500 h-3.5 w-3.5 bg-inputBg border-gray-600"
+                        readOnly
+                        tabIndex={-1}
+                        className="pointer-events-none rounded text-cyan-500 focus:ring-cyan-500 h-3.5 w-3.5 bg-inputBg border-gray-600"
                       />
-                    </label>
+                    </div>
                   );
                 })}
               </div>
@@ -374,10 +409,20 @@ export const EvaluationPlayground: React.FC = () => {
                 ].map((item) => {
                   const checked = postprocessing.includes(item.id);
                   return (
-                    <label
+                    <div
                       key={item.id}
+                      role="button"
+                      tabIndex={isAdvancedSelected ? -1 : 0}
                       onClick={() => !isAdvancedSelected && handleTogglePostprocessing(item.id)}
-                      className={`flex items-center justify-between p-2 rounded-xl border cursor-pointer text-xs transition-all ${
+                      onKeyDown={(e) => {
+                        if (!isAdvancedSelected && (e.key === 'Enter' || e.key === ' ')) {
+                          e.preventDefault();
+                          handleTogglePostprocessing(item.id);
+                        }
+                      }}
+                      className={`flex items-center justify-between p-2 rounded-xl border select-none text-xs transition-all ${
+                        isAdvancedSelected ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'
+                      } ${
                         checked
                           ? 'border-purple-500/80 bg-purple-500/15 text-white font-medium shadow-sm'
                           : 'border-borderDark/60 bg-cardBg/30 hover:bg-cardBg/70 text-gray-300'
@@ -388,10 +433,11 @@ export const EvaluationPlayground: React.FC = () => {
                         type="checkbox"
                         checked={checked}
                         disabled={isAdvancedSelected}
-                        onChange={() => {}}
-                        className="rounded text-purple-500 focus:ring-purple-500 h-3.5 w-3.5 bg-inputBg border-gray-600 flex-shrink-0"
+                        readOnly
+                        tabIndex={-1}
+                        className="pointer-events-none rounded text-purple-500 focus:ring-purple-500 h-3.5 w-3.5 bg-inputBg border-gray-600 flex-shrink-0"
                       />
-                    </label>
+                    </div>
                   );
                 })}
               </div>
@@ -427,30 +473,49 @@ export const EvaluationPlayground: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="block text-gray-400 mb-1.5 font-semibold">Chỉ số RAGAS:</label>
-              <div className="flex items-center gap-2 mt-2">
-                <label
-                  onClick={() => setSkipRagas(!skipRagas)}
-                  className="flex items-center gap-2 cursor-pointer text-gray-300"
+              <label className="block text-gray-400 mb-1.5 font-semibold">Đánh giá RAGAS (LLM-as-a-judge):</label>
+              <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setEnableRagas((prev) => !prev)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setEnableRagas((prev) => !prev);
+                    }
+                  }}
+                  className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl border cursor-pointer select-none transition-all ${
+                    enableRagas
+                      ? 'border-indigo-500/80 bg-indigo-500/15 text-indigo-200 font-medium shadow-sm'
+                      : 'border-borderDark/70 bg-cardBg/40 hover:bg-cardBg/70 text-gray-300'
+                  }`}
                 >
                   <input
                     type="checkbox"
-                    checked={skipRagas}
-                    onChange={() => {}}
-                    className="rounded text-accentGreen focus:ring-accentGreen h-3.5 w-3.5 bg-inputBg border-gray-600"
+                    checked={enableRagas}
+                    readOnly
+                    tabIndex={-1}
+                    className="pointer-events-none rounded text-indigo-500 focus:ring-indigo-500 h-3.5 w-3.5 bg-inputBg border-gray-600"
                   />
-                  <span>Bỏ qua RAGAS (chạy nhanh)</span>
-                </label>
-                {!skipRagas && (
-                  <select
-                    value={ragasService}
-                    onChange={(e) => setRagasService(e.target.value)}
-                    className="bg-inputBg border border-borderDark/80 rounded-lg px-2 py-1 text-[11px] text-gray-200"
-                  >
-                    <option value="nvidia">NVIDIA</option>
-                    <option value="groq">Groq</option>
-                    <option value="google">Google</option>
-                  </select>
+                  <span className="flex items-center gap-1.5 text-xs">
+                    <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                    Bật RAGAS
+                  </span>
+                </div>
+                {enableRagas && (
+                  <div className="flex items-center gap-1.5 animate-fadeIn">
+                    <span className="text-[11px] text-gray-400">Judge:</span>
+                    <select
+                      value={ragasService}
+                      onChange={(e) => setRagasService(e.target.value)}
+                      className="bg-inputBg border border-borderDark/80 rounded-lg px-2 py-1.5 text-[11px] text-gray-200 focus:outline-none focus:border-indigo-500"
+                    >
+                      <option value="nvidia">NVIDIA NIM</option>
+                      <option value="groq">Groq</option>
+                      <option value="google">Google Gemini</option>
+                    </select>
+                  </div>
                 )}
               </div>
             </div>
@@ -519,21 +584,30 @@ export const EvaluationPlayground: React.FC = () => {
 
             {/* Random Flag & Seed */}
             <div className="md:col-span-4 space-y-1.5">
-              <label
+              <div
+                role="button"
+                tabIndex={0}
                 onClick={() => setIsRandomSample(!isRandomSample)}
-                className="flex items-center gap-2.5 cursor-pointer text-xs font-semibold text-gray-200"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setIsRandomSample(!isRandomSample);
+                  }
+                }}
+                className="inline-flex items-center gap-2.5 cursor-pointer select-none text-xs font-semibold text-gray-200 p-1.5 rounded-xl hover:bg-cardBg/60 transition-colors"
               >
                 <input
                   type="checkbox"
                   checked={isRandomSample}
-                  onChange={() => {}}
-                  className="rounded text-accentGreen focus:ring-accentGreen h-4 w-4 bg-inputBg border-gray-600"
+                  readOnly
+                  tabIndex={-1}
+                  className="pointer-events-none rounded text-accentGreen focus:ring-accentGreen h-4 w-4 bg-inputBg border-gray-600"
                 />
                 <span className="flex items-center gap-1.5">
                   <Shuffle className="w-3.5 h-3.5 text-accentGreen" />
                   Lấy mẫu ngẫu nhiên (Random Sampling)
                 </span>
-              </label>
+              </div>
 
               <div className="flex items-center gap-2 pl-6">
                 <span className="text-[11px] text-gray-400">Random Seed:</span>
@@ -603,6 +677,13 @@ export const EvaluationPlayground: React.FC = () => {
             </div>
             <div className="flex items-center gap-2 text-gray-400 text-[11px]">
               <span>LLM: {report.metadata?.configuration?.llm_service || llmService}</span>
+              <span className="text-gray-600">•</span>
+              <span>
+                RAGAS:{' '}
+                {report.metadata?.configuration?.skip_ragas
+                  ? 'Tắt'
+                  : `Bật (${report.metadata?.configuration?.ragas_service || ragasService})`}
+              </span>
             </div>
           </div>
 
@@ -676,6 +757,130 @@ export const EvaluationPlayground: React.FC = () => {
               </span>
             </div>
           </div>
+
+          {/* RAGAS Metrics Section (LLM-as-a-judge) */}
+          {(enableRagas || Boolean(report.summary_metrics?.ragas && Object.keys(report.summary_metrics.ragas).length > 0)) && (
+            <div className="bg-sidebarBg border border-indigo-500/30 rounded-2xl p-5 shadow-lg space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-borderDark/60 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-bold text-gray-100 uppercase tracking-wider flex items-center gap-2">
+                      Đánh giá RAGAS (LLM-as-a-judge Metrics)
+                      <span className="text-[10px] font-medium px-2.5 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/60 uppercase">
+                        {report.metadata?.configuration?.ragas_service || ragasService} Judge
+                      </span>
+                    </h3>
+                    <p className="text-[11px] text-gray-400">
+                      Bộ chỉ số đánh giá toàn diện chất lượng sinh câu trả lời và độ phù hợp của ngữ cảnh
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {report.summary_metrics?.ragas && (
+                report.summary_metrics.ragas.faithfulness !== undefined ||
+                report.summary_metrics.ragas.answer_relevancy !== undefined ||
+                report.summary_metrics.ragas.context_precision !== undefined ||
+                report.summary_metrics.ragas.context_recall !== undefined
+              ) ? (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+                  {/* Faithfulness */}
+                  <div className="p-4 rounded-2xl bg-cardBg/60 border border-indigo-500/30 shadow-md flex flex-col justify-between hover:border-indigo-500/60 transition-all">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-indigo-300 uppercase tracking-wider">Faithfulness</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800/40">Trung thực</span>
+                    </div>
+                    <div className="my-2.5">
+                      <span className="text-3xl font-black text-indigo-400">
+                        {report.summary_metrics.ragas.faithfulness !== undefined
+                          ? (report.summary_metrics.ragas.faithfulness * 100).toFixed(1) + '%'
+                          : 'N/A'}
+                      </span>
+                      <div className="text-[10px] text-gray-500 mt-0.5">
+                        Điểm: {report.summary_metrics.ragas.faithfulness !== undefined ? report.summary_metrics.ragas.faithfulness.toFixed(4) : 'N/A'}
+                      </div>
+                    </div>
+                    <span className="text-[10px] text-gray-400 leading-tight">
+                      Mức độ câu trả lời dựa trên ngữ cảnh (không bịa đặt / ảo giác)
+                    </span>
+                  </div>
+
+                  {/* Answer Relevancy */}
+                  <div className="p-4 rounded-2xl bg-cardBg/60 border border-emerald-500/30 shadow-md flex flex-col justify-between hover:border-emerald-500/60 transition-all">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-emerald-300 uppercase tracking-wider">Answer Relevancy</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800/40">Phù hợp</span>
+                    </div>
+                    <div className="my-2.5">
+                      <span className="text-3xl font-black text-emerald-400">
+                        {report.summary_metrics.ragas.answer_relevancy !== undefined
+                          ? (report.summary_metrics.ragas.answer_relevancy * 100).toFixed(1) + '%'
+                          : 'N/A'}
+                      </span>
+                      <div className="text-[10px] text-gray-500 mt-0.5">
+                        Điểm: {report.summary_metrics.ragas.answer_relevancy !== undefined ? report.summary_metrics.ragas.answer_relevancy.toFixed(4) : 'N/A'}
+                      </div>
+                    </div>
+                    <span className="text-[10px] text-gray-400 leading-tight">
+                      Mức độ câu trả lời giải quyết trực tiếp & bám sát câu hỏi
+                    </span>
+                  </div>
+
+                  {/* Context Precision */}
+                  <div className="p-4 rounded-2xl bg-cardBg/60 border border-cyan-500/30 shadow-md flex flex-col justify-between hover:border-cyan-500/60 transition-all">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-cyan-300 uppercase tracking-wider">Context Precision</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800/40">Chuẩn xác</span>
+                    </div>
+                    <div className="my-2.5">
+                      <span className="text-3xl font-black text-cyan-400">
+                        {report.summary_metrics.ragas.context_precision !== undefined
+                          ? (report.summary_metrics.ragas.context_precision * 100).toFixed(1) + '%'
+                          : 'N/A'}
+                      </span>
+                      <div className="text-[10px] text-gray-500 mt-0.5">
+                        Điểm: {report.summary_metrics.ragas.context_precision !== undefined ? report.summary_metrics.ragas.context_precision.toFixed(4) : 'N/A'}
+                      </div>
+                    </div>
+                    <span className="text-[10px] text-gray-400 leading-tight">
+                      Tỷ lệ thông tin hữu ích được xếp hạng cao trong ngữ cảnh trích xuất
+                    </span>
+                  </div>
+
+                  {/* Context Recall */}
+                  <div className="p-4 rounded-2xl bg-cardBg/60 border border-amber-500/30 shadow-md flex flex-col justify-between hover:border-amber-500/60 transition-all">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-amber-300 uppercase tracking-wider">Context Recall</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800/40">Bao phủ</span>
+                    </div>
+                    <div className="my-2.5">
+                      <span className="text-3xl font-black text-amber-400">
+                        {report.summary_metrics.ragas.context_recall !== undefined
+                          ? (report.summary_metrics.ragas.context_recall * 100).toFixed(1) + '%'
+                          : 'N/A'}
+                      </span>
+                      <div className="text-[10px] text-gray-500 mt-0.5">
+                        Điểm: {report.summary_metrics.ragas.context_recall !== undefined ? report.summary_metrics.ragas.context_recall.toFixed(4) : 'N/A'}
+                      </div>
+                    </div>
+                    <span className="text-[10px] text-gray-400 leading-tight">
+                      Mức độ ngữ cảnh trích xuất bao quát đầy đủ thông tin chuẩn
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-4 rounded-xl bg-indigo-950/30 border border-indigo-800/40 text-indigo-300 text-xs flex items-center gap-2.5">
+                  <AlertCircle className="w-4 h-4 text-indigo-400 flex-shrink-0" />
+                  <span>
+                    Chế độ RAGAS đang được kích hoạt. Điểm số RAGAS sẽ được tính toán và cập nhật vào báo cáo ngay khi hoàn tất đợt đánh giá tiếp theo.
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Breakdown by Question Type */}
           {report.summary_metrics?.per_question_type && Object.keys(report.summary_metrics.per_question_type).length > 0 && (
@@ -802,6 +1007,36 @@ export const EvaluationPlayground: React.FC = () => {
                         <span className="text-[11px] text-gray-500 italic">Không tìm thấy</span>
                       )}
                     </div>
+
+                    {/* Per-question RAGAS Badges */}
+                    {(q.ragas_faithfulness !== undefined || q.ragas_answer_relevancy !== undefined || q.ragas_context_precision !== undefined || q.ragas_context_recall !== undefined) && (
+                      <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                        <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-1">
+                          <Sparkles className="w-3 h-3 text-indigo-400" />
+                          RAGAS:
+                        </span>
+                        {q.ragas_faithfulness !== undefined && q.ragas_faithfulness !== null && (
+                          <span className="inline-flex items-center text-[10px] px-2 py-0.5 rounded bg-indigo-950/80 border border-indigo-800/50 text-indigo-300">
+                            Faithfulness: <strong className="ml-1 text-white">{(q.ragas_faithfulness * 100).toFixed(1)}%</strong>
+                          </span>
+                        )}
+                        {q.ragas_answer_relevancy !== undefined && q.ragas_answer_relevancy !== null && (
+                          <span className="inline-flex items-center text-[10px] px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-800/50 text-emerald-300">
+                            Relevancy: <strong className="ml-1 text-white">{(q.ragas_answer_relevancy * 100).toFixed(1)}%</strong>
+                          </span>
+                        )}
+                        {q.ragas_context_precision !== undefined && q.ragas_context_precision !== null && (
+                          <span className="inline-flex items-center text-[10px] px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-800/50 text-cyan-300">
+                            Precision: <strong className="ml-1 text-white">{(q.ragas_context_precision * 100).toFixed(1)}%</strong>
+                          </span>
+                        )}
+                        {q.ragas_context_recall !== undefined && q.ragas_context_recall !== null && (
+                          <span className="inline-flex items-center text-[10px] px-2 py-0.5 rounded bg-amber-950/80 border border-amber-800/50 text-amber-300">
+                            Recall: <strong className="ml-1 text-white">{(q.ragas_context_recall * 100).toFixed(1)}%</strong>
+                          </span>
+                        )}
+                      </div>
+                    )}
 
                     {/* Expanded Content */}
                     {isExpanded && (

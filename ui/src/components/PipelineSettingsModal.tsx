@@ -135,10 +135,18 @@ export const PipelineSettingsModal: React.FC<PipelineSettingsModalProps> = ({
               ].map((item) => {
                 const isSelected = config.database === item.id;
                 return (
-                  <label
+                  <div
                     key={item.id}
+                    role="button"
+                    tabIndex={0}
                     onClick={() => handleDatabaseChange(item.id as any)}
-                    className={`relative p-3.5 rounded-xl border cursor-pointer transition-all flex flex-col gap-1.5 ${
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleDatabaseChange(item.id as any);
+                      }
+                    }}
+                    className={`relative p-3.5 rounded-xl border cursor-pointer select-none transition-all flex flex-col gap-1.5 ${
                       isSelected
                         ? 'border-accentGreen bg-accentGreen/10 text-white shadow-md'
                         : 'border-borderDark/70 bg-cardBg/40 hover:bg-cardBg hover:border-gray-600 text-gray-300'
@@ -153,12 +161,13 @@ export const PipelineSettingsModal: React.FC<PipelineSettingsModalProps> = ({
                         type="radio"
                         name="db_select"
                         checked={isSelected}
-                        onChange={() => {}}
-                        className="text-accentGreen focus:ring-accentGreen h-3.5 w-3.5"
+                        readOnly
+                        tabIndex={-1}
+                        className="pointer-events-none text-accentGreen focus:ring-accentGreen h-3.5 w-3.5"
                       />
                     </div>
                     <span className="text-[11px] text-gray-400 leading-snug">{item.desc}</span>
-                  </label>
+                  </div>
                 );
               })}
             </div>
@@ -184,10 +193,18 @@ export const PipelineSettingsModal: React.FC<PipelineSettingsModalProps> = ({
               ].map((item) => {
                 const checked = config.advanced === item.id;
                 return (
-                  <label
+                  <div
                     key={item.id}
+                    role="button"
+                    tabIndex={0}
                     onClick={() => handleToggleAdvanced(item.id)}
-                    className={`flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition-all ${
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleToggleAdvanced(item.id);
+                      }
+                    }}
+                    className={`flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer select-none transition-all ${
                       checked
                         ? 'border-amber-500/80 bg-amber-500/10 text-white shadow-sm'
                         : 'border-borderDark/70 bg-cardBg/40 hover:bg-cardBg hover:border-gray-600 text-gray-300'
@@ -196,8 +213,9 @@ export const PipelineSettingsModal: React.FC<PipelineSettingsModalProps> = ({
                     <input
                       type="checkbox"
                       checked={checked}
-                      onChange={() => {}}
-                      className="mt-0.5 rounded text-amber-500 focus:ring-amber-500 h-4 w-4 bg-inputBg border-gray-600"
+                      readOnly
+                      tabIndex={-1}
+                      className="pointer-events-none mt-0.5 rounded text-amber-500 focus:ring-amber-500 h-4 w-4 bg-inputBg border-gray-600"
                     />
                     <div className="flex flex-col gap-1">
                       <span className="font-semibold text-xs text-gray-100 flex items-center gap-1.5">
@@ -206,7 +224,7 @@ export const PipelineSettingsModal: React.FC<PipelineSettingsModalProps> = ({
                       </span>
                       <span className="text-[11px] text-gray-400 leading-relaxed">{item.desc}</span>
                     </div>
-                  </label>
+                  </div>
                 );
               })}
             </div>
@@ -239,10 +257,20 @@ export const PipelineSettingsModal: React.FC<PipelineSettingsModalProps> = ({
                 ].map((item) => {
                   const checked = config.preprocessing.includes(item.id);
                   return (
-                    <label
+                    <div
                       key={item.id}
+                      role="button"
+                      tabIndex={isAdvancedSelected ? -1 : 0}
                       onClick={() => !isAdvancedSelected && handleTogglePreprocessing(item.id)}
-                      className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                      onKeyDown={(e) => {
+                        if (!isAdvancedSelected && (e.key === 'Enter' || e.key === ' ')) {
+                          e.preventDefault();
+                          handleTogglePreprocessing(item.id);
+                        }
+                      }}
+                      className={`flex items-start gap-3 p-3 rounded-xl border select-none transition-all ${
+                        isAdvancedSelected ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'
+                      } ${
                         checked
                           ? 'border-cyan-500/80 bg-cyan-500/10 text-white'
                           : 'border-borderDark/70 bg-cardBg/40 hover:bg-cardBg hover:border-gray-600 text-gray-300'
@@ -252,14 +280,15 @@ export const PipelineSettingsModal: React.FC<PipelineSettingsModalProps> = ({
                         type="checkbox"
                         checked={checked}
                         disabled={isAdvancedSelected}
-                        onChange={() => {}}
-                        className="mt-0.5 rounded text-cyan-500 focus:ring-cyan-500 h-4 w-4 bg-inputBg border-gray-600"
+                        readOnly
+                        tabIndex={-1}
+                        className="pointer-events-none mt-0.5 rounded text-cyan-500 focus:ring-cyan-500 h-4 w-4 bg-inputBg border-gray-600"
                       />
                       <div className="flex flex-col gap-0.5">
                         <span className="font-semibold text-xs text-gray-100">{item.name}</span>
                         <span className="text-[11px] text-gray-400">{item.desc}</span>
                       </div>
-                    </label>
+                    </div>
                   );
                 })}
               </div>
@@ -291,10 +320,20 @@ export const PipelineSettingsModal: React.FC<PipelineSettingsModalProps> = ({
                 ].map((item) => {
                   const checked = config.postprocessing.includes(item.id);
                   return (
-                    <label
+                    <div
                       key={item.id}
+                      role="button"
+                      tabIndex={isAdvancedSelected ? -1 : 0}
                       onClick={() => !isAdvancedSelected && handleTogglePostprocessing(item.id)}
-                      className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                      onKeyDown={(e) => {
+                        if (!isAdvancedSelected && (e.key === 'Enter' || e.key === ' ')) {
+                          e.preventDefault();
+                          handleTogglePostprocessing(item.id);
+                        }
+                      }}
+                      className={`flex items-start gap-3 p-3 rounded-xl border select-none transition-all ${
+                        isAdvancedSelected ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'
+                      } ${
                         checked
                           ? 'border-purple-500/80 bg-purple-500/10 text-white'
                           : 'border-borderDark/70 bg-cardBg/40 hover:bg-cardBg hover:border-gray-600 text-gray-300'
@@ -304,14 +343,15 @@ export const PipelineSettingsModal: React.FC<PipelineSettingsModalProps> = ({
                         type="checkbox"
                         checked={checked}
                         disabled={isAdvancedSelected}
-                        onChange={() => {}}
-                        className="mt-0.5 rounded text-purple-500 focus:ring-purple-500 h-4 w-4 bg-inputBg border-gray-600"
+                        readOnly
+                        tabIndex={-1}
+                        className="pointer-events-none mt-0.5 rounded text-purple-500 focus:ring-purple-500 h-4 w-4 bg-inputBg border-gray-600"
                       />
                       <div className="flex flex-col gap-0.5">
                         <span className="font-semibold text-xs text-gray-100">{item.name}</span>
                         <span className="text-[11px] text-gray-400">{item.desc}</span>
                       </div>
-                    </label>
+                    </div>
                   );
                 })}
               </div>
