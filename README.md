@@ -197,7 +197,14 @@ Chạy script đánh giá benchmark trên tập câu hỏi Luật Đất đai 20
     uv run python Scripts/evaluate.py --no-resume
     ```
 
-> *Kết quả đánh giá được lưu streaming theo từng case vào `db/results/eval_report_YYYYMMDD_HHMMSS.json` và đồng bộ tới `eval_latest.json`. Ở đầu JSON luôn có khối `summary_metrics` tổng hợp điểm trung bình macro-average, và từng case trong `detailed_results` đều được ghi nhận đầy đủ 100% các metrics (Retrieval, Generation, Latency, RAGAS).*
+* **Lưu trữ & Chạy song song không xung đột (Parallel Multi-CMD Execution)**:
+  - File báo cáo chi tiết theo thời gian: `db/results/eval_report_YYYYMMDD_HHMMSS.json`.
+  - File đồng bộ mới nhất theo Signature cấu hình pipeline: `db/results/eval_latest_{signature}.json`.
+    - Ví dụ: `eval_latest_base_hyde_crag_nvidia_nvidia_google.json`
+    - Nếu là advanced: `eval_latest_base_<advanced_method>_nvidia_nvidia_google.json`
+    - Nếu là graph: `eval_latest_graph_local_google_google_nvidia.json`
+  - Cơ chế này cho phép chạy song song nhiều terminal với các phương pháp khác nhau mà hoàn toàn không bị ghi đè hay lỗi lock file.
+  - Ở đầu JSON luôn có khối `summary_metrics` tổng hợp điểm trung bình macro-average lũy kế theo thời gian thực, và từng case trong `detailed_results` đều được chuẩn hóa đầy đủ 100% các metrics (Retrieval, Generation, Latency, RAGAS).
 
 ---
 

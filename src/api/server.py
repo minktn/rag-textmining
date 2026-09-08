@@ -36,7 +36,7 @@ from pydantic import BaseModel, Field
 from src.config import settings
 from src.retriever import ProcessingManager, Retriever
 from src.generation import LLMManager, SubLLMManager
-from src.evaluation import RAGEvaluator
+from src.evaluation import RAGEvaluator, EvaluationReporter
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("rag_api")
@@ -326,8 +326,10 @@ def run_evaluation(req: EvalRunRequest):
             batch_size=req.batch_size,
         )
 
-        # Đọc báo cáo mới nhất từ db/results/eval_latest.json
-        latest_file = settings.EVAL_RESULTS_DIR / "eval_latest.json"
+        # Đọc báo cáo mới nhất từ file eval_latest_{signature}.json tương ứng hoặc trả về results
+        config = results.get("metadata", {}).get("configuration") or {}
+        reporter = EvaluationReporter()
+        latest_file = reporter.get_latest_filepath(config)
         if latest_file.exists():
             with open(latest_file, "r", encoding="utf-8") as f:
                 report_data = json.load(f)
@@ -342,13 +344,36 @@ def run_evaluation(req: EvalRunRequest):
 
 
 @app.get("/eval/latest")
-def get_latest_eval():
-    """Lấy báo cáo đánh giá đã lưu mới nhất."""
-    latest_file = settings.EVAL_RESULTS_DIR / "eval_latest.json"
-    if not latest_file.exists():
+def get_latest_eval(signature: Optional[str] = None):
+    """Lấy báo cáo đánh giá đã lưu mới nhất (theo signature cụ thể hoặc file mới nhất)."""
+    target_dir = settings.EVAL_RESULTS_DIR
+    if not target_dir.exists():
         raise HTTPException(status_code=404, detail="Chưa có báo cáo đánh giá nào được lưu.")
-    with open(latest_file, "r", encoding="utf-8") as f:
-        return json.load(f)
+
+    # 1. Nếu có query param signature, tìm chính xác file đó
+    if signature:
+        target_file = target_dir / f"eval_latest_{signature}.json"
+        if target_file.exists():
+            with open(target_file, "r", encoding="utf-8") as f:
+                return json.load(f)
+
+    # 2. Tìm file eval_latest_*.json có st_mtime mới nhất
+    latest_files = sorted(
+        target_dir.glob("eval_latest_*.json"),
+        key=lambda p: p.stat().st_mtime,
+        reverse=True,
+    )
+    if latest_files:
+        with open(latest_files[0], "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    # 3. Fallback file eval_latest.json cũ (nếu có)
+    legacy_file = target_dir / "eval_latest.json"
+    if legacy_file.exists():
+        with open(legacy_file, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    raise HTTPException(status_code=404, detail="Chưa có báo cáo đánh giá nào được lưu.")
 
 
 if __name__ == "__main__":

@@ -40,6 +40,76 @@ class EvaluationReporter:
         self.output_dir = Path(output_dir or settings.EVAL_RESULTS_DIR)
         self._lock = threading.Lock()
 
+    @staticmethod
+    def build_pipeline_signature(config: Dict[str, Any]) -> str:
+        """
+        Sinh chuỗi signature duy nhất phản ánh cấu hình pipeline đánh giá.
+        Quy tắc:
+          1. retriever_mode (base | contriever | graph)
+          2. advanced_method (nếu có) HOẶC [preprocessing...] + [postprocessing...]
+          3. llm_service
+          4. sub_llm_service
+          5. ragas_service (hoặc 'skip_ragas')
+        Ví dụ:
+          - base_hyde_crag_nvidia_nvidia_google
+          - base_rag_fusion_nvidia_nvidia_google
+          - base_filter_rerank_google_google_nvidia
+          - graph_local_google_google_nvidia
+        """
+        parts: List[str] = []
+
+        # 1. Retriever mode
+        mode = (config.get("retriever_mode") or "base").lower().strip()
+        parts.append(mode)
+
+        # 2. Graph method (nếu graph) HOẶC Advanced method HOẶC Pre/Post
+        if mode == "graph":
+            gm = (config.get("graph_method") or "local").lower().strip()
+            parts.append(gm)
+            if config.get("advanced_method"):
+                parts.append(str(config.get("advanced_method")).lower().strip())
+        elif config.get("advanced_method"):
+            parts.append(str(config.get("advanced_method")).lower().strip())
+        else:
+            pre = config.get("preprocessing") or []
+            if isinstance(pre, list):
+                for p in pre:
+                    if p:
+                        parts.append(str(p).lower().strip())
+            elif isinstance(pre, str) and pre:
+                parts.append(pre.lower().strip())
+
+            post = config.get("postprocessing") or []
+            if isinstance(post, list):
+                for p in post:
+                    if p:
+                        parts.append(str(p).lower().strip())
+            elif isinstance(post, str) and post:
+                parts.append(post.lower().strip())
+
+        # 3. LLM Service
+        llm = (config.get("llm_service") or getattr(settings, "LLM_SERVICE", "nvidia")).lower().strip()
+        parts.append(llm)
+
+        # 4. Sub-LLM Service
+        sub_llm = (config.get("sub_llm_service") or getattr(settings, "SUB_LLM_SERVICE", None) or llm).lower().strip()
+        parts.append(sub_llm)
+
+        # 5. RAGAS Service
+        if config.get("skip_ragas"):
+            parts.append("skip_ragas")
+        else:
+            ragas = (config.get("ragas_service") or getattr(settings, "RAGAS_SERVICE", "google") or "google").lower().strip()
+            parts.append(ragas)
+
+        clean_parts = [p.replace("-", "_").replace(" ", "_") for p in parts if p]
+        return "_".join(clean_parts)
+
+    def get_latest_filepath(self, config: Dict[str, Any], target_dir: Optional[Path] = None) -> Path:
+        td = Path(target_dir or self.output_dir)
+        sig = self.build_pipeline_signature(config)
+        return td / f"eval_latest_{sig}.json"
+
     def print_summary_table(self, basic_metrics: Dict[str, Any], ragas_scores: Dict[str, Any], model_name: str):
         """In bảng tổng hợp kết quả ra console với định dạng chuẩn và cảnh báo Graph mode."""
         sep = "═" * 62
@@ -159,8 +229,18 @@ class EvaluationReporter:
         target_dir = Path(output_dir or self.output_dir)
         candidate_files: List[Path] = []
 
+        # Ưu tiên kiểm tra file latest của chính cấu hình này
+        specific_latest = self.get_latest_filepath(current_config, target_dir)
+        if specific_latest.exists():
+            candidate_files.append(specific_latest)
+
+        # Fallback các file eval_latest_*.json khác và eval_latest.json
+        for lf in sorted(target_dir.glob("eval_latest_*.json"), key=lambda p: p.stat().st_mtime, reverse=True):
+            if lf not in candidate_files:
+                candidate_files.append(lf)
+
         latest_path = target_dir / "eval_latest.json"
-        if latest_path.exists():
+        if latest_path.exists() and latest_path not in candidate_files:
             candidate_files.append(latest_path)
 
         # Tìm các file eval_report_*.json gần nhất
@@ -169,7 +249,7 @@ class EvaluationReporter:
             key=lambda p: p.stat().st_mtime,
             reverse=True,
         )
-        for rf in report_files[:5]:
+        for rf in report_files[:10]:
             if rf not in candidate_files:
                 candidate_files.append(rf)
 
@@ -278,11 +358,16 @@ class EvaluationReporter:
             "detailed_results": [],
         }
 
+        config = metadata.get("configuration") or {}
+        sig = self.build_pipeline_signature(config)
+        metadata["pipeline_signature"] = sig
+        latest_path = self.get_latest_filepath(config, target_dir)
+        metadata["latest_filename"] = latest_path.name
+
         with self._lock:
             with open(report_path, "w", encoding="utf-8") as f:
                 json.dump(initial_data, f, ensure_ascii=False, indent=4)
 
-            latest_path = target_dir / "eval_latest.json"
             with open(latest_path, "w", encoding="utf-8") as f:
                 json.dump(initial_data, f, ensure_ascii=False, indent=4)
 
@@ -348,11 +433,12 @@ class EvaluationReporter:
             summary = self.compute_summary_from_detailed(current_data["detailed_results"], is_graph)
             current_data["summary_metrics"].update(summary)
 
-            # Ghi đồng thời ra report_path và eval_latest.json
+            # Ghi đồng thời ra report_path và eval_latest_{signature}.json
             with open(report_path, "w", encoding="utf-8") as f:
                 json.dump(current_data, f, ensure_ascii=False, indent=4)
 
-            latest_path = target_dir / "eval_latest.json"
+            config = current_data.get("metadata", {}).get("configuration") or {}
+            latest_path = self.get_latest_filepath(config, target_dir)
             with open(latest_path, "w", encoding="utf-8") as f:
                 json.dump(current_data, f, ensure_ascii=False, indent=4)
 
@@ -425,7 +511,8 @@ class EvaluationReporter:
             with open(report_path, "w", encoding="utf-8") as f:
                 json.dump(current_data, f, ensure_ascii=False, indent=4)
 
-            latest_path = target_dir / "eval_latest.json"
+            config = current_data.get("metadata", {}).get("configuration") or {}
+            latest_path = self.get_latest_filepath(config, target_dir)
             with open(latest_path, "w", encoding="utf-8") as f:
                 json.dump(current_data, f, ensure_ascii=False, indent=4)
 
@@ -563,10 +650,14 @@ class EvaluationReporter:
         else:
             report_filename = report_path.name
 
-        latest_path = target_dir / "eval_latest.json"
+        config = unified_output.get("metadata", {}).get("configuration") or {}
+        sig = self.build_pipeline_signature(config)
+        latest_path = self.get_latest_filepath(config, target_dir)
 
         if "metadata" in unified_output:
             unified_output["metadata"]["report_filename"] = report_filename
+            unified_output["metadata"]["pipeline_signature"] = sig
+            unified_output["metadata"]["latest_filename"] = latest_path.name
             unified_output["metadata"]["saved_at"] = datetime.now().isoformat()
             unified_output["metadata"]["completed_at"] = datetime.now().isoformat()
             unified_output["metadata"]["status"] = "completed"
