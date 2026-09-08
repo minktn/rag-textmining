@@ -59,10 +59,13 @@ class SLMFilter:
 
         bnb_config = None
         if self.device == "cuda":
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
             bnb_config = BitsAndBytesConfig(
                 load_in_4bit=True,
                 bnb_4bit_compute_dtype=torch.float16,
                 bnb_4bit_quant_type="nf4",
+                llm_int8_enable_fp32_cpu_offload=True,
             )
 
         self._model = AutoModelForCausalLM.from_pretrained(
@@ -102,7 +105,8 @@ class SLMFilter:
             f"<|im_start|>assistant\n"
         )
 
-        inputs = self._tokenizer(prompt, return_tensors="pt").to(self.device)
+        model_device = next(self._model.parameters()).device if hasattr(self._model, "parameters") else self.device
+        inputs = self._tokenizer(prompt, return_tensors="pt").to(model_device)
 
         with torch.no_grad():
             outputs = self._model(**inputs)
