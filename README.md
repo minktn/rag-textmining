@@ -187,7 +187,8 @@ Chạy script đánh giá benchmark trên tập câu hỏi Luật Đất đai 20
 * **Tùy chỉnh số luồng độc lập (Decoupled Concurrency)**:
   - `--max-workers <N>`: Số luồng xử lý đồng thời cho Phase 1 (Retrieval & Generation). Đặt `1` khi dùng mô hình reranker trên CUDA để tránh nghẽn VRAM.
   - `--ragas-max-workers <N>`: Số luồng xử lý đồng thời cho Phase 3 (RAGAS LLM-as-a-judge). Mặc định `4` để bắn song song các request LLM Judge giúp hoàn thành nhanh chóng.
-  - `--batch-size <N>`: Kích thước batch xử lý (mặc định: `10`).
+  - `--ragas-batch-size <N>`: Kích thước batch cho RAGAS (mặc định: `1` - xong câu nào ghi câu đó ngay lập tức xuống đĩa).
+  - `--batch-size <N>`: Kích thước batch xử lý Phase 1 (mặc định: `10`).
 
 * **Cơ chế Bảo Lưu & Auto-Resume**:
   - Hệ thống tự động nhận diện phiên trước nếu trùng khớp metadata cấu hình và tiếp tục các câu hỏi còn thiếu.
@@ -202,7 +203,7 @@ Chạy script đánh giá benchmark trên tập câu hỏi Luật Đất đai 20
   - File đồng bộ mới nhất theo Signature cấu hình pipeline: `db/results/eval_latest_{signature}.json`.
     - Ví dụ: `eval_latest_base_hyde_crag_nvidia_nvidia_google.json`
     - Nếu là advanced: `eval_latest_base_<advanced_method>_nvidia_nvidia_google.json`
-    - Nếu là graph: `eval_latest_graph_local_google_google_nvidia.json`
+    - Nếu là graph kèm postprocessing: `eval_latest_graph_filter_rerank_nvidia_nvidia_google.json`
   - Cơ chế này cho phép chạy song song nhiều terminal với các phương pháp khác nhau mà hoàn toàn không bị ghi đè hay lỗi lock file.
   - Ở đầu JSON luôn có khối `summary_metrics` tổng hợp điểm trung bình macro-average lũy kế theo thời gian thực, và từng case trong `detailed_results` đều được chuẩn hóa đầy đủ 100% các metrics (Retrieval, Generation, Latency, RAGAS).
 

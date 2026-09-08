@@ -63,11 +63,13 @@ class RAGEvaluator:
         batch_size: Optional[int] = None,
         max_workers: Optional[int] = None,
         ragas_max_workers: Optional[int] = None,
+        ragas_batch_size: Optional[int] = None,
     ):
         # Batch & Concurrency
         self.batch_size = batch_size or getattr(settings, "EVAL_BATCH_SIZE", 10)
         self.max_workers = max_workers or getattr(settings, "EVAL_MAX_WORKERS", 4)
         self.ragas_max_workers = ragas_max_workers or getattr(settings, "RAGAS_MAX_WORKERS", 4)
+        self.ragas_batch_size = ragas_batch_size if ragas_batch_size is not None else getattr(settings, "RAGAS_BATCH_SIZE", self.ragas_max_workers)
 
         # 1. Xác định chế độ Retriever
         if use_graph is not None:
@@ -96,7 +98,7 @@ class RAGEvaluator:
 
         self.ragas_judge = ragas_judge or RagasJudge(
             service=ragas_service,
-            batch_size=self.batch_size,
+            batch_size=self.ragas_batch_size,
             max_workers=self.ragas_max_workers,
         )
         self.reporter = reporter or EvaluationReporter()
@@ -186,6 +188,7 @@ class RAGEvaluator:
                 "batch_size": self.batch_size,
                 "max_workers": self.max_workers,
                 "ragas_max_workers": self.ragas_max_workers,
+                "ragas_batch_size": self.ragas_batch_size,
                 "ragas_service": self.ragas_judge.service if self.ragas_judge else None,
                 "ragas_model": self.ragas_judge.model_name if self.ragas_judge else None,
             },
@@ -458,6 +461,109 @@ class RAGEvaluator:
 
         return all_results
 
+    def free_gpu_resources(self) -> None:
+        """
+        Giải phóng toàn bộ tài nguyên GPU (VRAM) của các model thuộc session hiện tại:
+        - Retriever models (DenseEmbedder, CrossEncoder Reranker, Contriever)
+        - Local LLM generators (nếu có)
+        - Processing pipelines (CRAG NLI, Prompt compressor, etc.)
+        Được gọi tự động ngay khi kết thúc Phase 2 trước khi bước vào Phase 3 (RAGAS).
+        """
+        import gc
+        import os
+
+        pid = os.getpid()
+        cfg = self.get_pipeline_metadata().get("configuration", {})
+        sig = self.reporter.build_pipeline_signature(cfg) if hasattr(self, "reporter") else "default"
+
+        safe_print(f"\n[Phase 2 -> Phase 3 | Session: '{sig}' | PID: {pid}] Đang giải phóng bộ nhớ GPU của session này...")
+        freed_components = []
+
+        # 1. Hủy Reranker & Embedder trong Retriever
+        if hasattr(self, "retriever") and self.retriever is not None:
+            if hasattr(self.retriever, "reranker") and self.retriever.reranker is not None:
+                try:
+                    del self.retriever.reranker
+                    self.retriever.reranker = None
+                    freed_components.append("Reranker (CrossEncoder)")
+                except Exception as e:
+                    logger.debug(f"[Cleanup] Lỗi khi hủy reranker: {e}")
+
+            if hasattr(self.retriever, "embedder") and self.retriever.embedder is not None:
+                try:
+                    if hasattr(self.retriever.embedder, "model"):
+                        del self.retriever.embedder.model
+                        self.retriever.embedder.model = None
+                    del self.retriever.embedder
+                    self.retriever.embedder = None
+                    freed_components.append("Embedder (Dense/Contriever)")
+                except Exception as e:
+                    logger.debug(f"[Cleanup] Lỗi khi hủy embedder: {e}")
+
+            try:
+                del self.retriever
+                self.retriever = None
+                freed_components.append("Retriever Pipeline")
+            except Exception as e:
+                logger.debug(f"[Cleanup] Lỗi khi hủy retriever: {e}")
+
+        # 2. Hủy ProcessingManager
+        if hasattr(self, "processing_manager") and self.processing_manager is not None:
+            try:
+                del self.processing_manager
+                self.processing_manager = None
+                freed_components.append("ProcessingManager")
+            except Exception as e:
+                logger.debug(f"[Cleanup] Lỗi khi hủy processing_manager: {e}")
+
+        # 3. Hủy Local LLM nếu có
+        if hasattr(self, "llm_manager") and self.llm_manager is not None:
+            if getattr(self.llm_manager, "service", "") == "local":
+                try:
+                    if hasattr(self.llm_manager, "generator"):
+                        del self.llm_manager.generator
+                        self.llm_manager.generator = None
+                    freed_components.append("Local LLM Generator")
+                except Exception as e:
+                    logger.debug(f"[Cleanup] Lỗi khi hủy local llm: {e}")
+
+        if hasattr(self, "sub_llm_manager") and self.sub_llm_manager is not None:
+            if getattr(self.sub_llm_manager, "service", "") == "local":
+                try:
+                    if hasattr(self.sub_llm_manager, "generator"):
+                        del self.sub_llm_manager.generator
+                        self.sub_llm_manager.generator = None
+                    freed_components.append("Sub Local LLM Generator")
+                except Exception as e:
+                    logger.debug(f"[Cleanup] Lỗi khi hủy sub local llm: {e}")
+
+        # 4. Thu gom rác Python
+        gc.collect()
+
+        # 5. Xả sạch bộ nhớ đệm PyTorch CUDA
+        try:
+            import torch
+            if torch.cuda.is_available():
+                allocated_before = torch.cuda.memory_allocated() / (1024 ** 2)
+                reserved_before = torch.cuda.memory_reserved() / (1024 ** 2)
+
+                torch.cuda.empty_cache()
+
+                allocated_after = torch.cuda.memory_allocated() / (1024 ** 2)
+                reserved_after = torch.cuda.memory_reserved() / (1024 ** 2)
+                vram_freed = reserved_before - reserved_after
+
+                items_text = ", ".join(freed_components) if freed_components else "Các model session"
+                safe_print(
+                    f"  ✓ [PID {pid}] Đã giải phóng: {items_text}\n"
+                    f"  ✓ [PID {pid}] VRAM giải phóng: {vram_freed:.1f} MB (Allocated: {allocated_after:.1f} MB, Reserved: {reserved_after:.1f} MB)"
+                )
+            else:
+                items_text = ", ".join(freed_components) if freed_components else "Các model session"
+                safe_print(f"  ✓ Đã thu dọn {items_text} (Đang chạy trên CPU).")
+        except ImportError:
+            safe_print("  ✓ Đã hoàn tất thu gom rác (PyTorch không khả dụng).")
+
     # ─────────────────────────────────────────────────────────────
     # Full Workflow Orchestration & Standardized JSON Output
     # ─────────────────────────────────────────────────────────────
@@ -473,6 +579,7 @@ class RAGEvaluator:
         batch_size: Optional[int] = None,
         max_workers: Optional[int] = None,
         ragas_max_workers: Optional[int] = None,
+        ragas_batch_size: Optional[int] = None,
         resume: bool = True,
     ) -> Dict[str, Any]:
         """
@@ -487,6 +594,8 @@ class RAGEvaluator:
             self.max_workers = max_workers
         if ragas_max_workers is not None:
             self.ragas_max_workers = ragas_max_workers
+        if ragas_batch_size is not None:
+            self.ragas_batch_size = ragas_batch_size
 
         # 1. Load data
         loader = EvalDataLoader()
@@ -598,6 +707,9 @@ class RAGEvaluator:
             is_graph_mode=self.use_graph,
         )
 
+        # ── KẾT THÚC PHASE 2: GIẢI PHÓNG VRAM / FREE GPU CÁC MODEL THUỘC SESSION ──
+        self.free_gpu_resources()
+
         ragas_scores = {}
         if not skip_ragas:
             safe_print("\n[Phase 3] Tính toán RAGAS Metrics (LLM-as-a-judge)...")
@@ -612,7 +724,7 @@ class RAGEvaluator:
 
             ragas_scores = self.ragas_judge.evaluate(
                 all_results,
-                batch_size=self.batch_size,
+                batch_size=self.ragas_batch_size,
                 max_workers=self.ragas_max_workers,
                 on_batch_completed=on_ragas_batch_done,
             )

@@ -41,6 +41,7 @@ class Neo4jGraphStore:
         database: Optional[str] = None,
         graph_dir: Optional[Union[str, Path]] = None,
         embedding_model: Optional[Any] = None,
+        prefer_local: Optional[bool] = None,
     ):
         self.uri = uri or settings.NEO4J_URI or os.getenv("NEO4J_URI")
         self.username = username or settings.NEO4J_USERNAME or os.getenv("NEO4J_USERNAME")
@@ -48,23 +49,40 @@ class Neo4jGraphStore:
         self.database = database or settings.NEO4J_DATABASE or os.getenv("NEO4J_DATABASE", "neo4j")
         self.graph_dir = Path(graph_dir or settings.GRAPH_DB_DIR)
         self.embedding_model = embedding_model
-        self.driver = None
+        self.prefer_local = prefer_local if prefer_local is not None else getattr(settings, "PREFER_LOCAL_STORAGE", True)
+        self._driver = None
 
-        if not self.uri or not self.username or not self.password:
-            logger.warning(
-                "Thiếu thông tin kết nối Neo4j (NEO4J_URI / NEO4J_USERNAME / NEO4J_PASSWORD). "
-                "Neo4j driver chưa được kích hoạt."
-            )
-            return
+        if self.prefer_local and self.is_local_available():
+            logger.info(f"[GraphStore] Ưu tiên dữ liệu Graph CỤC BỘ (Local LanceDB / Parquet) tại: {self.graph_dir}")
+        elif self.uri and self.username and self.password:
+            self._connect_driver()
 
+    def is_local_available(self) -> bool:
+        """Kiểm tra xem dữ liệu Graph cục bộ (LanceDB hoặc Parquet) có tồn tại trên máy không."""
+        lancedb_dir = self.graph_dir / "lancedb"
+        parquet_file = self.graph_dir / "text_units.parquet"
+        return lancedb_dir.exists() or parquet_file.exists()
+
+    @property
+    def driver(self):
+        """Lazy connection đến Neo4j driver (chỉ kết nối khi thực sự cần dùng Cypher hoặc Cloud)."""
+        if self._driver is None and self.uri and self.username and self.password:
+            self._connect_driver()
+        return self._driver
+
+    @driver.setter
+    def driver(self, val):
+        self._driver = val
+
+    def _connect_driver(self):
         try:
             from neo4j import GraphDatabase
-            self.driver = GraphDatabase.driver(self.uri, auth=(self.username, self.password))
-            self.driver.verify_connectivity()
+            self._driver = GraphDatabase.driver(self.uri, auth=(self.username, self.password))
+            self._driver.verify_connectivity()
             logger.info(f"Kết nối Neo4j thành công tại: {self.uri} (Database: {self.database})")
         except Exception as e:
-            logger.warning(f"Không thể kết nối Neo4j: {e}")
-            self.driver = None
+            logger.warning(f"[GraphStore] Không thể kết nối Neo4j Cloud: {e}. Vẫn tiếp tục với Local storage.")
+            self._driver = None
 
     def _get_embedding_model(self):
         if self.embedding_model is None:
@@ -457,8 +475,35 @@ class Neo4jGraphStore:
             except Exception as e:
                 logger.warning(f"[GraphStore] Lỗi truy vấn qua LanceDB: {e}. Thử fallback...")
 
-        # 2. Fallback qua Neo4j nếu đã kết nối
-        if self.driver:
+        # 2. Nếu ưu tiên Local: Đọc trực tiếp text_units.parquet cục bộ (KHÔNG nhảy lên Cloud)
+        if self.prefer_local and parquet_file.exists():
+            try:
+                if not hasattr(self, "_cached_text_units_df") or self._cached_text_units_df is None:
+                    self._cached_text_units_df = pd.read_parquet(parquet_file)
+                df = self._cached_text_units_df
+
+                for _, row in df.head(limit).iterrows():
+                    unit_id = str(row.get("id", ""))
+                    chunks.append({
+                        "id": f"graph_{unit_id}",
+                        "content": str(row.get("text", "")),
+                        "dense_score": 0.8,
+                        "source": "graph_database",
+                        "metadata": {
+                            "source": "Graph Database (Local Parquet)",
+                            "text_unit_id": unit_id,
+                            "document_id": str(row.get("document_id", "")),
+                            "entity_ids": sanitize_list(row.get("entity_ids")),
+                            "relationship_ids": sanitize_list(row.get("relationship_ids")),
+                        },
+                    })
+                if chunks:
+                    return chunks
+            except Exception as e:
+                logger.error(f"[GraphStore] Local parquet fallback thất bại: {e}")
+
+        # 3. Chỉ Fallback qua Neo4j Cloud nếu prefer_local=False hoặc local không có dữ liệu
+        if not self.prefer_local and self.driver:
             try:
                 if query_vector is None:
                     embedder = self._get_embedding_model()
@@ -477,7 +522,7 @@ class Neo4jGraphStore:
                         "dense_score": round(float(r["score"]), 4),
                         "source": "graph_database",
                         "metadata": {
-                            "source": "Graph Database (Neo4j)",
+                            "source": "Graph Database (Neo4j Cloud)",
                             "text_unit_id": r["id"],
                             "document_id": r.get("document_id", ""),
                         },
@@ -485,22 +530,7 @@ class Neo4jGraphStore:
                 if chunks:
                     return chunks
             except Exception as e:
-                logger.warning(f"[GraphStore] Lỗi truy vấn qua Neo4j: {e}")
-
-        # 3. Fallback đọc trực tiếp text_units.parquet nếu không có vector search
-        if parquet_file.exists():
-            try:
-                df = pd.read_parquet(parquet_file)
-                for _, row in df.head(limit).iterrows():
-                    chunks.append({
-                        "id": f"graph_{row['id']}",
-                        "content": str(row["text"]),
-                        "dense_score": 0.5,
-                        "source": "graph_database",
-                        "metadata": {"source": "Graph Database (Parquet fallback)"},
-                    })
-            except Exception as e:
-                logger.error(f"[GraphStore] Fallback parquet thất bại: {e}")
+                logger.warning(f"[GraphStore] Lỗi truy vấn qua Neo4j Cloud: {e}")
 
         return chunks
 

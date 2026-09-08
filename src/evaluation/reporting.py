@@ -54,7 +54,7 @@ class EvaluationReporter:
           - base_hyde_crag_nvidia_nvidia_google
           - base_rag_fusion_nvidia_nvidia_google
           - base_filter_rerank_google_google_nvidia
-          - graph_local_google_google_nvidia
+          - graph_filter_rerank_nvidia_nvidia_google
         """
         parts: List[str] = []
 
@@ -62,30 +62,32 @@ class EvaluationReporter:
         mode = (config.get("retriever_mode") or "base").lower().strip()
         parts.append(mode)
 
-        # 2. Graph method (nếu graph) HOẶC Advanced method HOẶC Pre/Post
-        if mode == "graph":
-            gm = (config.get("graph_method") or "local").lower().strip()
-            parts.append(gm)
-            if config.get("advanced_method"):
-                parts.append(str(config.get("advanced_method")).lower().strip())
-        elif config.get("advanced_method"):
+        # 2. Methods: Advanced HOẶC Preprocessing & Postprocessing
+        method_added = False
+        if config.get("advanced_method"):
             parts.append(str(config.get("advanced_method")).lower().strip())
+            method_added = True
         else:
             pre = config.get("preprocessing") or []
             if isinstance(pre, list):
                 for p in pre:
                     if p:
                         parts.append(str(p).lower().strip())
+                        method_added = True
             elif isinstance(pre, str) and pre:
                 parts.append(pre.lower().strip())
+                method_added = True
 
             post = config.get("postprocessing") or []
             if isinstance(post, list):
                 for p in post:
                     if p:
                         parts.append(str(p).lower().strip())
+                        method_added = True
             elif isinstance(post, str) and post:
                 parts.append(post.lower().strip())
+                method_added = True
+
 
         # 3. LLM Service
         llm = (config.get("llm_service") or getattr(settings, "LLM_SERVICE", "nvidia")).lower().strip()

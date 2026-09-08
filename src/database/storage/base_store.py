@@ -150,12 +150,10 @@ class VectorStoreBase:
     ) -> List[Dict[str, Any]]:
         use_local = prefer_local if prefer_local is not None else self.prefer_local
         if use_local and self.is_local_available():
-            try:
-                dict_filter = query_filter if isinstance(query_filter, dict) else None
-                return self.query_local(query_vector, limit=limit, query_filter=dict_filter)
-            except Exception as e:
-                logger.warning(f"Local query error: {e}. Fallback to Cloud Qdrant.")
+            dict_filter = query_filter if isinstance(query_filter, dict) else None
+            return self.query_local(query_vector, limit=limit, query_filter=dict_filter)
 
+        # Chỉ gọi Cloud Qdrant khi không có local hoặc prefer_local = False
         return self._get_db_manager().query_dense(
             collection_name=self.collection_name,
             query_vector=query_vector,

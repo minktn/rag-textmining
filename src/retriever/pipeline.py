@@ -101,6 +101,13 @@ class Retriever:
 		self.reranker = reranker
 		self.sub_llm_manager = sub_llm_manager
 
+		# Storage priority & Lazy Store Cache (Local > Cloud)
+		self.prefer_local = getattr(settings, "PREFER_LOCAL_STORAGE", True)
+		self._base_store = None
+		self._contriever_store = None
+		self._graph_store = None
+		self._local_article_index = None
+
 		# Processing pipeline configuration
 		if processing_manager is not None:
 			self.processing = processing_manager
@@ -108,7 +115,36 @@ class Retriever:
 			from .processing_manager import ProcessingManager
 			self.processing = ProcessingManager.from_settings()
 
-		logger.info(f"[Retriever] Initialized with {self.processing}")
+		logger.info(f"[Retriever] Initialized with {self.processing} (prefer_local={self.prefer_local})")
+
+	def _get_base_store(self):
+		if self._base_store is None:
+			from src.database.storage.base_store import BaseStore
+			self._base_store = BaseStore(
+				collection_name=self.collection_name,
+				prefer_local=self.prefer_local,
+			)
+			self._base_store.load_local()
+		return self._base_store
+
+	def _get_contriever_store(self):
+		if self._contriever_store is None:
+			from src.database.storage.contriever_store import ContrieverStore
+			self._contriever_store = ContrieverStore(
+				collection_name=self.collection_name,
+				prefer_local=self.prefer_local,
+			)
+			self._contriever_store.load_local()
+		return self._contriever_store
+
+	def _get_graph_store(self):
+		if self._graph_store is None:
+			from src.database.storage.graph_store import Neo4jGraphStore
+			self._graph_store = Neo4jGraphStore(
+				embedding_model=self.embedder,
+				prefer_local=self.prefer_local,
+			)
+		return self._graph_store
 
 	# ══════════════════════════════════════════════════════════════
 	# Main Entry Point
@@ -259,48 +295,49 @@ class Retriever:
 		query_vector: list[float],
 		query_filter: Any = None,
 	) -> list[dict[str, Any]]:
-		"""Truy vấn ứng viên dense: Ưu tiên Local vector index > Cloud Qdrant."""
-		if getattr(settings, "PREFER_LOCAL_STORAGE", True):
+		"""Truy vấn ứng viên dense: Ưu tiên Local vector index > Cloud Qdrant trong mọi trường hợp."""
+		is_graph = (
+			self.collection_name in ("graph", "neo4j", "graphrag")
+			or self.dense_model_name in ("graph", "neo4j", "graphrag")
+		)
+		is_contriever = (
+			self.collection_name == getattr(settings, "CONTRIEVER_COLLECTION_NAME", "landlaw_contriever")
+			or self.dense_model_name == getattr(settings, "CONTRIEVER_MODEL", "facebook/mcontriever-msmarco")
+		)
+
+		if self.prefer_local:
 			try:
-				is_graph = (
-					self.collection_name in ("graph", "neo4j", "graphrag")
-					or self.dense_model_name in ("graph", "neo4j", "graphrag")
-				)
-				is_contriever = (
-					self.collection_name == getattr(settings, "CONTRIEVER_COLLECTION_NAME", "landlaw_contriever")
-					or self.dense_model_name == getattr(settings, "CONTRIEVER_MODEL", "facebook/mcontriever-msmarco")
-				)
 				if is_graph:
-					from src.database.storage.graph_store import Neo4jGraphStore
-					graph_store = Neo4jGraphStore()
-					return graph_store.query_chunks(
+					store = self._get_graph_store()
+					chunks = store.query_chunks(
 						query=getattr(self, "_current_query", ""),
 						limit=self.dense_candidate_limit,
 						query_vector=query_vector,
 					)
+					if chunks:
+						return chunks
 				elif is_contriever:
-					from src.database.storage.contriever_store import ContrieverStore
-					store = ContrieverStore(
-						collection_name=self.collection_name,
-						db_manager=self.db_manager,
-					)
+					store = self._get_contriever_store()
+					if store.is_local_available():
+						dict_filter = query_filter if isinstance(query_filter, dict) else None
+						return store.query_local(
+							query_vector,
+							limit=self.dense_candidate_limit,
+							query_filter=dict_filter,
+						)
 				else:
-					from src.database.storage.base_store import BaseStore
-					store = BaseStore(
-						collection_name=self.collection_name,
-						db_manager=self.db_manager,
-					)
-
-				if store.is_local_available():
-					dict_filter = query_filter if isinstance(query_filter, dict) else None
-					return store.query_local(
-						query_vector,
-						limit=self.dense_candidate_limit,
-						query_filter=dict_filter,
-					)
+					store = self._get_base_store()
+					if store.is_local_available():
+						dict_filter = query_filter if isinstance(query_filter, dict) else None
+						return store.query_local(
+							query_vector,
+							limit=self.dense_candidate_limit,
+							query_filter=dict_filter,
+						)
 			except Exception as e:
-				logger.warning(f"Lỗi truy vấn local index ({e}). Chuyển sang Qdrant Cloud.")
+				logger.warning(f"[Retriever] Lỗi truy vấn local index ({e}).")
 
+		# Fallback Cloud Qdrant (chỉ khi không có local hoặc prefer_local = False)
 		return self.db_manager.query_dense(
 			collection_name=self.collection_name,
 			query_vector=query_vector,
@@ -412,13 +449,10 @@ class Retriever:
 
 	def _fetch_by_article_no(self, article_no: int) -> list[dict[str, Any]]:
 		"""Tìm kiếm các chunks theo Điều luật article_no: Ưu tiên Local chunks > Qdrant Cloud."""
-		if getattr(settings, "PREFER_LOCAL_STORAGE", True):
-			try:
-				chunks = self._fetch_local_by_article_no(article_no)
-				if chunks:
-					return chunks
-			except Exception as e:
-				logger.warning(f"[Retriever] Local fetch by article {article_no} error: {e}. Fallback to Cloud.")
+		if self.prefer_local:
+			chunks = self._fetch_local_by_article_no(article_no)
+			if chunks:
+				return chunks
 
 		return self.db_manager.fetch_by_article_no(
 			collection_name=self.collection_name,
@@ -427,19 +461,31 @@ class Retriever:
 		)
 
 	def _fetch_local_by_article_no(self, article_no: int) -> list[dict[str, Any]]:
-		"""Trích xuất chunks từ file local landlaw_chunks.json theo article_no."""
-		if not hasattr(self, "_local_article_index"):
+		"""Trích xuất chunks từ file local landlaw_chunks.json hoặc local vector store theo article_no."""
+		if not hasattr(self, "_local_article_index") or self._local_article_index is None:
 			index: dict[int, list[dict[str, Any]]] = {}
-			chunks_path = Path(settings.CHUNKED_DATA_DIR / "landlaw_chunks.json")
-			if chunks_path.exists():
-				import json
-				with open(chunks_path, "r", encoding="utf-8") as f:
-					chunks = json.load(f)
-				for c in chunks:
-					meta = c.get("metadata") or {}
-					art = meta.get("article_no")
-					if art is not None:
-						index.setdefault(art, []).append(c)
+			candidate_files = [
+				Path(settings.CHUNKED_DATA_DIR / "landlaw_chunks.json"),
+				Path(settings.BASELINE_VECTOR_DIR / "chunks.json"),
+				Path(settings.DB_DIR / "landlaw_chunks.json"),
+			]
+			chunks = []
+			for cf in candidate_files:
+				if cf.exists():
+					try:
+						import json
+						with open(cf, "r", encoding="utf-8") as f:
+							chunks = json.load(f)
+						if chunks:
+							break
+					except Exception:
+						continue
+
+			for c in chunks:
+				meta = c.get("metadata") or {}
+				art = meta.get("article_no")
+				if art is not None:
+					index.setdefault(art, []).append(c)
 			self._local_article_index = index
 
 		matching = self._local_article_index.get(article_no, [])

@@ -53,8 +53,8 @@ class RagasJudge:
         batch_size: Optional[int] = None,
         max_workers: Optional[int] = None,
     ):
-        self.batch_size = batch_size or getattr(settings, "EVAL_BATCH_SIZE", 10)
         self.max_workers = max_workers or getattr(settings, "RAGAS_MAX_WORKERS", 4)
+        self.batch_size = batch_size if batch_size is not None else getattr(settings, "RAGAS_BATCH_SIZE", self.max_workers)
 
         # Mặc định lấy dịch vụ từ settings.RAGAS_SERVICE hoặc settings.LLM_SERVICE
         self.service = (
@@ -133,10 +133,12 @@ class RagasJudge:
                 model=self.model_name,
                 api_key=self.api_key,
                 base_url=self.base_url,
-                temperature=0.0,
+                temperature=0.4,
                 max_tokens=16384,
                 rate_limiter=rate_limiter,
                 seed=42,
+                request_timeout=300,
+                max_retries=5,
             )
         elif self.service == "groq":
             from langchain_groq import ChatGroq
@@ -144,7 +146,7 @@ class RagasJudge:
             return ChatGroq(
                 model_name=self.model_name,
                 groq_api_key=self.api_key,
-                temperature=0.0,
+                temperature=0.4,
                 rate_limiter=rate_limiter,
             )
         elif self.service == "google":
@@ -153,7 +155,7 @@ class RagasJudge:
             return ChatGoogleGenerativeAI(
                 model=self.model_name,
                 google_api_key=self.api_key,
-                temperature=0.0,
+                temperature=0.4,
                 rate_limiter=rate_limiter,
             )
         else:
@@ -182,11 +184,19 @@ class RagasJudge:
         from ragas.run_config import RunConfig
 
         num_workers = workers or self.max_workers
+        is_single_case = (len(batch_results) == 1)
+        qid = batch_results[0].get("id", f"case_{batch_idx}") if is_single_case else None
 
-        safe_print(
-            f"  [RAGAS Batch {batch_idx}/{total_batches}] Đang gửi request LLM Judge "
-            f"cho {len(batch_results)} câu hỏi (workers={num_workers}, service='{self.service}')..."
-        )
+        if is_single_case:
+            safe_print(
+                f"  [RAGAS Case {batch_idx}/{total_batches}] Đang chấm case '{qid}' "
+                f"(workers={num_workers}, service='{self.service}')..."
+            )
+        else:
+            safe_print(
+                f"  [RAGAS Batch {batch_idx}/{total_batches}] Đang gửi request LLM Judge "
+                f"cho {len(batch_results)} câu hỏi (workers={num_workers}, service='{self.service}')..."
+            )
 
         ragas_data = {
             "question": [r.get("question", "") for r in batch_results],
@@ -212,12 +222,12 @@ class RagasJudge:
             context_recall,
         ]
 
-        # Tối ưu timeout và retry để tránh treo 180s mỗi job
+        # Tối ưu timeout và retry để tránh lỗi 503 và TimeoutError khi server NVIDIA bị quá tải
         run_config = RunConfig(
             max_workers=num_workers,
-            timeout=180,
+            timeout=300,
             max_retries=5,
-            max_wait=60,
+            max_wait=120,
         )
 
         metric_names = ["faithfulness", "answer_relevancy", "context_precision", "context_recall"]
@@ -256,7 +266,18 @@ class RagasJudge:
                     for m in missing_metrics:
                         r[f"ragas_{m}"] = None
 
-            safe_print(f"  ✓ [RAGAS Batch {batch_idx}/{total_batches}] Hoàn tất đánh giá.")
+            if is_single_case:
+                r0 = batch_results[0]
+                m_parts = [f"{m}={r0.get('ragas_' + m)}" for m in metric_names]
+                scores_str = ", ".join(m_parts)
+                safe_print(f"  ✓ [RAGAS Case {batch_idx}/{total_batches}] Đã chấm '{qid}': {scores_str}")
+            else:
+                for r in batch_results:
+                    cqid = r.get("id", "case")
+                    m_parts = [f"{m}={r.get('ragas_' + m)}" for m in metric_names]
+                    scores_str = ", ".join(m_parts)
+                    safe_print(f"  ✓ [RAGAS Case] Đã chấm '{cqid}': {scores_str}")
+                safe_print(f"  ✓ [RAGAS Block {batch_idx}/{total_batches}] Hoàn tất & lưu đồng thời block {len(batch_results)} câu hỏi.")
             return getattr(ragas_result, "_repr_dict", {})
         except Exception as e:
             logger.error(f"[RAGAS] Lỗi tại Batch {batch_idx}/{total_batches}: {e}")
@@ -305,8 +326,8 @@ class RagasJudge:
             safe_print(f"\n[RAGAS Warning] Chưa cấu hình API Key cho dịch vụ RAGAS '{self.service}' trong .env!")
             return build_ragas_summary(results)
 
-        bs = batch_size or self.batch_size
         workers = max_workers or self.max_workers
+        bs = batch_size if batch_size is not None else getattr(settings, "RAGAS_BATCH_SIZE", workers)
 
         # ── 1. Bảo lưu case đã có điểm, chỉ lọc ra các case bị miss ──
         already_valid = [r for r in results if is_valid_ragas(r)]
@@ -321,8 +342,8 @@ class RagasJudge:
 
         total_batches = (len(pending_items) + bs - 1) // bs
         safe_print(
-            f"\n[RAGAS Fill Miss] Đang chạy bổ sung cho {len(pending_items)} câu hỏi bị thiếu/chưa có điểm chia làm {total_batches} batch "
-            f"(batch_size={bs}, workers={workers}, LLM Judge='{self.service}', model='{self.model_name}')..."
+            f"\n[RAGAS Concurrency] Đang đánh giá cho {len(pending_items)} câu hỏi chia làm {total_batches} block "
+            f"(mỗi block {bs} requests đồng thời, workers={workers}, LLM Judge='{self.service}', model='{self.model_name}')..."
         )
 
         batches = [pending_items[i : i + bs] for i in range(0, len(pending_items), bs)]

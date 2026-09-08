@@ -154,6 +154,10 @@ def parse_args():
 		help="Số luồng đồng thời cho RAGAS LLM Judge (mặc định lấy từ settings.RAGAS_MAX_WORKERS = 4)"
 	)
 	parser.add_argument(
+		"--ragas-batch-size", type=int, default=None,
+		help="Kích thước batch cho RAGAS LLM Judge (mặc định bằng ragas_max_workers để gửi song song cùng 1 block thời gian)"
+	)
+	parser.add_argument(
 		"--no-resume", action="store_true",
 		help="Không tự động tiếp tục phiên chạy dang dở trước đó (chạy mới từ đầu)"
 	)
@@ -162,6 +166,9 @@ def parse_args():
 
 def main():
 	args = parse_args()
+
+	# Resolve batch size to match max workers if not explicitly given
+	ragas_batch_size = args.ragas_batch_size if args.ragas_batch_size is not None else args.ragas_max_workers
 
 	# ── Resolve paths & params ────────────────────────────────
 	if args.eval_file:
@@ -186,6 +193,7 @@ def main():
 		batch_size=args.batch_size,
 		max_workers=args.max_workers,
 		ragas_max_workers=args.ragas_max_workers,
+		ragas_batch_size=ragas_batch_size,
 	)
 
 	meta = evaluator.get_pipeline_metadata()
@@ -205,6 +213,7 @@ def main():
 	print(f"  Batch Size:  {config_info.get('batch_size')}")
 	print(f"  Workers:     {config_info.get('max_workers')}")
 	print(f"  RAGAS Wkrs:  {config_info.get('ragas_max_workers')}")
+	print(f"  RAGAS Batch: {config_info.get('ragas_batch_size', args.ragas_batch_size)} (Xong case nào lưu case đó)")
 	print(f"  Collection:  {config_info['collection_name']}")
 	print(f"  Embedding:   {config_info['embedding_model']}")
 	print(f"  RAGAS:       {'Skipped' if args.skip_ragas else 'Enabled'}")
@@ -225,6 +234,7 @@ def main():
 		batch_size=args.batch_size,
 		max_workers=args.max_workers,
 		ragas_max_workers=args.ragas_max_workers,
+		ragas_batch_size=args.ragas_batch_size,
 	)
 
 	print("\nEvaluation completed!")

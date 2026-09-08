@@ -76,8 +76,8 @@ class Config:
 
 	# LLM MODEL
 	GROQ_LLM = 'llama-3.3-70b-versatile'
-	NVIDIA_LLM = 'nvidia/nemotron-3-ultra-550b-a55b'
-	GEMINI_LLM = 'gemini-flash-lite-latest'
+	NVIDIA_LLM = 'nvidia/nemotron-3.5-lightning-30b-a3b'
+	GEMINI_LLM = 'gemma-4-31b-it'
 	LOCAL_LLM = 'ntphuc149/ViLegalQwen2.5-1.5B-Base'
 	BASE_TEMP = 0.0
 	BASE_MAX_TOKENS = 4096
@@ -105,6 +105,7 @@ class Config:
 	EVAL_BATCH_SIZE = 10
 	EVAL_MAX_WORKERS = 4
 	RAGAS_MAX_WORKERS = 4
+	RAGAS_BATCH_SIZE = 4
 
 	ADAPTABLE_POSTPROCESS = ["prompt_compression"]
 	ADAPTABLE_PREPROCESS = []
