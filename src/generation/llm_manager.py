@@ -70,12 +70,16 @@ class LLMManager:
 		if self._google_client is None:
 			if not self.gemini_key:
 				raise ValueError("GEMINI_KEY chưa được cấu hình trong .env hoặc settings")
+			from google.genai import types
 			from langchain_google_genai import ChatGoogleGenerativeAI
 			self._google_client = ChatGoogleGenerativeAI(
 				model=settings.GEMINI_LLM,
 				google_api_key=self.gemini_key,
 				temperature=self.temperature,
 				max_output_tokens=self.max_tokens,
+				thinking_config=types.ThinkingConfig(
+					thinking_level="MINIMAL",
+				),
 			)
 		return self._google_client
 
@@ -179,6 +183,7 @@ class LLMManager:
 		]
 
 		if active_service in ("google", "gemini"):
+			from google.genai import types
 			from langchain_core.messages import HumanMessage, SystemMessage
 			from langchain_core.output_parsers import StrOutputParser
 			from langchain_google_genai import ChatGoogleGenerativeAI
@@ -187,6 +192,9 @@ class LLMManager:
 				google_api_key=self.gemini_key or settings.GEMINI_KEY,
 				temperature=curr_temp,
 				max_output_tokens=curr_max_tokens,
+				thinking_config=types.ThinkingConfig(
+					thinking_level="MINIMAL",
+				),
 			)
 			chain = llm | StrOutputParser()
 			return chain.invoke([
@@ -214,6 +222,7 @@ class LLMManager:
 				messages=messages,
 				temperature=curr_temp,
 				max_tokens=curr_max_tokens,
+				extra_body={"chat_template_kwargs": {"enable_thinking": False}},
 			)
 			return response.choices[0].message.content
 
