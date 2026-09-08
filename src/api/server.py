@@ -264,12 +264,12 @@ def get_eval_info():
             ],
             "advanced": [
                 {"id": "rag_fusion", "name": "RAG-Fusion", "desc": "Multi-query expansion qua Sub-LLM + Reciprocal Rank Fusion"},
+                {"id": "filter_rerank", "name": "Filter-then-Rerank", "desc": "Local SLM Filter (1.5B 4-bit) -> LLM Reranker"},
             ],
             "preprocessing": [
                 {"id": "hyde", "name": "HyDE", "desc": "Hypothetical Document Embeddings"},
             ],
             "postprocessing": [
-                {"id": "filter_rerank", "name": "Filter-then-Rerank", "desc": "Local SLM Filter (1.5B) -> NVIDIA LLM Reranker"},
                 {"id": "crag", "name": "Corrective RAG (CRAG)", "desc": "Kiểm chứng tài liệu qua NLI"},
                 {"id": "prompt_compression", "name": "Prompt Compression", "desc": "Nén ngữ cảnh LongLLMLingua"},
             ],

@@ -71,7 +71,11 @@ class LLMReranker:
         if model_name:
             self.model_name = model_name
         elif self.service == "nvidia":
-            self.model_name = getattr(settings, "NVIDIA_LLM", "nvidia/nemotron-3-ultra-550b-a55b")
+            self.model_name = getattr(settings, "NVIDIA_LLM", "nvidia/nemotron-3.5-lightning-30b-a3b")
+        elif self.service in ("gemini", "google"):
+            self.model_name = getattr(settings, "GEMINI_LLM", "gemma-4-31b-it")
+        elif self.service == "groq":
+            self.model_name = getattr(settings, "GROQ_LLM", "llama-3.3-70b-versatile")
         else:
             self.model_name = self.sub_llm.get_default_model(self.service)
 

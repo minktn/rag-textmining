@@ -1,12 +1,12 @@
 import React from 'react';
-import { 
-  X, 
-  Settings2, 
-  Database, 
-  Sparkles, 
-  Cpu, 
-  Layers, 
-  Info, 
+import {
+  X,
+  Settings2,
+  Database,
+  Sparkles,
+  Cpu,
+  Layers,
+  Info,
   RotateCcw,
   CheckCircle2
 } from 'lucide-react';
@@ -89,7 +89,7 @@ export const PipelineSettingsModal: React.FC<PipelineSettingsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fadeIn">
-      <div 
+      <div
         className="w-full max-w-2xl bg-sidebarBg border border-borderDark/90 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
@@ -129,7 +129,7 @@ export const PipelineSettingsModal: React.FC<PipelineSettingsModalProps> = ({
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
-                { id: 'base', name: 'Vector DB (Base)', desc: 'BGE-M3 Dense + CrossEncoder Reranker', icon: '⚡' },
+                { id: 'base', name: 'BGE-M3', desc: 'BGE-M3 Dense + CrossEncoder Reranker', icon: '⚡' },
                 { id: 'contriever', name: 'Contriever', desc: 'Dense search với mContriever', icon: '🔍' },
                 { id: 'graph', name: 'Graph Database', desc: 'Microsoft GraphRAG trên Neo4j / Local KG', icon: '🕸️' },
               ].map((item) => {
@@ -146,11 +146,10 @@ export const PipelineSettingsModal: React.FC<PipelineSettingsModalProps> = ({
                         handleDatabaseChange(item.id as any);
                       }
                     }}
-                    className={`relative p-3.5 rounded-xl border cursor-pointer select-none transition-all flex flex-col gap-1.5 ${
-                      isSelected
+                    className={`relative p-3.5 rounded-xl border cursor-pointer select-none transition-all flex flex-col gap-1.5 ${isSelected
                         ? 'border-accentGreen bg-accentGreen/10 text-white shadow-md'
                         : 'border-borderDark/70 bg-cardBg/40 hover:bg-cardBg hover:border-gray-600 text-gray-300'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-xs flex items-center gap-1.5">
@@ -190,6 +189,11 @@ export const PipelineSettingsModal: React.FC<PipelineSettingsModalProps> = ({
                   name: 'RAG-Fusion',
                   desc: 'Mở rộng câu hỏi thành nhiều biến thể qua Sub-LLM, truy vấn song song và gộp kết quả bằng Reciprocal Rank Fusion (RRF).',
                 },
+                {
+                  id: 'filter_rerank',
+                  name: 'Filter-then-Rerank',
+                  desc: 'Mô hình 2 tầng: SLM Local (Qwen 1.5B 4-bit) lọc sơ bộ -> NVIDIA LLM Reranker phân loại chuyên sâu cho các mẫu khó.',
+                },
               ].map((item) => {
                 const checked = config.advanced === item.id;
                 return (
@@ -204,11 +208,10 @@ export const PipelineSettingsModal: React.FC<PipelineSettingsModalProps> = ({
                         handleToggleAdvanced(item.id);
                       }
                     }}
-                    className={`flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer select-none transition-all ${
-                      checked
+                    className={`flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer select-none transition-all ${checked
                         ? 'border-amber-500/80 bg-amber-500/10 text-white shadow-sm'
                         : 'border-borderDark/70 bg-cardBg/40 hover:bg-cardBg hover:border-gray-600 text-gray-300'
-                    }`}
+                      }`}
                   >
                     <input
                       type="checkbox"
@@ -251,7 +254,7 @@ export const PipelineSettingsModal: React.FC<PipelineSettingsModalProps> = ({
                 {[
                   {
                     id: 'hyde',
-                    name: 'HyDE (Hypothetical Document Embeddings)',
+                    name: 'HyDE',
                     desc: 'Sinh văn bản câu trả lời giả định trước khi tính toán embedding, tăng cường độ tương đồng ngữ nghĩa.',
                   },
                 ].map((item) => {
@@ -268,13 +271,11 @@ export const PipelineSettingsModal: React.FC<PipelineSettingsModalProps> = ({
                           handleTogglePreprocessing(item.id);
                         }
                       }}
-                      className={`flex items-start gap-3 p-3 rounded-xl border select-none transition-all ${
-                        isAdvancedSelected ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'
-                      } ${
-                        checked
+                      className={`flex items-start gap-3 p-3 rounded-xl border select-none transition-all ${isAdvancedSelected ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'
+                        } ${checked
                           ? 'border-cyan-500/80 bg-cyan-500/10 text-white'
                           : 'border-borderDark/70 bg-cardBg/40 hover:bg-cardBg hover:border-gray-600 text-gray-300'
-                      }`}
+                        }`}
                     >
                       <input
                         type="checkbox"
@@ -305,16 +306,16 @@ export const PipelineSettingsModal: React.FC<PipelineSettingsModalProps> = ({
                   {
                     id: 'filter_rerank',
                     name: 'Filter-then-Rerank',
-                    desc: 'Mô hình 2 tầng: SLM Local (1.5B) lọc sơ bộ -> NVIDIA LLM Reranker phân loại chuyên sâu cho các mẫu khó.',
+                    desc: 'Mô hình 2 tầng: SLM Local lọc sơ bộ kết hợp NVIDIA LLM Reranker phân loại chuyên sâu.',
                   },
                   {
                     id: 'crag',
-                    name: 'Corrective RAG (CRAG)',
+                    name: 'CRAG',
                     desc: 'Đánh giá độ tin cậy của tài liệu bằng BamiBERT NLI; hiệu chỉnh và tìm kiếm bổ sung nếu context không đạt.',
                   },
                   {
                     id: 'prompt_compression',
-                    name: 'Prompt Compression (LongLLMLingua)',
+                    name: 'Prompt Compression',
                     desc: 'Nén các đoạn văn bản dài để loại bỏ từ dư thừa, tiết kiệm token và tăng tốc sinh câu trả lời.',
                   },
                 ].map((item) => {
@@ -331,13 +332,11 @@ export const PipelineSettingsModal: React.FC<PipelineSettingsModalProps> = ({
                           handleTogglePostprocessing(item.id);
                         }
                       }}
-                      className={`flex items-start gap-3 p-3 rounded-xl border select-none transition-all ${
-                        isAdvancedSelected ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'
-                      } ${
-                        checked
+                      className={`flex items-start gap-3 p-3 rounded-xl border select-none transition-all ${isAdvancedSelected ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'
+                        } ${checked
                           ? 'border-purple-500/80 bg-purple-500/10 text-white'
                           : 'border-borderDark/70 bg-cardBg/40 hover:bg-cardBg hover:border-gray-600 text-gray-300'
-                      }`}
+                        }`}
                     >
                       <input
                         type="checkbox"
@@ -370,10 +369,10 @@ export const PipelineSettingsModal: React.FC<PipelineSettingsModalProps> = ({
                   onChange={(e) => onChangeConfig({ ...config, llm_service: e.target.value })}
                   className="w-full bg-inputBg border border-borderDark/80 rounded-xl px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-accentGreen"
                 >
-                  <option value="nvidia">NVIDIA NIM (Nemotron 3 Ultra 550B)</option>
-                  <option value="groq">Groq (Llama 3.3 70B Versatile)</option>
-                  <option value="google">Google Gemini (Gemma 4 31B)</option>
-                  <option value="local">Local Model (ViLegalQwen 1.5B)</option>
+                  <option value="nvidia">NVIDIA NIM</option>
+                  <option value="groq">Groq</option>
+                  <option value="google">Google Gemini</option>
+                  <option value="local">Local Model</option>
                 </select>
               </div>
 
@@ -387,7 +386,7 @@ export const PipelineSettingsModal: React.FC<PipelineSettingsModalProps> = ({
                   className="w-full bg-inputBg border border-borderDark/80 rounded-xl px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-accentGreen"
                 >
                   <option value="nvidia">NVIDIA NIM</option>
-                  <option value="local">Local Model (SLM)</option>
+                  <option value="local">Local Model</option>
                   <option value="groq">Groq</option>
                   <option value="google">Google Gemini</option>
                 </select>

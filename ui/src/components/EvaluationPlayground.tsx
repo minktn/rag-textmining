@@ -71,6 +71,9 @@ export const EvaluationPlayground: React.FC = () => {
         if (latest.summary_metrics?.ragas && Object.keys(latest.summary_metrics.ragas).length > 0) {
           setEnableRagas(true);
         }
+        if (latest.metadata?.configuration?.ragas_service) {
+          setRagasService(latest.metadata.configuration.ragas_service);
+        }
       } catch (err) {
         // Chưa có kết quả gần đây
       }
@@ -133,6 +136,9 @@ export const EvaluationPlayground: React.FC = () => {
       setReport(res);
       if (res.summary_metrics?.ragas && Object.keys(res.summary_metrics.ragas).length > 0) {
         setEnableRagas(true);
+      }
+      if (res.metadata?.configuration?.ragas_service) {
+        setRagasService(res.metadata.configuration.ragas_service);
       }
       setInfoMsg('Đã nạp báo cáo đánh giá mới nhất thành công.');
       setTimeout(() => setInfoMsg(null), 3000);
@@ -260,9 +266,9 @@ export const EvaluationPlayground: React.FC = () => {
               </label>
               <div className="space-y-1.5">
                 {[
-                  { id: 'base', name: 'Vector DB (BGE-M3)', desc: 'Dense Search + CrossEncoder' },
-                  { id: 'contriever', name: 'Contriever', desc: 'mContriever Dense' },
-                  { id: 'graph', name: 'Graph Database', desc: 'Microsoft GraphRAG' },
+                  { id: 'base', name: 'BGE-M3' },
+                  { id: 'contriever', name: 'Contriever' },
+                  { id: 'graph', name: 'Graph Database' },
                 ].map((item) => (
                   <div
                     key={item.id}
@@ -281,14 +287,14 @@ export const EvaluationPlayground: React.FC = () => {
                         : 'border-borderDark/60 bg-cardBg/30 hover:bg-cardBg/70 text-gray-300'
                     }`}
                   >
-                    <span>{item.name}</span>
+                    <span className="truncate">{item.name}</span>
                     <input
                       type="radio"
                       name="eval_db"
                       checked={database === item.id}
                       readOnly
                       tabIndex={-1}
-                      className="pointer-events-none text-accentGreen focus:ring-accentGreen h-3.5 w-3.5"
+                      className="pointer-events-none text-accentGreen focus:ring-accentGreen h-3.5 w-3.5 flex-shrink-0 ml-2"
                     />
                   </div>
                 ))}
@@ -303,7 +309,8 @@ export const EvaluationPlayground: React.FC = () => {
               </label>
               <div className="space-y-1.5">
                 {[
-                  { id: 'rag_fusion', name: 'RAG-Fusion', desc: 'Multi-query + RRF' },
+                  { id: 'rag_fusion', name: 'RAG-Fusion' },
+                  { id: 'filter_rerank', name: 'Filter-then-Rerank' },
                 ].map((item) => {
                   const checked = advanced === item.id;
                   return (
@@ -324,16 +331,13 @@ export const EvaluationPlayground: React.FC = () => {
                           : 'border-borderDark/60 bg-cardBg/30 hover:bg-cardBg/70 text-gray-300'
                       }`}
                     >
-                      <span className="flex items-center gap-1.5">
-                        {item.name}
-                        <span className="text-[10px] text-gray-400">({item.desc})</span>
-                      </span>
+                      <span className="truncate">{item.name}</span>
                       <input
                         type="checkbox"
                         checked={checked}
                         readOnly
                         tabIndex={-1}
-                        className="pointer-events-none rounded text-amber-500 focus:ring-amber-500 h-3.5 w-3.5 bg-inputBg border-gray-600"
+                        className="pointer-events-none rounded text-amber-500 focus:ring-amber-500 h-3.5 w-3.5 bg-inputBg border-gray-600 flex-shrink-0 ml-2"
                       />
                     </div>
                   );
@@ -354,7 +358,7 @@ export const EvaluationPlayground: React.FC = () => {
               </label>
               <div className="space-y-1.5">
                 {[
-                  { id: 'hyde', name: 'HyDE', desc: 'Hypothetical Embeddings' },
+                  { id: 'hyde', name: 'HyDE' },
                 ].map((item) => {
                   const checked = preprocessing.includes(item.id);
                   return (
@@ -377,17 +381,14 @@ export const EvaluationPlayground: React.FC = () => {
                           : 'border-borderDark/60 bg-cardBg/30 hover:bg-cardBg/70 text-gray-300'
                       }`}
                     >
-                      <span className="flex items-center gap-1.5">
-                        {item.name}
-                        <span className="text-[10px] text-gray-400">({item.desc})</span>
-                      </span>
+                      <span className="truncate">{item.name}</span>
                       <input
                         type="checkbox"
                         checked={checked}
                         disabled={isAdvancedSelected}
                         readOnly
                         tabIndex={-1}
-                        className="pointer-events-none rounded text-cyan-500 focus:ring-cyan-500 h-3.5 w-3.5 bg-inputBg border-gray-600"
+                        className="pointer-events-none rounded text-cyan-500 focus:ring-cyan-500 h-3.5 w-3.5 bg-inputBg border-gray-600 flex-shrink-0 ml-2"
                       />
                     </div>
                   );
@@ -403,9 +404,9 @@ export const EvaluationPlayground: React.FC = () => {
               </label>
               <div className="space-y-1.5">
                 {[
-                  { id: 'filter_rerank', name: 'Filter-then-Rerank', desc: 'SLM 1.5B + NVIDIA' },
-                  { id: 'crag', name: 'CRAG (NLI)', desc: 'Corrective Verification' },
-                  { id: 'prompt_compression', name: 'Prompt Compression', desc: 'LongLLMLingua' },
+                  { id: 'filter_rerank', name: 'Filter-then-Rerank' },
+                  { id: 'crag', name: 'CRAG' },
+                  { id: 'prompt_compression', name: 'Prompt Compression' },
                 ].map((item) => {
                   const checked = postprocessing.includes(item.id);
                   return (
@@ -420,7 +421,7 @@ export const EvaluationPlayground: React.FC = () => {
                           handleTogglePostprocessing(item.id);
                         }
                       }}
-                      className={`flex items-center justify-between p-2 rounded-xl border select-none text-xs transition-all ${
+                      className={`flex items-center justify-between p-2.5 rounded-xl border select-none text-xs transition-all ${
                         isAdvancedSelected ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'
                       } ${
                         checked
@@ -428,14 +429,14 @@ export const EvaluationPlayground: React.FC = () => {
                           : 'border-borderDark/60 bg-cardBg/30 hover:bg-cardBg/70 text-gray-300'
                       }`}
                     >
-                      <span className="truncate pr-2">{item.name}</span>
+                      <span className="truncate">{item.name}</span>
                       <input
                         type="checkbox"
                         checked={checked}
                         disabled={isAdvancedSelected}
                         readOnly
                         tabIndex={-1}
-                        className="pointer-events-none rounded text-purple-500 focus:ring-purple-500 h-3.5 w-3.5 bg-inputBg border-gray-600 flex-shrink-0"
+                        className="pointer-events-none rounded text-purple-500 focus:ring-purple-500 h-3.5 w-3.5 bg-inputBg border-gray-600 flex-shrink-0 ml-2"
                       />
                     </div>
                   );
@@ -453,10 +454,10 @@ export const EvaluationPlayground: React.FC = () => {
                 onChange={(e) => setLlmService(e.target.value)}
                 className="w-full bg-inputBg border border-borderDark/80 rounded-xl px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-accentGreen"
               >
-                <option value="nvidia">NVIDIA NIM (Nemotron 3 Ultra)</option>
-                <option value="groq">Groq (Llama 3.3 70B)</option>
+                <option value="nvidia">NVIDIA NIM</option>
+                <option value="groq">Groq</option>
                 <option value="google">Google Gemini</option>
-                <option value="local">Local (ViLegalQwen 1.5B)</option>
+                <option value="local">Local Model</option>
               </select>
             </div>
             <div>
@@ -467,7 +468,7 @@ export const EvaluationPlayground: React.FC = () => {
                 className="w-full bg-inputBg border border-borderDark/80 rounded-xl px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-accentGreen"
               >
                 <option value="nvidia">NVIDIA NIM</option>
-                <option value="local">Local Model (SLM)</option>
+                <option value="local">Local Model</option>
                 <option value="groq">Groq</option>
                 <option value="google">Google Gemini</option>
               </select>
@@ -770,7 +771,7 @@ export const EvaluationPlayground: React.FC = () => {
                     <h3 className="text-xs font-bold text-gray-100 uppercase tracking-wider flex items-center gap-2">
                       Đánh giá RAGAS (LLM-as-a-judge Metrics)
                       <span className="text-[10px] font-medium px-2.5 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/60 uppercase">
-                        {report.metadata?.configuration?.ragas_service || ragasService} Judge
+                        {ragasService} Judge
                       </span>
                     </h3>
                     <p className="text-[11px] text-gray-400">
@@ -795,12 +796,12 @@ export const EvaluationPlayground: React.FC = () => {
                     </div>
                     <div className="my-2.5">
                       <span className="text-3xl font-black text-indigo-400">
-                        {report.summary_metrics.ragas.faithfulness !== undefined
+                        {report.summary_metrics?.ragas?.faithfulness != null
                           ? (report.summary_metrics.ragas.faithfulness * 100).toFixed(1) + '%'
                           : 'N/A'}
                       </span>
                       <div className="text-[10px] text-gray-500 mt-0.5">
-                        Điểm: {report.summary_metrics.ragas.faithfulness !== undefined ? report.summary_metrics.ragas.faithfulness.toFixed(4) : 'N/A'}
+                        Điểm: {report.summary_metrics?.ragas?.faithfulness != null ? report.summary_metrics.ragas.faithfulness.toFixed(4) : 'N/A'}
                       </div>
                     </div>
                     <span className="text-[10px] text-gray-400 leading-tight">
@@ -816,12 +817,12 @@ export const EvaluationPlayground: React.FC = () => {
                     </div>
                     <div className="my-2.5">
                       <span className="text-3xl font-black text-emerald-400">
-                        {report.summary_metrics.ragas.answer_relevancy !== undefined
+                        {report.summary_metrics?.ragas?.answer_relevancy != null
                           ? (report.summary_metrics.ragas.answer_relevancy * 100).toFixed(1) + '%'
                           : 'N/A'}
                       </span>
                       <div className="text-[10px] text-gray-500 mt-0.5">
-                        Điểm: {report.summary_metrics.ragas.answer_relevancy !== undefined ? report.summary_metrics.ragas.answer_relevancy.toFixed(4) : 'N/A'}
+                        Điểm: {report.summary_metrics?.ragas?.answer_relevancy != null ? report.summary_metrics.ragas.answer_relevancy.toFixed(4) : 'N/A'}
                       </div>
                     </div>
                     <span className="text-[10px] text-gray-400 leading-tight">
@@ -837,12 +838,12 @@ export const EvaluationPlayground: React.FC = () => {
                     </div>
                     <div className="my-2.5">
                       <span className="text-3xl font-black text-cyan-400">
-                        {report.summary_metrics.ragas.context_precision !== undefined
+                        {report.summary_metrics?.ragas?.context_precision != null
                           ? (report.summary_metrics.ragas.context_precision * 100).toFixed(1) + '%'
                           : 'N/A'}
                       </span>
                       <div className="text-[10px] text-gray-500 mt-0.5">
-                        Điểm: {report.summary_metrics.ragas.context_precision !== undefined ? report.summary_metrics.ragas.context_precision.toFixed(4) : 'N/A'}
+                        Điểm: {report.summary_metrics?.ragas?.context_precision != null ? report.summary_metrics.ragas.context_precision.toFixed(4) : 'N/A'}
                       </div>
                     </div>
                     <span className="text-[10px] text-gray-400 leading-tight">
@@ -858,12 +859,12 @@ export const EvaluationPlayground: React.FC = () => {
                     </div>
                     <div className="my-2.5">
                       <span className="text-3xl font-black text-amber-400">
-                        {report.summary_metrics.ragas.context_recall !== undefined
+                        {report.summary_metrics?.ragas?.context_recall != null
                           ? (report.summary_metrics.ragas.context_recall * 100).toFixed(1) + '%'
                           : 'N/A'}
                       </span>
                       <div className="text-[10px] text-gray-500 mt-0.5">
-                        Điểm: {report.summary_metrics.ragas.context_recall !== undefined ? report.summary_metrics.ragas.context_recall.toFixed(4) : 'N/A'}
+                        Điểm: {report.summary_metrics?.ragas?.context_recall != null ? report.summary_metrics.ragas.context_recall.toFixed(4) : 'N/A'}
                       </div>
                     </div>
                     <span className="text-[10px] text-gray-400 leading-tight">

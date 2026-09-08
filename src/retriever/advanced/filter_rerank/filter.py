@@ -1,6 +1,6 @@
 """
-SLM Filter: Local Small Language Model Document Classifier
-===========================================================
+SLM Filter: Local Small Language Model Document Classifier (4-bit Quantized)
+=============================================================================
 First-stage filtering component of the Filter-then-Rerank paradigm (EMNLP 2023).
 Evaluates candidate text chunks via a single forward-pass logit distribution:
 - Easy Relevant  (s >= tau_high): High confidence of relevance, retained immediately.
@@ -21,7 +21,7 @@ DEFAULT_DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 class SLMFilter:
-    """Document relevance filter driven by a local Small Language Model (SLM)."""
+    """Document relevance filter driven by a local Small Language Model (SLM) in 4-bit."""
 
     def __init__(
         self,
@@ -43,13 +43,13 @@ class SLMFilter:
         self._token_b_id: Optional[int] = None
 
     def _load_model(self) -> None:
-        """Lazily initialize the local SLM and cache target evaluation token IDs."""
+        """Lazily initialize the local SLM with 4-bit quantization and cache target choice token IDs."""
         if self._model is not None and self._tokenizer is not None:
             return
 
-        from transformers import AutoModelForCausalLM, AutoTokenizer
+        from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
-        logger.info(f"[SLMFilter] Loading local SLM: '{self.model_name}' on device '{self.device}'...")
+        logger.info(f"[SLMFilter] Loading 4-bit local SLM: '{self.model_name}' on device '{self.device}'...")
         self._tokenizer = AutoTokenizer.from_pretrained(
             self.model_name,
             trust_remote_code=True,
@@ -57,10 +57,17 @@ class SLMFilter:
         if self._tokenizer.pad_token is None:
             self._tokenizer.pad_token = self._tokenizer.eos_token
 
-        torch_dtype = torch.float16 if self.device == "cuda" else torch.float32
+        bnb_config = None
+        if self.device == "cuda":
+            bnb_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_compute_dtype=torch.float16,
+                bnb_4bit_quant_type="nf4",
+            )
+
         self._model = AutoModelForCausalLM.from_pretrained(
             self.model_name,
-            torch_dtype=torch_dtype,
+            quantization_config=bnb_config,
             device_map="auto" if self.device == "cuda" else None,
             trust_remote_code=True,
         )
@@ -71,7 +78,7 @@ class SLMFilter:
         # Cache canonical ASCII token IDs for binary evaluation choices 'A' and 'B'
         self._token_a_id = self._tokenizer.encode("A", add_special_tokens=False)[0]
         self._token_b_id = self._tokenizer.encode("B", add_special_tokens=False)[0]
-        logger.info(f"[SLMFilter] Ready. Target choice token IDs: A={self._token_a_id}, B={self._token_b_id}")
+        logger.info(f"[SLMFilter] Ready (4-bit). Choice token IDs: A={self._token_a_id}, B={self._token_b_id}")
 
     def score_chunk(self, query: str, chunk_text: str) -> float:
         """

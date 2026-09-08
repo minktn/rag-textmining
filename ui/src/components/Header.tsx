@@ -31,7 +31,7 @@ export const Header: React.FC<HeaderProps> = ({
   const getDatabaseLabel = () => {
     if (pipelineConfig.database === 'graph') return 'Graph DB';
     if (pipelineConfig.database === 'contriever') return 'Contriever';
-    return 'Vector DB (BGE-M3)';
+    return 'BGE-M3';
   };
 
   return (

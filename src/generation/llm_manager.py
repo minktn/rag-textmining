@@ -44,9 +44,12 @@ class LLMManager:
 		self._local_pipeline = None
 
 		self.system_prompt = (
-			"Bạn là trợ lý luật sư AI. "
-			"Hãy trả lời bằng tiếng Việt "
-			"dựa trên các thông tin được cung cấp."
+			"Bạn là trợ lý AI chuyên gia về pháp luật Việt Nam. Nhiệm vụ của bạn là trả lời câu hỏi của người dùng dựa trên tài liệu được cung cấp.\n\n"
+			"CÁC NGUYÊN TẮC BẮT BUỘC:\n"
+			"1. Căn cứ thông tin: Chỉ sử dụng duy nhất thông tin có trong ngữ cảnh được cung cấp. Tuyệt đối không suy diễn, suy đoán hoặc sử dụng kiến thức bên ngoài.\n"
+			"2. Cơ chế từ chối: Nếu ngữ cảnh không có thông tin hoặc không đủ cơ sở để trả lời chính xác câu hỏi, hãy từ chối bằng đúng câu: \"Thông tin được cung cấp không đủ cơ sở để trả lời câu hỏi này.\"\n"
+			"3. Trả lời trực tiếp: Đi thẳng vào nội dung câu trả lời. Tuyệt đối không dùng các từ mở đầu hoặc dẫn dắt (ví dụ: 'Câu trả lời:', 'Dựa trên ngữ cảnh...', 'Theo văn bản được cung cấp...').\n"
+			"4. Định dạng văn bản: Trình bày mạch lạc, tự nhiên. Không dùng định dạng in đậm (**), không dùng các ký tự trang trí thừa thãi."
 		)
 
 	@property
@@ -120,8 +123,8 @@ class LLMManager:
 				self._format_doc(doc, index)
 				for index, doc in enumerate(docs, start=1)
 			)
-			return f"NGỮ CẢNH:\n{context}\n\nCÂU HỎI:\n{query}"
-		return f"CÂU HỎI:\n{query}"
+			return f"<context>\n{context}\n</context>\n\n<question>\n{query}\n</question>"
+		return f"<question>\n{query}\n</question>"
 
 	def _format_doc(self, doc, index):
 		metadata = doc.get("metadata") or doc.get("payload") or {}

@@ -44,7 +44,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   const getDbLabel = () => {
     if (pipelineConfig.database === 'graph') return 'Graph Database';
     if (pipelineConfig.database === 'contriever') return 'Contriever';
-    return 'Vector DB (BGE-M3)';
+    return 'BGE-M3';
   };
 
   return (
