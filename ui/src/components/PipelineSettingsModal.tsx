@@ -304,11 +304,6 @@ export const PipelineSettingsModal: React.FC<PipelineSettingsModalProps> = ({
               <div className="space-y-2">
                 {[
                   {
-                    id: 'filter_rerank',
-                    name: 'Filter-then-Rerank',
-                    desc: 'Mô hình 2 tầng: SLM Local lọc sơ bộ kết hợp NVIDIA LLM Reranker phân loại chuyên sâu.',
-                  },
-                  {
                     id: 'crag',
                     name: 'CRAG',
                     desc: 'Đánh giá độ tin cậy của tài liệu bằng BamiBERT NLI; hiệu chỉnh và tìm kiếm bổ sung nếu context không đạt.',

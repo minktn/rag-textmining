@@ -49,12 +49,13 @@ class RagasJudge:
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
         embedding_model: Optional[str] = None,
-        rate_limit_rps: float = 0.5,
+        rate_limit_rps: Optional[float] = None,
         batch_size: Optional[int] = None,
         max_workers: Optional[int] = None,
     ):
         self.max_workers = max_workers or getattr(settings, "RAGAS_MAX_WORKERS", 4)
         self.batch_size = batch_size if batch_size is not None else getattr(settings, "RAGAS_BATCH_SIZE", self.max_workers)
+        self._embeddings_instance = None
 
         # Mặc định lấy dịch vụ từ settings.RAGAS_SERVICE hoặc settings.LLM_SERVICE
         self.service = (
@@ -99,7 +100,7 @@ class RagasJudge:
             )
 
         self.embedding_model = embedding_model or settings.EMBEDDING_MODEL
-        self.rate_limit_rps = rate_limit_rps
+        self.rate_limit_rps = rate_limit_rps if rate_limit_rps is not None else getattr(settings, "RAGAS_RATE_LIMIT_RPS", None)
 
     @staticmethod
     def get_default_model(service: str) -> str:
@@ -123,41 +124,61 @@ class RagasJudge:
         except ImportError:
             return False
 
-    def _build_langchain_llm(self, rate_limiter: Any) -> Any:
+    def _get_embeddings(self) -> Any:
+        """Tái sử dụng instance HuggingFaceEmbeddings tránh khởi tạo lại mỗi batch."""
+        if self._embeddings_instance is None:
+            try:
+                from langchain_huggingface import HuggingFaceEmbeddings
+            except ImportError:
+                from langchain_community.embeddings import HuggingFaceEmbeddings
+            self._embeddings_instance = HuggingFaceEmbeddings(
+                model_name=self.embedding_model,
+                model_kwargs={"device": settings.DEVICE},
+            )
+        return self._embeddings_instance
+
+    def _build_langchain_llm(self, rate_limiter: Optional[Any] = None) -> Any:
         """Khởi tạo LangChain LLM phù hợp với self.service đã chọn."""
         if self.service == "nvidia":
             from langchain_openai import ChatOpenAI
 
             os.environ["OPENAI_API_KEY"] = self.api_key
-            return ChatOpenAI(
-                model=self.model_name,
-                api_key=self.api_key,
-                base_url=self.base_url,
-                temperature=0.4,
-                max_tokens=16384,
-                rate_limiter=rate_limiter,
-                seed=42,
-                request_timeout=300,
-                max_retries=5,
-            )
+            kwargs = {
+                "model": self.model_name,
+                "api_key": self.api_key,
+                "base_url": self.base_url,
+                "temperature": 0.4,
+                "max_tokens": 3072,
+                "seed": 42,
+                "request_timeout": 300,
+                "max_retries": 5,
+            }
+            if rate_limiter is not None:
+                kwargs["rate_limiter"] = rate_limiter
+            return ChatOpenAI(**kwargs)
         elif self.service == "groq":
             from langchain_groq import ChatGroq
 
-            return ChatGroq(
-                model_name=self.model_name,
-                groq_api_key=self.api_key,
-                temperature=0.4,
-                rate_limiter=rate_limiter,
-            )
+            kwargs = {
+                "model_name": self.model_name,
+                "groq_api_key": self.api_key,
+                "temperature": 0.4,
+            }
+            if rate_limiter is not None:
+                kwargs["rate_limiter"] = rate_limiter
+            return ChatGroq(**kwargs)
         elif self.service == "google":
             from langchain_google_genai import ChatGoogleGenerativeAI
 
-            return ChatGoogleGenerativeAI(
-                model=self.model_name,
-                google_api_key=self.api_key,
-                temperature=0.4,
-                rate_limiter=rate_limiter,
-            )
+            kwargs = {
+                "model": self.model_name,
+                "google_api_key": self.api_key,
+                "temperature": 0.4,
+                "max_output_tokens": 3072,
+            }
+            if rate_limiter is not None:
+                kwargs["rate_limiter"] = rate_limiter
+            return ChatGoogleGenerativeAI(**kwargs)
         else:
             raise ValueError(f"Dịch vụ LLM '{self.service}' không được hỗ trợ.")
 
@@ -173,11 +194,6 @@ class RagasJudge:
             return {}
 
         from datasets import Dataset
-        try:
-            from langchain_huggingface import HuggingFaceEmbeddings
-        except ImportError:
-            from langchain_community.embeddings import HuggingFaceEmbeddings
-        from langchain_core.rate_limiters import InMemoryRateLimiter
         from ragas import evaluate as ragas_evaluate
         from ragas.llms import LangchainLLMWrapper
         from ragas.metrics import AnswerRelevancy, context_precision, context_recall, faithfulness
@@ -187,15 +203,16 @@ class RagasJudge:
         is_single_case = (len(batch_results) == 1)
         qid = batch_results[0].get("id", f"case_{batch_idx}") if is_single_case else None
 
+        rate_limit_info = f", rps={self.rate_limit_rps}" if self.rate_limit_rps and self.rate_limit_rps > 0 else ", full-concurrency"
         if is_single_case:
             safe_print(
                 f"  [RAGAS Case {batch_idx}/{total_batches}] Đang chấm case '{qid}' "
-                f"(workers={num_workers}, service='{self.service}')..."
+                f"(workers={num_workers}, service='{self.service}'{rate_limit_info})..."
             )
         else:
             safe_print(
                 f"  [RAGAS Batch {batch_idx}/{total_batches}] Đang gửi request LLM Judge "
-                f"cho {len(batch_results)} câu hỏi (workers={num_workers}, service='{self.service}')..."
+                f"cho {len(batch_results)} câu hỏi (workers={num_workers}, service='{self.service}'{rate_limit_info})..."
             )
 
         ragas_data = {
@@ -206,14 +223,14 @@ class RagasJudge:
         }
         dataset = Dataset.from_dict(ragas_data)
 
-        rate_limiter = InMemoryRateLimiter(requests_per_second=self.rate_limit_rps)
+        rate_limiter = None
+        if self.rate_limit_rps and self.rate_limit_rps > 0:
+            from langchain_core.rate_limiters import InMemoryRateLimiter
+            rate_limiter = InMemoryRateLimiter(requests_per_second=self.rate_limit_rps)
+
         langchain_llm = self._build_langchain_llm(rate_limiter)
         ragas_llm_wrapper = LangchainLLMWrapper(langchain_llm)
-
-        embeddings = HuggingFaceEmbeddings(
-            model_name=self.embedding_model,
-            model_kwargs={"device": settings.DEVICE},
-        )
+        embeddings = self._get_embeddings()
 
         selected_metrics = [
             faithfulness,

@@ -165,6 +165,10 @@ def parse_args():
 		"--skip-base", action="store_true",
 		help="Bỏ qua bước Retrieval & Generation (Phase 1), giải phóng GPU ngay và nhảy thẳng đến tính điểm RAGAS metric (Phase 3) dựa trên các câu trả lời đã có"
 	)
+	parser.add_argument(
+		"--ragas-rps", type=float, default=None,
+		help="Giới hạn số request/giây cho RAGAS LLM Judge (mặc định None = không giới hạn, cho phép song song tối đa)"
+	)
 	return parser.parse_args()
 
 
@@ -198,6 +202,7 @@ def main():
 		max_workers=args.max_workers,
 		ragas_max_workers=args.ragas_max_workers,
 		ragas_batch_size=ragas_batch_size,
+		ragas_rate_limit_rps=args.ragas_rps,
 		skip_base=args.skip_base,
 	)
 
@@ -219,6 +224,7 @@ def main():
 	print(f"  Workers:     {config_info.get('max_workers')}")
 	print(f"  RAGAS Wkrs:  {config_info.get('ragas_max_workers')}")
 	print(f"  RAGAS Batch: {config_info.get('ragas_batch_size', args.ragas_batch_size)} (Xong case nào lưu case đó)")
+	print(f"  RAGAS RPS:   {args.ragas_rps if args.ragas_rps else 'Unlimited (Full Concurrency)'}")
 	print(f"  Collection:  {config_info['collection_name']}")
 	print(f"  Embedding:   {config_info['embedding_model']}")
 	print(f"  Phase 1 Base:{'Skipped (--skip-base)' if args.skip_base else 'Enabled'}")

@@ -46,7 +46,7 @@ class Postprocessor:
             try:
                 current_chunks = self._dispatch(method, query, current_chunks, active_retriever, **kwargs)
             except Exception as e:
-                logger.error(f"[Postprocessor] Hậu xử lý '{method}' thất bại: {e}. Giữ nguyên chunks.")
+                logger.error(f"[Postprocessor] Hậu xử lý '{method}' thất bại: {e}. Giữ nguyên chunks.", exc_info=True)
 
         return current_chunks
 
@@ -82,14 +82,17 @@ class Postprocessor:
             compressor = LongLLMLinguaCompressor(device=settings.DEVICE)
             contexts = [c.get("content", "") for c in chunks]
             result = compressor.compress_retrieved_context(query, contexts)
+            
+            saving_ratio = result.get("saving_ratio", 0.0)
+            ratio_str = f"{saving_ratio:.1%}" if isinstance(saving_ratio, (int, float)) else str(saving_ratio)
             logger.info(
-                f"[Postprocessor] Prompt compression: {result['origin_tokens']} -> "
-                f"{result['compressed_tokens']} tokens (tiết kiệm {result['saving_ratio']:.1%})"
+                f"[Postprocessor] Prompt compression: {result.get('origin_tokens', 0)} -> "
+                f"{result.get('compressed_tokens', 0)} tokens (tiết kiệm {ratio_str})"
             )
             for c in chunks:
                 c["_compressed"] = True
             if chunks:
-                chunks[0]["_compressed_context"] = result["compressed_context"]
+                chunks[0]["_compressed_context"] = result.get("compressed_context", "")
             return chunks
 
         logger.warning(f"[Postprocessor] Phương thức hậu xử lý '{method}' chưa được triển khai. Bỏ qua.")

@@ -115,7 +115,7 @@ export const EvaluationPlayground: React.FC = () => {
       if (isAdaptable) {
         setPostprocessing((prev) => [...prev, method]);
       } else {
-        // Tối đa 1 phương thức non-adaptable (filter_rerank hoặc crag)
+        // Tối đa 1 phương thức non-adaptable (crag)
         setPostprocessing((prev) => {
           const onlyAdaptable = prev.filter((item) => item === 'prompt_compression');
           return [...onlyAdaptable, method];
@@ -404,7 +404,6 @@ export const EvaluationPlayground: React.FC = () => {
               </label>
               <div className="space-y-1.5">
                 {[
-                  { id: 'filter_rerank', name: 'Filter-then-Rerank' },
                   { id: 'crag', name: 'CRAG' },
                   { id: 'prompt_compression', name: 'Prompt Compression' },
                 ].map((item) => {

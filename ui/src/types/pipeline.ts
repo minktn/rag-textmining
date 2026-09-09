@@ -2,7 +2,7 @@ export interface PipelineConfig {
   database: 'base' | 'contriever' | 'graph';
   advanced: string | null; // e.g. 'rag_fusion'
   preprocessing: string[]; // e.g. ['hyde']
-  postprocessing: string[]; // e.g. ['filter_rerank', 'crag', 'prompt_compression']
+  postprocessing: string[]; // e.g. ['crag', 'prompt_compression']
   llm_service?: string;
   sub_llm_service?: string;
   top_k?: number;

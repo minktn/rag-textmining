@@ -64,6 +64,7 @@ class RAGEvaluator:
         max_workers: Optional[int] = None,
         ragas_max_workers: Optional[int] = None,
         ragas_batch_size: Optional[int] = None,
+        ragas_rate_limit_rps: Optional[float] = None,
         skip_base: bool = False,
     ):
         self.skip_base = skip_base
@@ -73,6 +74,7 @@ class RAGEvaluator:
         self.max_workers = max_workers or getattr(settings, "EVAL_MAX_WORKERS", 4)
         self.ragas_max_workers = ragas_max_workers or getattr(settings, "RAGAS_MAX_WORKERS", 4)
         self.ragas_batch_size = ragas_batch_size if ragas_batch_size is not None else getattr(settings, "RAGAS_BATCH_SIZE", self.ragas_max_workers)
+        self.ragas_rate_limit_rps = ragas_rate_limit_rps
 
         # 1. Xác định chế độ Retriever
         if use_graph is not None:
@@ -103,6 +105,7 @@ class RAGEvaluator:
             service=ragas_service,
             batch_size=self.ragas_batch_size,
             max_workers=self.ragas_max_workers,
+            rate_limit_rps=self.ragas_rate_limit_rps,
         )
         self.reporter = reporter or EvaluationReporter()
 
