@@ -32,6 +32,32 @@ const SAMPLE_PROMPTS = [
   'Nguyên tắc lập bảng giá đất và các phương pháp định giá đất mới nhất?',
 ];
 
+const getRetrievalBadgeInfo = (mode?: string) => {
+  const m = (mode || '').toLowerCase();
+  if (m === 'contriever') {
+    return {
+      label: 'RAG Contriever',
+      classes: 'bg-teal-500/10 text-teal-400 border-teal-500/30',
+    };
+  }
+  if (m === 'graph' || m === 'neo4j' || m === 'graphrag') {
+    return {
+      label: 'RAG Graph DB',
+      classes: 'bg-purple-500/10 text-purple-400 border-purple-500/30',
+    };
+  }
+  if (m === 'base' || m === 'landlaw') {
+    return {
+      label: 'RAG BGE-M3',
+      classes: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+    };
+  }
+  return {
+    label: mode ? `RAG ${mode.charAt(0).toUpperCase() + mode.slice(1)}` : 'RAG Database',
+    classes: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+  };
+};
+
 export const ChatArea: React.FC<ChatAreaProps> = ({
   messages,
   isLoading,
@@ -115,12 +141,15 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
               {!isUser && (
                 <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-borderDark/40 text-[11px]">
                   <div className="flex items-center gap-2">
-                    {msg.rag_used ? (
-                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-medium flex items-center gap-1">
-                        <Database className="w-3 h-3" />
-                        RAG Graph DB
-                      </span>
-                    ) : (
+                    {msg.rag_used ? (() => {
+                      const badge = getRetrievalBadgeInfo(msg.retrieval_mode);
+                      return (
+                        <span className={`px-2 py-0.5 rounded-full border font-medium flex items-center gap-1 ${badge.classes}`}>
+                          <Database className="w-3 h-3" />
+                          {badge.label}
+                        </span>
+                      );
+                    })() : (
                       <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30 font-medium flex items-center gap-1">
                         <Zap className="w-3 h-3" />
                         Direct LLM

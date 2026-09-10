@@ -2,7 +2,7 @@
 Processing Manager
 ==================
 Quản lý cấu hình pipeline xử lý cho hệ thống RAG:
-- preprocessing: Các bước tiền xử lý truy vấn (query_rewriter luôn chạy riêng, không cần khai báo)
+- preprocessing: Các bước tiền xử lý truy vấn (mặc định query_rewriter luôn chạy riêng; nếu sử dụng HyDE thì HyDE sẽ thay thế query_rewriter)
 - postprocessing: Các bước hậu xử lý kết quả truy xuất
 - advanced: Phương thức truy xuất nâng cao — thay thế toàn bộ pipeline (ưu tiên cao nhất)
 

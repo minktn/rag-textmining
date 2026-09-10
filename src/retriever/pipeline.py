@@ -8,7 +8,7 @@ Supports three modes via ProcessingManager:
 - Standard + Processing: Preprocessing → Core → Postprocessing
 - Advanced: Replaces entire pipeline (e.g., RAG-Fusion)
 
-Query rewriting (query_rewriter) is ALWAYS applied as the mandatory first step.
+Query rewriting (query_rewriter) is applied by default, but replaced by HyDE when hyde is enabled in preprocessing.
 """
 
 from __future__ import annotations
@@ -34,7 +34,7 @@ class Retriever:
 	"""Configurable retrieval pipeline for legal RAG queries.
 
 	Pipeline flow:
-	1. query_rewriter (ALWAYS first — mandatory)
+	1. query_rewriter (mặc định) HOẶC HyDE (khi được cấu hình trong preprocessing)
 	2. normalize_query + extract_filters
 	3. Dispatch → advanced OR (preprocessing → core retrieval → postprocessing)
 	"""
@@ -154,13 +154,21 @@ class Retriever:
 		"""Main retrieval entry point.
 
 		Flow:
-		1. query_rewriter (always first)
+		1. Query transformation: HyDE (khi có trong preprocessing) HOẶC query_rewriter (mặc định)
 		2. normalize + extract filters
 		3. Dispatch: advanced → _retrieve_advanced
 		                  else → _retrieve_standard (with optional pre/post processing)
 		"""
-		# Step 1: Query rewriting (ALWAYS mandatory first step)
-		rewritten_query = self._rewrite_query(query)
+		# Step 1: Tiền xử lý truy vấn
+		# Nếu HyDE được cấu hình trong preprocessing, HyDE sẽ thay thế query_rewriter (không chạy Query -> Rewrite -> HyDE)
+		is_hyde_active = bool(
+			self.processing and "hyde" in getattr(self.processing, "preprocessing", [])
+		)
+		if is_hyde_active:
+			logger.info("[Retriever] HyDE được cấu hình: bỏ qua query_rewriter, HyDE sẽ thay thế đảm nhận vai trò này.")
+			rewritten_query = query
+		else:
+			rewritten_query = self._rewrite_query(query)
 
 		# Step 2: Normalize and extract metadata filters
 		normalized_query = self.normalize_query(rewritten_query)
@@ -539,7 +547,7 @@ class Retriever:
 		context = self.build_context(selected_chunks, expanded_chunks)
 		context_chunks = self._dedupe_chunks([*selected_chunks, *expanded_chunks])
 
-		return {
+		res = {
 			"query": query,
 			"normalized_query": normalized_query,
 			"filters": filters,
@@ -554,6 +562,10 @@ class Retriever:
 			"context": context,
 			"final_context": context,
 		}
+		if getattr(self, "_hypothetic_document", None):
+			res["hypothetic_document"] = self._hypothetic_document
+			self._hypothetic_document = None
+		return res
 
 	def _predict_rerank_scores(self, pairs: list[list[str]]) -> list[float]:
 		reranker = self._get_reranker()

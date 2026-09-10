@@ -57,7 +57,11 @@ class NLIEngine:
         self.model_name = "BamiBERT-ViLegalNLI"
 
         logger.info(f"Đang nạp mô hình NLI từ: {self.model_dir} lên thiết bị: {self.device}")
-        self.tokenizer = AutoTokenizer.from_pretrained(str(self.model_dir))
+        try:
+            self.tokenizer = AutoTokenizer.from_pretrained(str(self.model_dir))
+        except Exception:
+            from transformers import RobertaTokenizerFast
+            self.tokenizer = RobertaTokenizerFast.from_pretrained(str(self.model_dir))
         self.model = AutoModelForSequenceClassification.from_pretrained(str(self.model_dir))
         self.model.to(self.device)
         self.model.eval()

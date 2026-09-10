@@ -56,11 +56,13 @@ class Preprocessor:
             from .preprocessing.hyde import HyDE
 
             embedder = getattr(retriever, "embedder", None) if retriever else None
-            hyde = HyDE(embedder=embedder)
+            llm_manager = getattr(retriever, "sub_llm_manager", None) if retriever else None
+            hyde = HyDE(llm_manager=llm_manager, embedder=embedder)
             result = hyde.process(query)
 
             if retriever is not None:
                 retriever._hyde_embedding = result.get("embeddings")
+                retriever._hypothetic_document = result.get("hypothetic_document")
             logger.info(
                 f"[Preprocessor] HyDE hoàn tất: "
                 f"{len(result.get('hypothetic_document', ''))} ký tự giả định."

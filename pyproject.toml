@@ -27,6 +27,7 @@ dependencies = [
     "llmlingua>=0.2.2",
     "mcp>=2.1.1",
     "transformers>=4.45.0,<4.47.0",
+    "fastapi>=0.141.1",
 ]
 
 [tool.uv.sources]

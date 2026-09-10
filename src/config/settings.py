@@ -101,9 +101,10 @@ class Config:
 	# EVAL CONFIG
 	EVAL_DATA_DIR = DB_DIR / 'eval'
 	EVAL_RESULTS_DIR = DB_DIR / 'results'
+	RAGAS_LLM = "gemini-3.5-flash-lite" # Change to adapt with RAGAS_SERVICE
 	RAGAS_SERVICE = "google" # Or "google"/"groq"/"nvidia"
 	EVAL_BATCH_SIZE = 10
-	EVAL_MAX_WORKERS = 4
+	EVAL_MAX_WORKERS = 1
 	RAGAS_MAX_WORKERS = 4
 	RAGAS_BATCH_SIZE = 4
 

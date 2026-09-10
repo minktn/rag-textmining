@@ -7,10 +7,10 @@ RAGAS Metrics — LLM-as-Judge Evaluation (Multi-Provider Support)
 - Context Precision: Tỷ lệ thông tin hữu ích trong ngữ cảnh được truy xuất.
 - Context Recall: Mức độ ngữ cảnh bao quát đầy đủ thông tin của Ground Truth.
 
-Hỗ trợ luân phiên 3 dịch vụ LLM thông qua `RAGAS_SERVICE` trong `settings.py`:
-  1. "nvidia": ChatOpenAI qua NVIDIA NIM Endpoint (mặc định: settings.NVIDIA_LLM)
-  2. "groq": ChatGroq qua Groq API (mặc định: settings.GROQ_LLM)
-  3. "google" / "gemini": ChatGoogleGenerativeAI qua Google GenAI (mặc định: settings.GEMINI_LLM)
+Hỗ trợ luân phiên 3 dịch vụ LLM thông qua `RAGAS_SERVICE` và `RAGAS_MODEL` trong `settings.py`:
+  1. "nvidia": ChatOpenAI qua NVIDIA NIM Endpoint (https://build.nvidia.com/)
+  2. "groq": ChatGroq qua Groq API (https://console.groq.com/)
+  3. "google" / "gemini": ChatGoogleGenerativeAI qua Google GenAI (https://aistudio.google.com/prompts/new_chat)
 """
 
 import logging
@@ -68,50 +68,42 @@ class RagasJudge:
         if self.service == "gemini":
             self.service = "google"
 
-        # Khởi tạo API key & Model theo service tương tự như LLMManager
-        if self.service == "nvidia":
-            self.api_key = api_key or getattr(settings, "NVIDIA_KEY", None) or os.getenv("NVIDIA_KEY")
-            self.base_url = base_url or getattr(settings, "NVIDIA_BASE_URL", "https://integrate.api.nvidia.com/v1")
-            self.model_name = (
-                model_name
-                or getattr(settings, "RAGAS_LLM", None)
-                or getattr(settings, "NVIDIA_LLM", "nvidia/nemotron-3-ultra-550b-a55b")
-            )
-        elif self.service == "groq":
-            self.api_key = api_key or getattr(settings, "GROQ_KEY", None) or os.getenv("GROQ_API_KEY")
-            self.base_url = None
-            self.model_name = (
-                model_name
-                or getattr(settings, "RAGAS_LLM", None)
-                or getattr(settings, "GROQ_LLM", "llama-3.3-70b-versatile")
-            )
-        elif self.service in ("google", "gemini"):
-            self.service = "google"
-            self.api_key = api_key or getattr(settings, "GEMINI_KEY", None) or os.getenv("GOOGLE_API_KEY")
-            self.base_url = None
-            self.model_name = (
-                model_name
-                or getattr(settings, "RAGAS_LLM", None)
-                or getattr(settings, "GEMINI_LLM", "gemma-4-31b-it")
-            )
-        else:
+        if self.service not in ("nvidia", "groq", "google"):
             raise ValueError(
                 f"Dịch vụ RAGAS_SERVICE '{self.service}' không hợp lệ. Vui lòng chọn 'nvidia', 'groq', hoặc 'google'."
             )
+
+        # Lấy model đánh giá riêng biệt từ RAGAS_MODEL (không fallback về model answer thông thường)
+        self.model_name = (
+            model_name
+            or getattr(settings, "RAGAS_MODEL", None)
+            or getattr(settings, "RAGAS_LLM", None)
+        )
+
+        if not self.model_name:
+            raise ValueError(
+                f"RAGAS_MODEL chưa được cấu hình cho dịch vụ RAGAS_SERVICE '{self.service}'. "
+                f"Vui lòng thiết lập RAGAS_MODEL trong settings.py hoặc truyền model_name vào RagasJudge."
+            )
+
+        # Khởi tạo API key & Endpoint theo service
+        if self.service == "nvidia":
+            self.api_key = api_key or getattr(settings, "NVIDIA_KEY", None) or os.getenv("NVIDIA_KEY")
+            self.base_url = base_url or getattr(settings, "NVIDIA_BASE_URL", "https://integrate.api.nvidia.com/v1")
+        elif self.service == "groq":
+            self.api_key = api_key or getattr(settings, "GROQ_KEY", None) or os.getenv("GROQ_API_KEY")
+            self.base_url = None
+        elif self.service == "google":
+            self.api_key = api_key or getattr(settings, "GEMINI_KEY", None) or os.getenv("GOOGLE_API_KEY")
+            self.base_url = None
 
         self.embedding_model = embedding_model or settings.EMBEDDING_MODEL
         self.rate_limit_rps = rate_limit_rps if rate_limit_rps is not None else getattr(settings, "RAGAS_RATE_LIMIT_RPS", None)
 
     @staticmethod
-    def get_default_model(service: str) -> str:
-        """Lấy model mặc định cho từng dịch vụ theo settings."""
-        s = service.lower()
-        if s in ("google", "gemini"):
-            return getattr(settings, "GEMINI_LLM", "gemma-4-31b-it")
-        elif s == "groq":
-            return getattr(settings, "GROQ_LLM", "llama-3.3-70b-versatile")
-        else:
-            return getattr(settings, "NVIDIA_LLM", "nvidia/nemotron-3-ultra-550b-a55b")
+    def get_default_model(service: Optional[str] = None) -> Optional[str]:
+        """Lấy model mặc định cho RAGAS theo settings."""
+        return getattr(settings, "RAGAS_LLM", None)
 
     def is_available(self) -> bool:
         """Kiểm tra xem API Key và các thư viện cần thiết đã sẵn sàng chưa."""
@@ -150,8 +142,8 @@ class RagasJudge:
                 "temperature": 0.4,
                 "max_tokens": 3072,
                 "seed": 42,
-                "request_timeout": 300,
-                "max_retries": 5,
+                "request_timeout": 900,
+                "max_retries": 2,
             }
             if rate_limiter is not None:
                 kwargs["rate_limiter"] = rate_limiter
@@ -163,6 +155,9 @@ class RagasJudge:
                 "model_name": self.model_name,
                 "groq_api_key": self.api_key,
                 "temperature": 0.4,
+                "seed": 42,
+                "request_timeout": 900,
+                "max_retries": 2,
             }
             if rate_limiter is not None:
                 kwargs["rate_limiter"] = rate_limiter
@@ -175,6 +170,9 @@ class RagasJudge:
                 "google_api_key": self.api_key,
                 "temperature": 0.4,
                 "max_output_tokens": 3072,
+                "seed": 42,
+                "request_timeout": 900,
+                "max_retries": 2,
             }
             if rate_limiter is not None:
                 kwargs["rate_limiter"] = rate_limiter

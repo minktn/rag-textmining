@@ -7,10 +7,13 @@ logger = logging.getLogger(__name__)
 
 REWRITE_PROMPT_TEMPLATE = (
     "Bạn là chuyên gia tra cứu thông tin pháp luật Việt Nam.\n"
-    "Hãy phân tích câu hỏi người dùng và viết lại thành 1 câu truy vấn ngắn gọn, chuẩn xác thuật ngữ Luật để tra cứu trong cơ sở dữ liệu.\n\n"
+    "Hãy phân tích câu hỏi người dùng và viết lại thành 1 câu truy vấn tương đương nhưng sử dụng chuẩn xác thuật ngữ trong Luật pháp Việt Nam.\n\n"
     "Quy tắc:\n"
-    "1. Giữ nguyên ý nghĩa cốt lõi của câu hỏi.\n"
-    "2. CHỈ TRẢ VỀ DUY NHẤT 1 CÂU TRUY VẤN VIẾT LẠI, KHÔNG GIẢI THÍCH, KHÔNG THÊM BẤT KỲ LỜI DẪN NÀO.\n\n"
+    "1. Giữ nguyên ý nghĩa của câu hỏi.\n"
+    "2. CHỈ TRẢ VỀ DUY NHẤT 1 CÂU TRUY VẤN VIẾT LẠI, KHÔNG GIẢI THÍCH GÌ THÊM, KHÔNG THÊM LỜI DẪN ĐẦU.\n\n"
+    "Ví dụ:\n"
+    "Câu hỏi gốc: \"Tôi bị cướp\""
+    "Câu truy vấn viết lại: \"Chủ nhân bị chiếm đoạt tài sản\"\n\n"
     "Câu hỏi gốc: {query}\n"
     "Câu truy vấn viết lại:"
 )

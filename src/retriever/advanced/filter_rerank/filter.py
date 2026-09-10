@@ -59,16 +59,31 @@ class SLMFilter:
 
         from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
-        logger.info(f"[SLMFilter] Loading 4-bit local SLM (Singleton): '{self.model_name}' on device '{self.device}'...")
-        SLMFilter._shared_tokenizer = AutoTokenizer.from_pretrained(
-            self.model_name,
-            trust_remote_code=True,
-        )
+        logger.info(f"[SLMFilter] Loading local SLM (Singleton): '{self.model_name}' on device '{self.device}'...")
+        try:
+            SLMFilter._shared_tokenizer = AutoTokenizer.from_pretrained(
+                self.model_name,
+                trust_remote_code=True,
+                local_files_only=True,
+            )
+        except Exception:
+            SLMFilter._shared_tokenizer = AutoTokenizer.from_pretrained(
+                self.model_name,
+                trust_remote_code=True,
+            )
+
         if SLMFilter._shared_tokenizer.pad_token is None:
             SLMFilter._shared_tokenizer.pad_token = SLMFilter._shared_tokenizer.eos_token
 
         bnb_config = None
-        if self.device == "cuda":
+        has_bnb = False
+        try:
+            import bitsandbytes
+            has_bnb = True
+        except Exception:
+            has_bnb = False
+
+        if self.device == "cuda" and has_bnb:
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
             bnb_config = BitsAndBytesConfig(
@@ -76,17 +91,50 @@ class SLMFilter:
                 bnb_4bit_compute_dtype=torch.float16,
                 bnb_4bit_quant_type="nf4",
             )
-            device_map = {"": 0}
+            try:
+                SLMFilter._shared_model = AutoModelForCausalLM.from_pretrained(
+                    self.model_name,
+                    quantization_config=bnb_config,
+                    device_map={"": 0},
+                    trust_remote_code=True,
+                    local_files_only=True,
+                )
+            except Exception:
+                SLMFilter._shared_model = AutoModelForCausalLM.from_pretrained(
+                    self.model_name,
+                    quantization_config=bnb_config,
+                    device_map={"": 0},
+                    trust_remote_code=True,
+                )
+        elif self.device == "cuda":
+            logger.info("[SLMFilter] bitsandbytes not available, loading in float16 directly onto CUDA...")
+            try:
+                SLMFilter._shared_model = AutoModelForCausalLM.from_pretrained(
+                    self.model_name,
+                    torch_dtype=torch.float16,
+                    device_map={"": 0},
+                    trust_remote_code=True,
+                    local_files_only=True,
+                )
+            except Exception:
+                SLMFilter._shared_model = AutoModelForCausalLM.from_pretrained(
+                    self.model_name,
+                    torch_dtype=torch.float16,
+                    device_map={"": 0},
+                    trust_remote_code=True,
+                )
         else:
-            device_map = None
-
-        SLMFilter._shared_model = AutoModelForCausalLM.from_pretrained(
-            self.model_name,
-            quantization_config=bnb_config,
-            device_map=device_map,
-            trust_remote_code=True,
-        )
-        if self.device != "cuda":
+            try:
+                SLMFilter._shared_model = AutoModelForCausalLM.from_pretrained(
+                    self.model_name,
+                    trust_remote_code=True,
+                    local_files_only=True,
+                )
+            except Exception:
+                SLMFilter._shared_model = AutoModelForCausalLM.from_pretrained(
+                    self.model_name,
+                    trust_remote_code=True,
+                )
             SLMFilter._shared_model.to(self.device)
         SLMFilter._shared_model.eval()
 
