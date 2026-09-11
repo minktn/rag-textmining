@@ -41,6 +41,11 @@ Các tham số chính được chỉnh sửa trực tiếp trong file [`src/conf
 * **Mô hình Embedding**:
   * `EMBEDDING_MODEL = "BAAI/bge-m3"` (1024 chiều, dùng cho Vector DB và Graph DB).
   * `CONTRIEVER_MODEL = "facebook/mcontriever-msmarco"` (768 chiều).
+* **Cấu hình Truy xuất Two-Stage & RRF (Two-Stage Retrieval & Reciprocal Rank Fusion)**:
+  * `RETRIEVAL_BM25 = 100`: Số lượng ứng viên được lọc trước qua BM25 (Giai đoạn 1).
+  * `RETRIEVAL_DENSE = 20`: Số lượng ứng viên được chọn ra sau khi kết hợp Dense + RRF (Giai đoạn 2 & 3).
+  * `RRF_K = 60`: Hằng số làm mượt cho Reciprocal Rank Fusion (RRF).
+  * `RERANK_LIMIT = 5`: Số lượng ngữ cảnh đưa vào reranker Cross-Encoder (`BAAI/bge-reranker-v2-m3`).
 * **Đánh giá Benchmark (Evaluation & RAGAS)**:
   * `RAGAS_SERVICE`: LLM Judge cho RAGAS (`"nvidia"`, `"groq"`, `"google"`).
   * `EVAL_BATCH_SIZE`: Kích thước batch chia câu hỏi (mặc định: `10`).
@@ -88,10 +93,27 @@ uv run python Scripts/ingest.py --chunk-only
   uv run python Scripts/ingest.py --store graph --build-graph
   ```
 
-* **Kiểm tra trạng thái nạp dữ liệu**:
-  ```bash
-  uv run python Scripts/ingest.py --status
-  ```
+#### 2.3. Lập chỉ mục BM25 (BM25 Indexing qua `bm25.pkl`)
+Hệ thống sử dụng mô hình BM25Okapi gọn nhẹ (lưu qua file `bm25.pkl`) để phục vụ giai đoạn lọc trước (pre-filtering) top 100 ứng viên:
+* **Vector Database**: Lưu tại `db/vector_database/bm25.pkl` (quản lý 666 chunks luật, dùng chung cho cả Baseline BGE-M3 và Contriever vì cùng chung một kiểu phân đoạn).
+* **Graph Database**: Lưu tại `db/graph_database/bm25.pkl` (quản lý 170 text units trích xuất từ Knowledge Graph).
+
+Lệnh chạy lập chỉ mục BM25:
+```bash
+# Lập chỉ mục cho toàn bộ Vector DB và Graph DB:
+uv run python Scripts/ingest.py --bm25 --store all
+
+# Hoặc lập chỉ mục riêng cho từng store:
+uv run python Scripts/ingest.py --bm25 --store base
+uv run python Scripts/ingest.py --bm25 --store graph
+```
+*(Bạn cũng có thể dùng `python -m src.database.ingest --bm25` hoặc `python -m src.database.store_manager --bm25` với cùng đối số)*
+
+#### 2.4. Kiểm tra trạng thái nạp dữ liệu:
+```bash
+uv run python Scripts/ingest.py --status
+```
+
 
 ---
 
@@ -123,15 +145,25 @@ npm run dev
 
 ### Bước 4: Thử nghiệm nhanh bằng dòng lệnh (CLI Testing)
 
-#### 4.1. Kiểm tra truy xuất ngữ cảnh (Retrieval only — không gọi LLM)
+#### 4.1. Cơ chế Truy xuất Hai Giai đoạn (Two-Stage Hybrid RRF Pipeline)
+Mặc định, mọi truy vấn tìm kiếm đều tự động thực thi qua pipeline tối ưu 2 giai đoạn:
+1. **Giai đoạn 1 (BM25 Top 100)**: Luôn dùng BM25 để lọc ra top 100 ứng viên (`RETRIEVAL_BM25 = 100`) dựa trên từ khóa câu hỏi.
+2. **Giai đoạn 2 (Dense Search trong Top 100)**: Lấy top 100 ứng viên này để tính điểm tương đồng ngữ nghĩa (cosine similarity) trong Vector Store / Graph Store.
+3. **Giai đoạn 3 (Reciprocal Rank Fusion - RRF)**: Chạy thuật toán RRF với $k = 60$ (`RRF_K = 60`) để hợp nhất thứ hạng giữa BM25 và Dense:
+   $$RRF(d) = \frac{1}{60 + rank_{BM25}(d)} + \frac{1}{60 + rank_{Dense}(d)}$$
+   Sắp xếp điểm số giảm dần và chọn ra top 20 ứng viên tốt nhất (`RETRIEVAL_DENSE = 20`).
+4. **Giai đoạn 4 (Cross-Encoder Reranking & Context Building)**: Đưa 20 ứng viên qua mô hình Cross-Encoder `BAAI/bge-reranker-v2-m3` để chọn top 5 (`RERANK_LIMIT = 5`), kết hợp mở rộng các điều luật viện dẫn (`expand_references`).
+
+#### 4.2. Kiểm tra truy xuất ngữ cảnh (Retrieval only — không gọi LLM)
 ```bash
 uv run python Scripts/retrieve.py --query "Hạn mức giao đất ở là bao nhiêu?" --no-generate
 ```
 
-#### 4.2. Kiểm tra toàn bộ pipeline sinh câu trả lời (Full RAG Generation)
+#### 4.3. Kiểm tra toàn bộ pipeline sinh câu trả lời (Full RAG Generation)
 ```bash
 uv run python Scripts/retrieve.py --query "Hạn mức giao đất ở là bao nhiêu?"
 ```
+
 
 ---
 
@@ -219,3 +251,4 @@ Chạy script đánh giá benchmark trên tập câu hỏi Luật Đất đai 20
 - **Corrective RAG (CRAG)**: [arXiv:2401.15884](https://arxiv.org/pdf/2401.15884) *(Mô hình BamiBERT ViLegalNLI đã tinh chỉnh)*
 - **Contriever**: [arXiv:2112.09118](https://arxiv.org/abs/2112.09118)
 - **GraphRAG**: [Microsoft GraphRAG](https://github.com/microsoft/graphrag)
+

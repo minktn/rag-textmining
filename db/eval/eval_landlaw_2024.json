@@ -4156,12 +4156,12 @@
     },
     {
       "id": "Q240",
-      "question": "Trường hợp người có đất ở bị thu hồi được bồi thường giao đất ở hoặc nhà ở tái định cư nhưng số tiền bồi thường về đất ở nhỏ hơn giá trị một suất tái định cư tối thiểu thì xử lý thế nào theo Luật Đất đai 2024?",
-      "answer": "Căn cứ Khoản 8 Điều 111 Luật Đất đai 2024, trường hợp người có đất ở thu hồi mà phải di chuyển chỗ ở và được bồi thường bằng giao đất ở hoặc nhà ở tái định cư nhưng tiền bồi thường về đất ở không đủ so với giá trị của một suất tái định cư tối thiểu thì được Nhà nước hỗ trợ tiền đủ để được giao một suất tái định cư tối thiểu.",
+      "question": "Trường hợp người có đất ở bị thu hồi được bồi thường giao đất ở hoặc nhà ở tái định cư nhưng số tiền bồi thường về đất ở nhỏ hơn giá trị một suất tái định cư tối thiểu thì xử lý thế nào?",
+      "answer": "Căn cứ Khoản 8 Điều 111 Luật Đất đai 2024, về trường hợp người có đất ở thu hồi mà phải di chuyển chỗ ở và được bồi thường bằng giao đất ở hoặc nhà ở tái định cư, nếu tiền bồi thường về đất để ở không đủ so với giá trị của một suất tái định cư tối thiểu thì được Nhà nước hỗ trợ tiền đủ để được giao một suất tái định cư tối thiểu.",
       "question_type": "conditional",
       "law_id": {
         "chapter_no": 7,
-        "section_no": null,
+        "section_no": 5,
         "article_no": 111,
         "clause_nos": [
           8
@@ -4171,8 +4171,8 @@
     },
     {
       "id": "Q241",
-      "question": "Trước khi yêu cầu cơ quan nhà nước có thẩm quyền hoặc Tòa án giải quyết tranh chấp đất đai, các bên tranh chấp có bắt buộc phải thực hiện thủ tục hòa giải tại Ủy ban nhân dân cấp xã nơi có đất tranh chấp hay không?",
-      "answer": "Có. Căn cứ Khoản 2 Điều 235 Luật Đất đai 2024, trước khi cơ quan nhà nước có thẩm quyền giải quyết tranh chấp đất đai quy định tại Điều 236 của Luật này, các bên tranh chấp phải thực hiện hòa giải tại Ủy ban nhân dân cấp xã nơi có đất tranh chấp.",
+      "question": "Trước khi yêu cầu cơ quan nhà nước có thẩm quyền hoặc Tòa án giải quyết tranh chấp đất đai, các bên tranh chấp có bắt buộc phải thực hiện thủ tục hòa giải trước đó không? Thực hiện thủ tục ở đâu?",
+      "answer": "Có, hai bên tranh chấp cần thực hiện thủ tục hoà giải trước. Căn cứ Khoản 2 Điều 235 Luật Đất đai 2024, trước khi cơ quan nhà nước có thẩm quyền giải quyết tranh chấp đất đai quy định tại Điều 236 của Luật này, các bên tranh chấp phải thực hiện hòa giải tại Ủy ban nhân dân cấp xã nơi có đất tranh chấp.",
       "question_type": "yes_no",
       "law_id": {
         "chapter_no": 15,
@@ -4188,7 +4188,7 @@
     },
     {
       "id": "Q242",
-      "question": "Trường hợp hòa giải tranh chấp đất đai thành mà có thay đổi hiện trạng về ranh giới, diện tích, người sử dụng đất thì trong thời hạn bao nhiêu ngày các bên phải gửi văn bản đến cơ quan đăng ký đất đai để thực hiện đăng ký, cấp Giấy chứng nhận?",
+      "question": "Trường hợp hòa giải tranh chấp đất đai thành mà có thay đổi hiện trạng về ranh giới, diện tích, người sử dụng đất thì trong thời hạn bao nhiêu ngày các bên phải gửi văn bản công nhận kết quả hòa giải thành đến cơ quan nhà nước có thẩm quyền để thực hiện đăng ký, cấp Giấy chứng nhận",
       "answer": "Căn cứ Khoản 4 Điều 235 Luật Đất đai 2024, đối với trường hợp hòa giải tranh chấp đất đai mà hòa giải thành và có thay đổi hiện trạng về ranh giới, diện tích, người sử dụng đất thì trong thời hạn 30 ngày làm việc kể từ ngày nhận được văn bản công nhận kết quả hòa giải thành, các bên tham gia hòa giải phải gửi văn bản công nhận kết quả hòa giải thành đến cơ quan nhà nước có thẩm quyền để thực hiện đăng ký, cấp Giấy chứng nhận quyền sử dụng đất, quyền sở hữu tài sản gắn liền với đất theo quy định.",
       "question_type": "factual",
       "law_id": {
@@ -4203,8 +4203,8 @@
     },
     {
       "id": "Q243",
-      "question": "Khi các bên tranh chấp quyền sử dụng đất hoặc tài sản gắn liền với đất mà một trong các bên đã có Sổ đỏ hoặc có các giấy tờ cũ hợp pháp về quyền sử dụng đất thì vụ việc do cơ quan nào phân xử?",
-      "answer": "Căn cứ Khoản 1 Điều 236 Luật Đất đai 2024, tranh chấp đất đai mà các bên tranh chấp hoặc một trong các bên tranh chấp đã có Giấy chứng nhận (Sổ đỏ) hoặc có một trong các loại giấy tờ hợp pháp về quyền sử dụng đất quy định tại Điều 137 của Luật này, cũng như tranh chấp về tài sản gắn liền với đất thì thẩm quyền giải quyết thuộc về Tòa án nhân dân theo quy định của pháp luật về tố tụng dân sự.",
+      "question": "Khi các bên tranh chấp quyền sử dụng đất hoặc tài sản gắn liền với đất mà một trong các bên đã có Sổ đỏ hoặc có các giấy tờ cũ hợp pháp về quyền sử dụng đất thì tranh chấp được giải quyết bởi cơ quan nào?",
+      "answer": "Căn cứ Khoản 1 Điều 236 Luật Đất đai 2024, tranh chấp đất đai mà các bên tranh chấp hoặc một trong các bên tranh chấp đất đai mà các bên tranh chấp hoặc một trong các bên tranh chấp có Giấy chứng nhận hoặc có một trong các loại giấy tờ quy định tại Điều 137 của Luật này, cũng như tranh chấp về tài sản gắn liền với đất thì thẩm quyền giải quyết thuộc về Tòa án nhân dân theo quy định của pháp luật về tố tụng dân sự.",
       "question_type": "factual",
       "law_id": {
         "chapter_no": 15,
@@ -4237,7 +4237,7 @@
     },
     {
       "id": "Q245",
-      "question": "Trường hợp tranh chấp đất đai giữa hộ gia đình, cá nhân với nhau mà không có Giấy chứng nhận và lựa chọn giải quyết tại Ủy ban nhân dân thì người có thẩm quyền giải quyết là ai?",
+      "question": "Trường hợp tranh chấp đất đai giữa hộ gia đình, cá nhân, cộng đồng dân cư với nhau mà các bên không có Giấy chứng nhận và lựa chọn giải quyết tại Ủy ban nhân dân thì ai có thẩm quyền giải quyết?",
       "answer": "Căn cứ Điểm a Khoản 3 Điều 236 Luật Đất đai 2024, trường hợp tranh chấp giữa hộ gia đình, cá nhân, cộng đồng dân cư với nhau thì Chủ tịch Ủy ban nhân dân cấp huyện giải quyết.",
       "question_type": "factual",
       "law_id": {
@@ -4253,7 +4253,7 @@
     {
       "id": "Q246",
       "question": "Theo Luật Đất đai 2024, nội dung công khai thủ tục hành chính về đất đai bao gồm những nội dung gì?",
-      "answer": "Căn cứ Khoản 2 Điều 225 Luật Đất đai 2024, nội dung công khai thủ tục hành chính về đất đai bao gồm: a) Cơ quan có thẩm quyền tiếp nhận hồ sơ và trả kết quả; cơ quan giải quyết thủ tục hành chính; đối tượng thực hiện thủ tục hành chính; b) Thời gian giải quyết đối với từng thủ tục hành chính; c) Thành phần, số lượng hồ sơ đối với từng thủ tục hành chính; d) Quy trình và trách nhiệm giải quyết từng thủ tục hành chính; đ) Nghĩa vụ tài chính, phí và lệ phí phải nộp đối với từng thủ tục hành chính; e) Nội dung khác theo quy định của pháp luật về kiểm soát thủ tục hành chính.",
+      "answer": "Căn cứ Khoản 2 Điều 225 Luật Đất đai 2024, nội dung công khai thủ tục hành chính về đất đai bao gồm: a) Cơ quan có thẩm quyền tiếp nhận hồ sơ và trả kết quả; cơ quan giải quyết thủ tục hành chính; đối tượng thực hiện thủ tục hành chính; b) Thời gian giải quyết đối với từng thủ tục hành chính; c) Thành phần, số lượng hồ sơ đối với từng thủ tục hành chính; d) Quy trình và trách nhiệm giải quyết từng thủ tục hành chính; đ) Nghĩa vụ tài chính, phí và lệ phí phải nộp đối với từng thủ tục hành chính; e) Nội dung khác của bộ thủ tục hành chính (nếu có).",
       "question_type": "listing",
       "law_id": {
         "chapter_no": 14,
@@ -4312,12 +4312,12 @@
     },
     {
       "id": "Q250",
-      "question": "Theo quy định chuyển tiếp của Luật Đất đai 2024, Bảng giá đất do Ủy ban nhân dân cấp tỉnh ban hành theo Luật Đất đai 2013 được tiếp tục áp dụng đến thời điểm nào?",
+      "question": "Theo quy định chuyển tiếp của Luật Đất đai 2024, Bảng giá đất do Ủy ban nhân dân cấp tỉnh ban hành theo Luật Đất đai 2013 được tiếp tục áp dụng đến thời điểm nào",
       "answer": "Căn cứ Khoản 1 Điều 257 Luật Đất đai 2024, Bảng giá đất do Ủy ban nhân dân cấp tỉnh ban hành theo quy định của Luật Đất đai số 45/2013/QH13 được tiếp tục áp dụng đến hết ngày 31 tháng 12 năm 2025; trường hợp cần thiết Ủy ban nhân dân cấp tỉnh quyết định điều chỉnh bảng giá đất theo quy định của Luật này cho phù hợp với tình hình thực tế về giá đất tại địa phương.",
       "question_type": "factual",
       "law_id": {
         "chapter_no": 16,
-        "section_no": null,
+        "section_no": 2,
         "article_no": 257,
         "clause_nos": [
           1
@@ -4360,11 +4360,11 @@
     {
       "id": "Q253",
       "question": "Hoạt động thanh tra, kiểm tra chuyên ngành đất đai do các cơ quan nào ở trung ương và địa phương chịu trách nhiệm chỉ đạo, tổ chức thực hiện?",
-      "answer": "Căn cứ Khoản 3 Điều 234 Luật Đất đai 2024, trách nhiệm chỉ đạo, tổ chức thực hiện thanh tra, kiểm tra chuyên ngành đất đai gồm có: a) Bộ Tài nguyên và Môi trường chịu trách nhiệm chỉ đạo, tổ chức thực hiện thanh tra, kiểm tra chuyên ngành đất đai trên phạm vi cả nước; b) Cơ quan có chức năng quản lý đất đai cấp tỉnh, cấp huyện chịu trách nhiệm tổ chức thực hiện thanh tra, kiểm tra chuyên ngành đất đai tại địa phương.",
+      "answer": "Căn cứ khoản 3 Điều 234 Luật Đất đai 2024, trách nhiệm chỉ đạo, tổ chức thực hiện thanh tra, kiểm tra chuyên ngành đất đai được quy định như sau: Bộ Tài nguyên và Môi trường chịu trách nhiệm chỉ đạo, tổ chức thực hiện thanh tra, kiểm tra chuyên ngành đất đai trên phạm vi cả nước; cơ quan có chức năng quản lý đất đai cấp tỉnh chịu trách nhiệm tổ chức thực hiện thanh tra, kiểm tra chuyên ngành đất đai; cơ quan có chức năng quản lý đất đai cấp huyện chịu trách nhiệm tổ chức kiểm tra chuyên ngành đất đai.",
       "question_type": "listing",
       "law_id": {
         "chapter_no": 15,
-        "section_no": null,
+        "section_no": 2,
         "article_no": 234,
         "clause_nos": [
           3
@@ -4374,7 +4374,7 @@
     },
     {
       "id": "Q254",
-      "question": "Theo Luật Đất đai 2024, người sử dụng đất, người có quyền lợi và nghĩa vụ liên quan đến sử dụng đất có quyền khiếu nại, khởi kiện quyết định hành chính, hành vi hành chính về quản lý đất đai theo quy định của pháp luật nào?",
+      "question": "Theo Luật Đất đai 2024, người sử dụng đất có quyền khiếu nại, khởi kiện quyết định hành chính, hành vi hành chính về quản lý đất đai theo quy định nào trong luật?",
       "answer": "Căn cứ Khoản 1 Điều 237 Luật Đất đai 2024, người sử dụng đất, người có quyền lợi và nghĩa vụ liên quan đến sử dụng đất có quyền khiếu nại, khởi kiện quyết định hành chính, hành vi hành chính về quản lý đất đai theo quy định của pháp luật về khiếu nại, pháp luật về tố tụng hành chính.",
       "question_type": "factual",
       "law_id": {
@@ -4390,7 +4390,7 @@
     {
       "id": "Q255",
       "question": "Người có hành vi vi phạm pháp luật về đất đai thì bị xử lý như thế nào theo quy định tại Luật Đất đai 2024?",
-      "answer": "Căn cứ Khoản 1 Điều 239 Luật Đất đai 2024, người có hành vi vi phạm pháp luật về đất đai thì tùy theo tính chất, mức độ vi phạm mà bị xử lý kỷ luật, xử phạt vi phạm hành chính hoặc bị truy cứu trách nhiệm hình sự, nếu gây thiệt hại thì phải bồi thường theo quy định của pháp luật.",
+      "answer": "Căn cứ Khoản 1 Điều 239 Luật Đất đai 2024, người có hành vi vi phạm pháp luật về đất đai thì tùy theo tính chất, mức độ vi phạm mà bị xử lý kỷ luật, xử lý vi phạm hành chính hoặc bị truy cứu trách nhiệm hình sự, nếu gây thiệt hại thì phải bồi thường theo quy định của pháp luật.",
       "question_type": "factual",
       "law_id": {
         "chapter_no": 15,
@@ -4404,16 +4404,15 @@
     },
     {
       "id": "Q256",
-      "question": "Quỹ phát triển đất của địa phương do cơ quan nào thành lập và hoạt động nhằm mục đích gì theo Luật Đất đai 2024?",
-      "answer": "Căn cứ Khoản 1 và Khoản 2 Điều 114 Luật Đất đai 2024, Quỹ phát triển đất của địa phương là quỹ tài chính nhà nước ngoài ngân sách do Ủy ban nhân dân cấp tỉnh thành lập để ứng vốn phục vụ các nhiệm vụ thuộc chức năng của tổ chức phát triển quỹ đất, thực hiện chính sách hỗ trợ đất đai đối với đồng bào dân tộc thiểu số và các nhiệm vụ khác theo quy định của pháp luật. Quỹ phát triển đất hoạt động không vì mục đích lợi nhuận, có trách nhiệm bảo toàn và phát triển vốn.",
+      "question": "Quỹ phát triển đất của địa phương do cơ quan nào thành lập và được thành lập để thực hiện những nhiệm vụ gì theo Luật Đất đai 2024?",
+      "answer": "Căn cứ khoản 1 Điều 114 Luật Đất đai 2024, Quỹ phát triển đất của địa phương là quỹ tài chính nhà nước ngoài ngân sách do Ủy ban nhân dân cấp tỉnh thành lập để ứng vốn phục vụ các nhiệm vụ thuộc chức năng của tổ chức phát triển quỹ đất, thực hiện chính sách hỗ trợ đất đai đối với đồng bào dân tộc thiểu số và các nhiệm vụ khác theo quy định của pháp luật.",
       "question_type": "factual",
       "law_id": {
         "chapter_no": 8,
         "section_no": null,
         "article_no": 114,
         "clause_nos": [
-          1,
-          2
+          1
         ],
         "ref_article_nos": []
       }
@@ -4460,7 +4459,7 @@
       "id": "Q259",
       "question": "Việc Nhà nước tổ chức phát triển, quản lý và khai thác quỹ đất công phải tuân thủ những nguyên tắc bắt buộc nào?",
       "answer": "Căn cứ Điều 112 Luật Đất đai 2024, việc phát triển, quản lý và khai thác quỹ đất phải tuân thủ các nguyên tắc sau: 1) Phải theo đúng quy hoạch, kế hoạch sử dụng đất, sử dụng đất đúng mục đích, công khai, minh bạch, hợp lý, hiệu quả và theo quy định của pháp luật; 2) Bảo đảm đáp ứng yêu cầu phát triển kinh tế - xã hội, hỗ trợ tái định cư, an sinh xã hội; 3) Bố trí đất ở, đất sản xuất cho đồng bào dân tộc thiểu số để thực hiện chính sách theo quy định của Luật này.",
-      "question_type": "factual",
+      "question_type": "listing",
       "law_id": {
         "chapter_no": 8,
         "section_no": null,
@@ -4487,7 +4486,7 @@
     {
       "id": "Q261",
       "question": "Theo Luật Đất đai 2024, Cơ sở dữ liệu quốc gia về đất đai bao gồm những thành phần dữ liệu nào?",
-      "answer": "Căn cứ Khoản 1 Điều 165 Luật Đất đai 2024, Cơ sở dữ liệu quốc gia về đất đai bao gồm các thành phần sau đây: a) Cơ sở dữ liệu về văn bản quy phạm pháp luật về đất đai; b) Cơ sở dữ liệu địa chính; c) Cơ sở dữ liệu điều tra, đánh giá, bảo vệ, cải tạo, phục hồi đất; d) Cơ sở dữ liệu quy hoạch, kế hoạch sử dụng đất; đ) Cơ sở dữ liệu giá đất; e) Cơ sở dữ liệu thống kê, kiểm kê đất đai; g) Cơ sở dữ liệu về thanh tra, kiểm tra, giải quyết tranh chấp, khiếu nại, tố cáo về đất đai; h) Cơ sở dữ liệu khác liên quan đến đất đai.",
+      "answer": "Căn cứ Khoản 1 Điều 165 Luật Đất đai 2024, Cơ sở dữ liệu quốc gia về đất đai bao gồm các thành phần sau đây: a) Cơ sở dữ liệu về văn bản quy phạm pháp luật về đất đai; b) Cơ sở dữ liệu địa chính; c) Cơ sở dữ liệu điều tra, đánh giá, bảo vệ, cải tạo, phục hồi đất; d) Cơ sở dữ liệu quy hoạch, kế hoạch sử dụng đất; đ) Cơ sở dữ liệu giá đất; e) Cơ sở dữ liệu thống kê, kiểm kê đất đai; g) Cơ sở dữ liệu về thanh tra, kiểm tra, tiếp công dân, giải quyết tranh chấp, khiếu nại, tố cáo về đất đai; h) Cơ sở dữ liệu khác liên quan đến đất đai.",
       "question_type": "listing",
       "law_id": {
         "chapter_no": 12,
@@ -4549,7 +4548,7 @@
       "id": "Q265",
       "question": "Theo Luật Đất đai 2024, dịch vụ công trực tuyến về đất đai bao gồm những dịch vụ nào?",
       "answer": "Căn cứ Khoản 1 Điều 167 Luật Đất đai 2024, dịch vụ công trực tuyến về đất đai bao gồm dịch vụ hành chính công về đất đai và dịch vụ khác về đất đai được cung cấp cho tổ chức, cá nhân trên môi trường mạng theo quy định của pháp luật.",
-      "question_type": "factual",
+      "question_type": "listing",
       "law_id": {
         "chapter_no": 12,
         "section_no": null,
@@ -4563,7 +4562,7 @@
     {
       "id": "Q266",
       "question": "Hồ sơ địa giới đơn vị hành chính được lập theo các cấp nào và cơ quan nào có trách nhiệm tổ chức lập hồ sơ này?",
-      "answer": "Căn cứ Khoản 1 và Khoản 3 Điều 49 Luật Đất đai 2024: (1) Địa giới đơn vị hành chính được lập theo đơn vị hành chính cấp xã, cấp huyện, cấp tỉnh; hồ sơ thể hiện việc thành lập, nhập, chia, điều chỉnh địa giới và các mốc, đường địa giới của đơn vị hành chính đó; (2) Ủy ban nhân dân các cấp có trách nhiệm tổ chức lập hồ sơ địa giới đơn vị hành chính thuộc phạm vi quản lý của mình.",
+      "answer": "Căn cứ khoản 1 và khoản 2 Điều 49 Luật Đất đai 2024, địa giới đơn vị hành chính được lập theo đơn vị hành chính cấp xã, cấp huyện, cấp tỉnh. Bộ Nội vụ hướng dẫn UBND cấp tỉnh có liên quan xác định địa giới đơn vị hành chính cấp tỉnh; UBND cấp trên trực tiếp chỉ đạo, hướng dẫn UBND cấp dưới có liên quan xác định địa giới trên thực địa và lập hồ sơ về địa giới đơn vị hành chính trong phạm vi địa phương.",
       "question_type": "factual",
       "law_id": {
         "chapter_no": 4,
@@ -4593,7 +4592,7 @@
     },
     {
       "id": "Q268",
-      "question": "Khi các địa phương chưa thống nhất được về địa giới đơn vị hành chính giữa các cấp thì cơ quan nào có trách nhiệm chủ trì lập hồ sơ và giải quyết?",
+      "question": "Trường hợp chưa xác định được địa giới đơn vị hành chính cấp tỉnh, cấp huyện hoặc cấp xã thì cơ quan nào có trách nhiệm lập hồ sơ và giải quyết theo Luật Đất đai 2024?",
       "answer": "Căn cứ Khoản 4, 5, 6 Điều 49 Luật Đất đai 2024: (1) Trường hợp phạm vi quản lý đất đai cấp tỉnh chưa xác định được do chưa thống nhất về địa giới: Bộ Nội vụ chủ trì phối hợp với Bộ Tài nguyên và Môi trường và các địa phương lập hồ sơ trình Chính phủ; (2) Trường hợp cấp huyện, cấp xã chưa xác định được: UBND cấp tỉnh chỉ đạo cơ quan chuyên môn phối hợp lập hồ sơ báo cáo Chính phủ; (3) Chính phủ có trách nhiệm hướng dẫn và tổ chức giải quyết việc chưa thống nhất về địa giới đơn vị hành chính.",
       "question_type": "factual",
       "law_id": {
@@ -4611,14 +4610,14 @@
     {
       "id": "Q269",
       "question": "Thời kỳ thực hiện thống kê, kiểm kê đất đai định kỳ được quy định như thế nào tại Luật Đất đai 2024?",
-      "answer": "Căn cứ Khoản 1 Điều 55 Luật Đất đai 2024, thống kê đất đai được thực hiện hằng năm, tính đến hết ngày 31 tháng 12 của năm thống kê, trừ năm thực hiện kiểm kê đất đai. Kiểm kê đất đai được thực hiện 05 năm một lần, tính đến hết ngày 31 tháng 12 của năm có chữ số cuối là 4 hoặc 9.",
+      "answer": "Căn cứ khoản 2 Điều 57 Luật Đất đai 2024, thống kê đất đai được thực hiện hằng năm, tính đến hết ngày 31 tháng 12 của năm thống kê, trừ năm thực hiện kiểm kê đất đai. Kiểm kê đất đai được thực hiện 05 năm một lần, tính đến hết ngày 31 tháng 12 của năm có chữ số cuối là 4 hoặc 9.",
       "question_type": "factual",
       "law_id": {
         "chapter_no": 4,
         "section_no": null,
         "article_no": 55,
         "clause_nos": [
-          1
+          2
         ],
         "ref_article_nos": []
       }
@@ -4626,14 +4625,17 @@
     {
       "id": "Q270",
       "question": "Nguyên tắc điều tra, đánh giá đất đai theo Luật Đất đai 2024 phải bảo đảm những yêu cầu gì?",
-      "answer": "Căn cứ Khoản 1 Điều 53 Luật Đất đai 2024, việc điều tra, đánh giá đất đai phải bảo đảm các nguyên tắc sau đây: a) Trung thực, khách quan, phản ánh đúng thực tế tài nguyên đất; b) Thực hiện trên phạm vi cả nước, các vùng kinh tế - xã hội và đơn vị hành chính cấp tỉnh; c) Kịp thời, đáp ứng yêu cầu quản lý nhà nước về đất đai và phát triển kinh tế - xã hội; d) Số liệu điều tra, đánh giá đất đai phải được quản lý tập trung, thống nhất, kết nối với cơ sở dữ liệu quốc gia về đất đai.",
-      "question_type": "factual",
+      "answer": "Căn cứ Khoản 1 Điều 51 Luật Đất đai 2024, việc điều tra, đánh giá đất đai phải bảo đảm các nguyên tắc sau đây: a) Trung thực, khách quan, phản ánh đúng thực tế tài nguyên đất; b) Thực hiện trên phạm vi cả nước, các vùng kinh tế - xã hội và đơn vị hành chính cấp tỉnh; c) Nhà nước bảo đảm kinh phí thực hiện điều tra, đánh giá đất đai; khuyến khích các tổ chức, cá nhân cùng với Nhà nước thực hiện bảo vệ, cải tạo, phục hồi đất; d) Cung cấp kịp thời thông tin, số liệu để phục vụ công tác quản lý nhà nước về đất đai và nhu cầu thông tin đất đai cho các hoạt động kinh tế, xã hội, quốc phòng, an ninh, nghiên cứu khoa học, giáo dục và đào tạo và các nhu cầu khác của Nhà nước và xã hội.",
+      "question_type": "listing",
       "law_id": {
         "chapter_no": 4,
-        "section_no": null,
+        "section_no": 2,
         "article_no": 53,
         "clause_nos": [
-          1
+          1,
+          2,
+          3,
+          4
         ],
         "ref_article_nos": []
       }
@@ -4641,7 +4643,7 @@
     {
       "id": "Q271",
       "question": "Công dân có những quyền hạn và quyền lợi cơ bản gì đối với đất đai theo quy định của pháp luật?",
-      "answer": "Căn cứ Điều 23 Luật Đất đai 2024, quyền của công dân đối với đất đai bao gồm: 1) Tham gia xây dựng, góp ý, giám sát việc hoàn thiện và thực hiện chính sách, pháp luật về đất đai; 2) Tham gia quản lý nhà nước, kiến nghị, phản ánh về quản lý, sử dụng đất đai; 3) Bình đẳng, bình đẳng giới trong quản lý, sử dụng đất; 4) Tham gia đấu giá quyền sử dụng đất, đấu thầu dự án có sử dụng đất; đề nghị giao đất, cho thuê đất không đấu giá, không đấu thầu theo quy định; 5) Nhận chuyển nhượng, tặng cho, thừa kế, góp vốn, thuê quyền sử dụng đất; mua bán cổ phần/vốn góp là giá trị quyền sử dụng đất; 6) Thực hiện các quyền của người sử dụng đất theo quy định pháp luật.",
+      "answer": "Căn cứ Điều 23 Luật Đất đai 2024, quyền của công dân đối với đất đai bao gồm: 1) Tham gia xây dựng, góp ý, giám sát trong việc hoàn thiện và tổ chức thực hiện chính sách, pháp luật về đất đai; 2). Tham gia quản lý nhà nước, góp ý, thảo luận và kiến nghị, phản ánh với cơ quan nhà nước về công tác quản lý, sử dụng đất đai;3) Quyền về bình đẳng, bình đẳng giới trong quản lý, sử dụng đất đai.4) Tham gia đấu giá quyền sử dụng đất, đấu thầu lựa chọn nhà đầu tư thực hiện dự án có sử dụng đất theo quy định của pháp luật; đề nghị Nhà nước giao đất, cho thuê đất không đấu giá quyền sử dụng đất, không đấu thầu lựa chọn nhà đầu tư thực hiện dự án có sử dụng đất theo quy định của pháp luật. 5) Nhận chuyển nhượng, nhận tặng cho, nhận thừa kế, nhận góp vốn, thuê quyền sử dụng đất; mua, bán, nhận chuyển nhượng cổ phần, phần vốn góp là giá trị quyền sử dụng đất theo quy định của pháp luật; 6) Thực hiện các quyền của người sử dụng đất theo quy định của Luật này.",
       "question_type": "listing",
       "law_id": {
         "chapter_no": 2,
@@ -4660,7 +4662,7 @@
     },
     {
       "id": "Q272",
-      "question": "Người dân có quyền được cơ quan nhà nước cung cấp hoặc công khai những loại thông tin đất đai nào?",
+      "question": "Công dân được quyền tiếp cận những loại thông tin đất đai nào theo Luật Đất đai 2024?",
       "answer": "Căn cứ Khoản 1 Điều 24 Luật Đất đai 2024, công dân được tiếp cận các thông tin đất đai sau: a) Quy hoạch, kế hoạch sử dụng đất và các quy hoạch liên quan đã được phê duyệt; b) Kết quả thống kê, kiểm kê đất đai; c) Tình hình giao đất, cho thuê đất; d) Bảng giá đất đã được công bố; đ) Phương án bồi thường, hỗ trợ, tái định cư đã được phê duyệt; e) Kết quả thanh tra, kiểm tra, giải quyết khiếu nại, tố cáo, tranh chấp đất đai và xử lý vi phạm pháp luật về đất đai; g) Thủ tục hành chính về đất đai; h) Văn bản quy phạm pháp luật về đất đai; i) Các thông tin đất đai khác theo quy định của pháp luật.",
       "question_type": "listing",
       "law_id": {
@@ -4723,7 +4725,7 @@
     {
       "id": "Q276",
       "question": "Người sử dụng đất khi chuyển nhượng quyền sử dụng đất phải đáp ứng những điều kiện chung nào và có nghĩa vụ đăng ký biến động đất đai trong thời hạn bao lâu?",
-      "answer": "Căn cứ Khoản 1 Điều 45 Luật Đất đai 2024, người sử dụng đất được thực hiện quyền chuyển nhượng quyền sử dụng đất khi có đủ các điều kiện: có Giấy chứng nhận quyền sử dụng đất hoặc Giấy chứng nhận khác theo quy định; đất không có tranh chấp hoặc tranh chấp đã được giải quyết bởi cơ quan nhà nước có thẩm quyền; quyền sử dụng đất không bị kê biên, áp dụng biện pháp khác để bảo đảm thi hành án; trong thời hạn sử dụng đất; quyền sử dụng đất không bị áp dụng biện pháp khẩn cấp tạm thời theo quy định của pháp luật. Đồng thời, căn cứ Khoản 3 Điều 133 Luật Đất đai 2024, người sử dụng đất phải đăng ký biến động tại cơ quan có thẩm quyền trong thời hạn không quá 30 ngày kể từ ngày có biến động (ngày hợp đồng chuyển nhượng có hiệu lực).",
+      "answer": "Căn cứ khoản 1 Điều 45 Luật Đất đai 2024, người sử dụng đất được thực hiện quyền chuyển nhượng quyền sử dụng đất khi đáp ứng các điều kiện về Giấy chứng nhận, tranh chấp, kê biên, thời hạn sử dụng đất và biện pháp khẩn cấp tạm thời. Căn cứ khoản 3 Điều 133, đối với trường hợp chuyển nhượng thuộc điểm a khoản 1 Điều 133, người sử dụng đất phải đăng ký biến động trong thời hạn 30 ngày kể từ ngày có biến động tại cơ quan có thẩm quyền.",
       "question_type": "multi_hop",
       "law_id": [
         {
@@ -4750,7 +4752,7 @@
     },
     {
       "id": "Q277",
-      "question": "Nhà tôi nằm trong diện bị thu hồi đất để mở rộng đường. Khi Nhà nước thu hồi đất để phát triển kinh tế - xã hội vì lợi ích quốc gia, công cộng, nguyên tắc thu hồi là gì? Tôi sẽ được đền bù gì nếu đất tôi bị thu hồi?",
+      "question": "Khi Nhà nước thu hồi đất để phát triển kinh tế - xã hội vì lợi ích quốc gia, công cộng, việc bồi thường, hỗ trợ, tái định cư phải tuân theo những nguyên tắc nào và việc bồi thường về đất được thực hiện như thế nào?",
       "answer": "Căn cứ Điều 79 và Khoản 2 Điều 91 Luật Đất đai 2024, khi Nhà nước thu hồi đất để thực hiện các dự án phát triển kinh tế - xã hội vì lợi ích quốc gia, công cộng, việc bồi thường, hỗ trợ, tái định cư phải bảo đảm dân chủ, công khai, kịp thời và đúng quy định. Khu tái định cư phải hoàn thiện các điều kiện về hạ tầng kỹ thuật, hạ tầng xã hội đồng bộ theo quy hoạch chi tiết được phê duyệt trước khi bố trí tái định cư. Về nguyên tắc bố trí tái định cư và bồi thường, việc bồi thường về đất được thực hiện bằng việc giao đất có cùng mục đích sử dụng hoặc bằng tiền hoặc đất khác, nhà ở; đồng thời nhà nước luôn phải bảo đảm người có đất bị thu hồi có chỗ ở, bảo đảm thu nhập và điều kiện sống bằng hoặc tốt hơn nơi ở cũ.",
       "question_type": "multi_hop",
       "law_id": [
@@ -4776,7 +4778,7 @@
     },
     {
       "id": "Q278",
-      "question": "Hộ gia đình, cá nhân đang sử dụng đất không có giấy tờ về quyền sử dụng đất trước ngày 01/7/2014 được cấp Giấy chứng nhận thì nghĩa vụ tài chính về tiền sử dụng đất được tính căn cứ vào văn bản nào?",
+      "question": "Đối với hộ gia đình, cá nhân sử dụng đất trước ngày 01/7/2014 không có giấy tờ về quyền sử dụng đất, khi Nhà nước công nhận quyền sử dụng đất ở thì bảng giá đất được sử dụng để tính tiền sử dụng đất theo quy định nào?",
       "answer": "Căn cứ Khoản 1 Điều 138 Luật Đất đai 2024, hộ gia đình, cá nhân đang sử dụng đất trước ngày 01 tháng 7 năm 2014 không có một trong các loại giấy tờ quy định tại Điều 137 của Luật này, không vi phạm pháp luật về đất đai, không thuộc trường hợp giao đất không đúng thẩm quyền, được Ủy ban nhân dân cấp xã nơi có đất xác nhận không có tranh chấp thì được cấp Giấy chứng nhận quyền sử dụng đất, quyền sở hữu tài sản gắn liền với đất và phải thực hiện nghĩa vụ tài chính theo quy định của pháp luật. Căn cứ Điểm a Khoản 1 Điều 159 Luật Đất đai 2024, Bảng giá đất do Ủy ban nhân dân cấp tỉnh ban hành được áp dụng để tính tiền sử dụng đất khi Nhà nước công nhận quyền sử dụng đất ở của hộ gia đình, cá nhân; chuyển mục đích sử dụng đất của hộ gia đình, cá nhân.",
       "question_type": "multi_hop",
       "law_id": [
@@ -4839,46 +4841,36 @@
     {
       "id": "Q280",
       "question": "Nhà nước phân định các trường hợp giao đất, cho thuê đất thông qua đấu giá quyền sử dụng đất, đấu thầu lựa chọn nhà đầu tư và trường hợp không qua đấu giá, không qua đấu thầu như thế nào?",
-      "answer": "Căn cứ các Điều 124, 125 và 126 Luật Đất đai 2024, Nhà nước quy định 3 phương thức giao đất, cho thuê đất: 1) Giao đất, cho thuê đất không thông qua đấu giá quyền sử dụng đất, không thông qua đấu thầu lựa chọn nhà đầu tư thực hiện dự án có sử dụng đất được áp dụng cho các trường hợp quy định tại Điều 124 (giao đất không thu tiền sử dụng đất quy định tại Điều 118, giao đất có thu tiền hoặc cho thuê đất trong các trường hợp chính sách xã hội, bồi thường tái định cư, sử dụng đất vào mục đích công cộng không kinh doanh...); 2) Giao đất có thu tiền sử dụng đất, cho thuê đất thông qua đấu giá quyền sử dụng đất áp dụng đối với các trường hợp quy định tại Điều 125 (đất do Nhà nước quản lý, đất sạch đã hoàn thành bồi thường, giải phóng mặt bằng); 3) Giao đất, cho thuê đất thông qua đấu thầu lựa chọn nhà đầu tư thực hiện dự án có sử dụng đất áp dụng cho các dự án thuộc trường hợp thu hồi đất theo Điều 79 mà chưa bồi thường, giải phóng mặt bằng theo quy định tại Điều 126.",
+      "answer": "Căn cứ các Điều 124, 125 và 126 Luật Đất đai 2024, việc giao đất, cho thuê đất được thực hiện theo ba trường hợp chính: (1) không thông qua đấu giá quyền sử dụng đất, không thông qua đấu thầu lựa chọn nhà đầu tư thực hiện dự án có sử dụng đất theo các trường hợp quy định tại Điều 124; (2) thông qua đấu giá quyền sử dụng đất theo các trường hợp quy định tại Điều 125; (3) thông qua đấu thầu lựa chọn nhà đầu tư thực hiện dự án đầu tư có sử dụng đất theo các trường hợp quy định tại Điều 126.",
       "question_type": "multi_hop",
       "law_id": [
         {
           "chapter_no": 9,
           "section_no": null,
           "article_no": 124,
-          "clause_nos": [
-            1
-          ],
-          "ref_article_nos": [
-            118
-          ]
+          "clause_nos": [],
+          "ref_article_nos": []
         },
         {
           "chapter_no": 9,
           "section_no": null,
           "article_no": 125,
-          "clause_nos": [
-            1
-          ],
+          "clause_nos": [],
           "ref_article_nos": []
         },
         {
           "chapter_no": 9,
           "section_no": null,
           "article_no": 126,
-          "clause_nos": [
-            1
-          ],
-          "ref_article_nos": [
-            79
-          ]
+          "clause_nos": [],
+          "ref_article_nos": []
         }
       ]
     },
     {
       "id": "Q281",
       "question": "Khi hộ gia đình, cá nhân trực tiếp sản xuất nông nghiệp bị thu hồi đất nông nghiệp mà không có đất để bồi thường thì hình thức bồi thường và mức hỗ trợ chuyển đổi nghề, tìm kiếm việc làm được xác định ra sao?",
-      "answer": "Căn cứ Khoản 1 Điều 96 Luật Đất đai 2024, hộ gia đình, cá nhân đang sử dụng đất nông nghiệp khi Nhà nước thu hồi đất, nếu có đủ điều kiện được bồi thường quy định tại Điều 95 thì được bồi thường bằng đất nông nghiệp hoặc bằng tiền hoặc bằng đất có mục đích sử dụng khác với loại đất thu hồi hoặc bằng nhà ở. Đồng thời, căn cứ Khoản 1 Điều 109 Luật Đất đai 2024, hộ gia đình, cá nhân trực tiếp sản xuất nông nghiệp khi Nhà nước thu hồi đất nông nghiệp còn được hỗ trợ đào tạo, chuyển đổi nghề và tìm kiếm việc làm bằng tiền không quá 05 lần giá đất nông nghiệp cùng loại trong bảng giá đất của địa phương đối với toàn bộ diện tích đất nông nghiệp thu hồi, nhưng không vượt quá hạn mức giao đất nông nghiệp tại địa phương theo quy định tại Điều 176 của Luật này.",
+      "answer": "Căn cứ Khoản 1 Điều 96 Luật Đất đai 2024, hộ gia đình, cá nhân đang sử dụng đất nông nghiệp khi Nhà nước thu hồi đất, nếu đủ điều kiện được bồi thường theo Điều 95 của Luật này thì được bồi thường bằng đất nông nghiệp hoặc bằng tiền hoặc bằng đất có mục đích sử dụng khác với loại đất thu hồi hoặc bằng nhà ở. Đồng thời, theo Khoản 1 Điều 109 Luật Đất đai 2024, hộ gia đình, cá nhân trực tiếp sản xuất nông nghiệp khi Nhà nước thu hồi đất nông nghiệp được hỗ trợ đào tạo, chuyển đổi nghề và tìm kiếm việc làm bằng tiền không quá 05 lần giá đất nông nghiệp cùng loại trong bảng giá đất của địa phương đối với diện tích đất nông nghiệp thu hồi, nhưng diện tích được hỗ trợ không vượt quá hạn mức giao đất nông nghiệp theo quy định của Luật này.",
       "question_type": "multi_hop",
       "law_id": [
         {
@@ -4937,8 +4929,8 @@
     },
     {
       "id": "Q283",
-      "question": "Người gốc Việt Nam định cư ở nước ngoài được phép nhập cảnh vào Việt Nam có được giao đất ở và sở hữu nhà ở gắn liền với quyền sử dụng đất ở không?",
-      "answer": "Có. Căn cứ Khoản 3 Điều 4, Điểm h Khoản 1 Điều 44 và Khoản 1 Điều 119 Luật Đất đai 2024, người gốc Việt Nam định cư ở nước ngoài được phép nhập cảnh vào Việt Nam là một trong những đối tượng người sử dụng đất theo quy định của Luật này; được quyền mua, thuê mua nhà ở gắn liền với quyền sử dụng đất ở, nhận quyền sử dụng đất ở trong dự án phát triển nhà ở; được Nhà nước giao đất ở (cùng đối tượng với cá nhân theo quy định tại Điều 119) và được cấp Giấy chứng nhận quyền sử dụng đất, quyền sở hữu tài sản gắn liền với đất đối với nhà ở và quyền sử dụng đất ở hợp pháp.",
+      "question": "Người gốc Việt Nam định cư ở nước ngoài được phép nhập cảnh vào Việt Nam có những quyền nào liên quan đến quyền sử dụng đất ở và nhà ở theo Luật Đất đai 2024?",
+      "answer": "Căn cứ Khoản 3 Điều 4 và Điểm h Khoản 1 Điều 44 Luật Đất đai 2024, người gốc Việt Nam định cư ở nước ngoài được phép nhập cảnh vào Việt Nam là người sử dụng đất theo quy định của Luật này và có quyền mua, thuê mua nhà ở gắn liền với quyền sử dụng đất ở; nhận quyền sử dụng đất ở trong dự án phát triển nhà ở. Về việc được Nhà nước giao đất, Điều 119 Luật Đất đai 2024 quy định người gốc Việt Nam định cư ở nước ngoài được giao đất trong các trường hợp cụ thể do Luật quy định, như để thực hiện dự án đầu tư xây dựng nhà ở thương mại hoặc được giao đất do được bồi thường bằng đất khi Nhà nước thu hồi đất. Vì vậy, không nên hiểu rằng mọi người gốc Việt Nam định cư ở nước ngoài được phép nhập cảnh đều đương nhiên được Nhà nước giao đất ở như cá nhân trong nước.",
       "question_type": "multi_hop",
       "law_id": [
         {
@@ -4973,19 +4965,9 @@
     {
       "id": "Q284",
       "question": "Cơ quan nhà nước phải gửi thông báo thu hồi đất trước thời hạn bao nhiêu ngày đối với từng loại đất và căn cứ thu hồi đất vì mục đích quốc phòng, an ninh, phát triển kinh tế - xã hội dựa trên kế hoạch nào?",
-      "answer": "Căn cứ Khoản 1 Điều 80 và Khoản 1 Điều 85 Luật Đất đai 2024, việc thu hồi đất vì mục đích quốc phòng, an ninh hoặc phát triển kinh tế - xã hội vì lợi ích quốc gia, công cộng phải căn cứ vào kế hoạch sử dụng đất hằng năm cấp huyện đã được cơ quan có thẩm quyền phê duyệt (trừ các trường hợp quy định tại khoản 4 Điều 67 của Luật này). Trước khi ban hành quyết định thu hồi đất, cơ quan có thẩm quyền phải thông báo thu hồi đất cho người có đất thu hồi và người có liên quan biết chậm nhất là 90 ngày đối với đất nông nghiệp và chậm nhất là 180 ngày đối với đất phi nông nghiệp.",
+      "answer": "Căn cứ khoản 1 Điều 85 Luật Đất đai 2024, trước khi ban hành quyết định thu hồi đất, cơ quan có thẩm quyền phải thông báo thu hồi đất cho người có đất thu hồi và người có liên quan biết chậm nhất là 90 ngày đối với đất nông nghiệp và chậm nhất là 180 ngày đối với đất phi nông nghiệp. Việc thu hồi đất vì mục đích quốc phòng, an ninh hoặc để phát triển kinh tế - xã hội vì lợi ích quốc gia, công cộng phải được thực hiện trên cơ sở các căn cứ, điều kiện theo quy định của Luật Đất đai 2024 đối với từng trường hợp thu hồi đất, căn cứ theo khoản 1 Điều 80 Luật Đất đai 2024.",
       "question_type": "multi_hop",
       "law_id": [
-        {
-          "chapter_no": 5,
-          "section_no": null,
-          "article_no": 67,
-          "clause_nos": [
-            1,
-            4
-          ],
-          "ref_article_nos": []
-        },
         {
           "chapter_no": 6,
           "section_no": null,
@@ -5039,12 +5021,12 @@
     {
       "id": "Q286",
       "question": "Cá nhân trực tiếp sản xuất nông nghiệp khi hết thời hạn sử dụng đất nông nghiệp 50 năm thì việc tiếp tục sử dụng đất và cấp đổi Giấy chứng nhận (nếu có nhu cầu) được quy định như thế nào?",
-      "answer": "Căn cứ Điểm a Khoản 1 Điều 172 Luật Đất đai 2024, thời hạn giao đất nông nghiệp cho cá nhân trực tiếp sản xuất nông nghiệp là 50 năm; khi hết thời hạn thì tiếp tục được sử dụng đất theo thời hạn 50 năm mà không phải làm thủ tục gia hạn. Đồng thời, căn cứ Điểm d Khoản 1 Điều 135 và Khoản 1 Điều 133 Luật Đất đai 2024, trường hợp người sử dụng đất có nhu cầu xác nhận thời hạn mới trên Giấy chứng nhận quyền sử dụng đất thì thực hiện thủ tục đăng ký biến động đất đai hoặc đề nghị cấp đổi Giấy chứng nhận theo quy định.",
+      "answer": "Căn cứ Điểm a Khoản 1 Điều 172 Luật Đất đai 2024, thời hạn giao đất nông nghiệp cho cá nhân trực tiếp sản xuất nông nghiệp là 50 năm; khi hết thời hạn thì tiếp tục được sử dụng đất theo thời hạn 50 năm mà không phải làm thủ tục gia hạn. Đồng thời, căn cứ Điểm d Khoản 1 Điều 135 và Khoản 1 Điều 133 Luật Đất đai 2024, trường hợp người sử dụng đất có nhu cầu xác nhận lại thời hạn sử dụng đất trên Giấy chứng nhận thì thực hiện thủ tục đăng ký đất đai, đăng ký biến động hoặc cấp đổi Giấy chứng nhận theo quy định của Luật Đất đai 2024 và quy định pháp luật có liên quan",
       "question_type": "multi_hop",
       "law_id": [
         {
           "chapter_no": 9,
-          "section_no": null,
+          "section_no": 1,
           "article_no": 172,
           "clause_nos": [
             1
@@ -5053,8 +5035,19 @@
         },
         {
           "chapter_no": 10,
-          "section_no": null,
+          "section_no": 2,
           "article_no": 133,
+          "clause_nos": [
+            1
+          ],
+          "ref_article_nos": [
+            172
+          ]
+        },
+        {
+          "chapter_no": 10,
+          "section_no": 2,
+          "article_no": 135,
           "clause_nos": [
             1
           ],
@@ -5066,7 +5059,7 @@
     },
     {
       "id": "Q287",
-      "question": "Doanh nghiệp muốn tự thỏa thuận nhận chuyển nhượng quyền sử dụng đất của người dân để làm dự án nhà ở thương mại thì bắt buộc phải nhận loại đất gì và đáp ứng điều kiện gì?",
+      "question": "Doanh nghiệp muốn thực hiện dự án nhà ở thương mại thông qua thỏa thuận về quyền sử dụng đất phải đáp ứng những điều kiện nào theo Luật Đất đai 2024?",
       "answer": "Căn cứ Điểm b Khoản 1 Điều 127 và Khoản 1 Điều 45 Luật Đất đai 2024: (1) Về loại đất: Dự án nhà ở thương mại thông qua thỏa thuận nhận quyền sử dụng đất thì chỉ được thỏa thuận nhận quyền sử dụng đất ở; (2) Về điều kiện thực hiện quyền: Thửa đất nhận chuyển nhượng phải có Giấy chứng nhận (Sổ đỏ), đất không có tranh chấp hoặc tranh chấp đã giải quyết xong bằng bản án/quyết định có hiệu lực pháp luật, quyền sử dụng đất không bị kê biên, không bị áp dụng biện pháp khẩn cấp tạm thời và còn trong thời hạn sử dụng đất.",
       "question_type": "multi_hop",
       "law_id": [
@@ -5122,7 +5115,7 @@
     },
     {
       "id": "Q289",
-      "question": "Khi Nhà nước thu hồi đất để tạo quỹ đất đấu giá hoặc đấu thầu dự án khu đô thị, nhà ở mà sau khi giải phóng mặt bằng xong nhưng chưa kịp giao đất hoặc cho thuê thì khu đất đó sẽ do đơn vị nào quản lý?",
+      "question": "Đất đã được Nhà nước thu hồi, hoàn thành bồi thường, hỗ trợ, tái định cư nhưng chưa được giao đất hoặc cho thuê đất thì do đơn vị nào quản lý?",
       "answer": "Căn cứ Khoản 5 Điều 86 và Điểm b Khoản 1 Điều 113 Luật Đất đai 2024, đất thu hồi để đấu giá quyền sử dụng đất hoặc làm dự án khu đô thị, khu dân cư nông thôn (theo quy định tại Điều 79), sau khi hoàn thành bồi thường, hỗ trợ, tái định cư và thu hồi đất mà chưa giao đất, chưa cho thuê đất thì Ủy ban nhân dân cấp tỉnh giao cho tổ chức phát triển quỹ đất quản lý, khai thác quỹ đất theo quy định của pháp luật.",
       "question_type": "multi_hop",
       "law_id": [

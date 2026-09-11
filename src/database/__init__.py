@@ -1,3 +1,4 @@
+from .bm25 import BM25Index, BM25Okapi
 from .db_manager import DBManager
 from .store_manager import StoreManager
 from .storage import (
@@ -15,6 +16,8 @@ def __getattr__(name: str):
 
 
 __all__ = [
+    "BM25Index",
+    "BM25Okapi",
     "DBManager",
     "StoreManager",
     "IngestionPipeline",

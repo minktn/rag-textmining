@@ -44,9 +44,10 @@ def build_retriever(collection_name):
 		collection_name=collection_name,
 		dense_model_name=settings.EMBEDDING_MODEL,
 		reranker_model_name=settings.RERANKER_MODEL,
-		dense_candidate_limit=settings.RETRIEVAL_CANDIDATE_LIMIT,
+		dense_candidate_limit=settings.RETRIEVAL_DENSE,
 		rerank_limit=settings.RERANK_LIMIT,
 	)
+
 
 
 def main():

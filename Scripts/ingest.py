@@ -30,6 +30,11 @@ def main():
         help="Only perform chunking from Markdown to JSON without embedding/ingesting",
     )
     parser.add_argument(
+        "--bm25",
+        action="store_true",
+        help="Chỉ lập chỉ mục BM25 (lưu bm25.pkl) cho store chỉ định hoặc all",
+    )
+    parser.add_argument(
         "--rechunk",
         action="store_true",
         help="Force re-chunking even if chunks.json already exists",
@@ -57,11 +62,18 @@ def main():
         print(json.dumps(manager.status(), indent=2, ensure_ascii=False))
         return
 
+    if args.bm25:
+        print(f"=== Bắt đầu lập chỉ mục BM25 cho Store: '{args.store}' ===")
+        results = manager.index_bm25(store_type=args.store)
+        print(f"=== Hoàn tất lập chỉ mục BM25: {results} ===")
+        return
+
     if args.chunk_only:
         print("=== Bắt đầu Chunking văn bản luật ===")
         chunks = manager.chunk()
         print(f"=== Đã hoàn tất chunking: {len(chunks)} chunks đã được tạo ===")
         return
+
 
     print(f"=== Bắt đầu Ingestion cho Store: '{args.store}' (BuildGraph: {args.build_graph}) ===")
     manager.ingest(

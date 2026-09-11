@@ -73,6 +73,11 @@ class IngestionPipeline:
         )
         logger.info("[Ingest] Nạp dữ liệu hoàn tất thành công.")
 
+    def run_index_bm25(self, store_type: str = "all") -> Dict[str, str]:
+        """Chỉ lập chỉ mục BM25 cho vector store / graph store."""
+        logger.info(f"[Ingest] Bắt đầu lập chỉ mục BM25 cho store='{store_type}'...")
+        return self.manager.index_bm25(store_type=store_type)
+
     def get_status(self) -> Dict[str, Any]:
         """Xem trạng thái dữ liệu hiện có ở local và cloud."""
         return self.manager.status()
@@ -83,9 +88,14 @@ def main():
     parser.add_argument(
         "--store",
         type=str,
-        default="base",
-        choices=["base", "contriever", "graph", "all"],
-        help="Mục tiêu lưu trữ ('base', 'contriever', 'graph', 'all')",
+        default="all",
+        choices=["base", "vector", "contriever", "graph", "all"],
+        help="Mục tiêu lưu trữ ('base', 'vector', 'contriever', 'graph', 'all')",
+    )
+    parser.add_argument(
+        "--bm25",
+        action="store_true",
+        help="Chỉ lập chỉ mục BM25 và lưu thành file bm25.pkl cho store chỉ định",
     )
     parser.add_argument(
         "--late",
@@ -123,6 +133,12 @@ def main():
 
     if args.status:
         print(json.dumps(pipeline.get_status(), indent=2, ensure_ascii=False))
+        return
+
+    if args.bm25:
+        print(f"=== Bắt đầu lập chỉ mục BM25: Store='{args.store}' ===")
+        results = pipeline.run_index_bm25(store_type=args.store)
+        print(f"=== Hoàn tất lập chỉ mục BM25: {results} ===")
         return
 
     if args.chunk_only:

@@ -42,7 +42,8 @@ class Retriever:
 	DEFAULT_COLLECTION_NAME = "landlaw"
 	DEFAULT_DENSE_MODEL = "BAAI/bge-m3"
 	DEFAULT_RERANKER_MODEL = "BAAI/bge-reranker-v2-m3"
-	DEFAULT_DENSE_CANDIDATE_LIMIT = 20
+	DEFAULT_RETRIEVAL_DENSE = 20
+	DEFAULT_RETRIEVAL_BM25 = 100
 	DEFAULT_RERANK_LIMIT = 5
 	DEFAULT_EXPANSION_ARTICLE_LIMIT = 20
 	DEFAULT_MAX_CONTEXT_CHARS = 12000
@@ -58,6 +59,7 @@ class Retriever:
 		collection_name: str | None = None,
 		dense_model_name: str | None = None,
 		reranker_model_name: str | None = None,
+		bm25_candidate_limit: int | None = None,
 		dense_candidate_limit: int | None = None,
 		rerank_limit: int | None = None,
 		expansion_article_limit: int = DEFAULT_EXPANSION_ARTICLE_LIMIT,
@@ -78,14 +80,23 @@ class Retriever:
 			"RERANKER_MODEL",
 			self.DEFAULT_RERANKER_MODEL,
 		)
+		self.bm25_candidate_limit = (
+			bm25_candidate_limit
+			if bm25_candidate_limit is not None
+			else self._settings_value(
+				"RETRIEVAL_BM25",
+				self.DEFAULT_RETRIEVAL_BM25,
+			)
+		)
 		self.dense_candidate_limit = (
 			dense_candidate_limit
 			if dense_candidate_limit is not None
 			else self._settings_value(
-				"RETRIEVAL_CANDIDATE_LIMIT",
-				self.DEFAULT_DENSE_CANDIDATE_LIMIT,
+				"RETRIEVAL_DENSE",
+				self.DEFAULT_RETRIEVAL_DENSE,
 			)
 		)
+		self.rrf_k = self._settings_value("RRF_K", 60)
 		self.rerank_limit = (
 			rerank_limit
 			if rerank_limit is not None
@@ -107,6 +118,7 @@ class Retriever:
 		self._contriever_store = None
 		self._graph_store = None
 		self._local_article_index = None
+		self._bm25_index = None
 
 		# Processing pipeline configuration
 		if processing_manager is not None:
@@ -116,6 +128,7 @@ class Retriever:
 			self.processing = ProcessingManager.from_settings()
 
 		logger.info(f"[Retriever] Initialized with {self.processing} (prefer_local={self.prefer_local})")
+
 
 	def _get_base_store(self):
 		if self._base_store is None:
@@ -145,6 +158,27 @@ class Retriever:
 				prefer_local=self.prefer_local,
 			)
 		return self._graph_store
+
+	def _get_bm25_index(self):
+		if self._bm25_index is None:
+			from src.database.bm25 import BM25Index
+			is_graph = (
+				self.collection_name in ("graph", "neo4j", "graphrag")
+				or self.dense_model_name in ("graph", "neo4j", "graphrag")
+			)
+			pkl_path = (
+				settings.GRAPH_DB_DIR / "bm25.pkl"
+				if is_graph
+				else settings.LOCAL_VECTOR_DB_DIR / "bm25.pkl"
+			)
+			if not pkl_path.exists():
+				logger.warning(f"[Retriever] {pkl_path} chưa tồn tại, tiến hành lập chỉ mục tự động...")
+				from src.database.store_manager import StoreManager
+				StoreManager().index_bm25(store_type="graph" if is_graph else "vector")
+
+			self._bm25_index = BM25Index.load(pkl_path)
+		return self._bm25_index
+
 
 	# ══════════════════════════════════════════════════════════════
 	# Main Entry Point
@@ -257,27 +291,56 @@ class Retriever:
 
 		self._current_query = processed_query
 
-		# ── Core dense retrieval (Priority: Local > Cloud) ─────
-		query_vector = getattr(self, "_hyde_embedding", None) or self.embedder.embed_single(processed_query)
-		self._hyde_embedding = None
+		# ── Stage 1: Luôn retrieve bằng BM25 trước để chọn top 100 (RETRIEVAL_BM25) ───
+		bm25_index = self._get_bm25_index()
+		dict_filter = {k: v for k, v in filters.items() if v is not None and k in self.FILTER_FIELDS}
 
-		candidates = self._query_dense_candidates(
-			query_vector=query_vector,
-			query_filter=query_filter,
+		bm25_candidates = bm25_index.search(
+			query=processed_query,
+			top_k=self.bm25_candidate_limit,
+			query_filter=dict_filter if dict_filter else None,
 		)
 
-		if not candidates and query_filter is not None and self.relax_filter_on_empty:
+		if not bm25_candidates and dict_filter and self.relax_filter_on_empty:
 			filter_relaxed = True
-			candidates = self._query_dense_candidates(
-				query_vector=query_vector,
+			bm25_candidates = bm25_index.search(
+				query=processed_query,
+				top_k=self.bm25_candidate_limit,
 				query_filter=None,
 			)
 
-		dense_chunks = [
-			self._format_chunk(candidate, source="dense")
-			for candidate in candidates
+		# ── Stage 2: Dense Retrieval on Top 100 Candidates ───
+		query_vector = getattr(self, "_hyde_embedding", None) or self.embedder.embed_single(processed_query)
+		self._hyde_embedding = None
+
+		if bm25_candidates:
+			# Tìm kiếm trong vector db / graph db trên chính top 100 ứng viên BM25
+			self._score_candidates_dense(
+				candidates=bm25_candidates,
+				query_vector=query_vector,
+			)
+
+			# ── Stage 3: Chạy RRF với k = RRF_K (60), chọn ra top RETRIEVAL_DENSE (20) ───
+			for cand in bm25_candidates:
+				r_bm25 = cand.get("bm25_rank", self.bm25_candidate_limit)
+				r_dense = cand.get("dense_rank", self.bm25_candidate_limit)
+				cand["rrf_score"] = (1.0 / (self.rrf_k + r_bm25)) + (1.0 / (self.rrf_k + r_dense))
+
+			bm25_candidates.sort(key=lambda x: x.get("rrf_score", 0.0), reverse=True)
+			selected_candidates = bm25_candidates[: self.dense_candidate_limit]
+		else:
+			# Fallback an toàn nếu BM25 không trả về kết quả
+			candidates = self._query_dense_candidates(
+				query_vector=query_vector,
+				query_filter=query_filter if not filter_relaxed else None,
+			)
+			selected_candidates = candidates[: self.dense_candidate_limit]
+
+		formatted_chunks = [
+			self._format_chunk(candidate, source="hybrid_rrf")
+			for candidate in selected_candidates
 		]
-		selected_chunks = self.rerank(processed_query, dense_chunks)
+		selected_chunks = self.rerank(processed_query, formatted_chunks)
 
 		# ── Postprocessing (Uỷ quyền hoàn toàn cho ProcessingManager) ──
 		selected_chunks = self.processing.apply_postprocessing(
@@ -297,6 +360,69 @@ class Retriever:
 			selected_chunks=selected_chunks,
 			expanded_chunks=expanded_chunks,
 		)
+
+	def _score_candidates_dense(
+		self,
+		candidates: list[dict[str, Any]],
+		query_vector: list[float],
+	) -> list[dict[str, Any]]:
+		"""Tính điểm cosine similarity của query_vector với từng ứng viên trong top 100 BM25."""
+		if not candidates:
+			return []
+
+		import numpy as np
+
+		q_vec = np.array(query_vector, dtype=np.float32)
+		q_norm = float(np.linalg.norm(q_vec))
+		if q_norm > 0:
+			q_vec /= q_norm
+
+		is_graph = (
+			self.collection_name in ("graph", "neo4j", "graphrag")
+			or self.dense_model_name in ("graph", "neo4j", "graphrag")
+		)
+		is_contriever = (
+			self.collection_name == getattr(settings, "CONTRIEVER_COLLECTION_NAME", "landlaw_contriever")
+			or self.dense_model_name == getattr(settings, "CONTRIEVER_MODEL", "facebook/mcontriever-msmarco")
+		)
+
+		if is_graph:
+			store = self._get_graph_store()
+			lancedb_vectors = store._get_lancedb_vectors("text_unit_text")
+			for cand in candidates:
+				raw_id = cand.get("metadata", {}).get("text_unit_id") or cand.get("id", "").replace("graph_", "")
+				cand_vec = lancedb_vectors.get(str(raw_id))
+				if cand_vec is not None:
+					c_vec = np.array(cand_vec, dtype=np.float32)
+					c_norm = float(np.linalg.norm(c_vec))
+					score = float(np.dot(q_vec, c_vec / (c_norm if c_norm > 0 else 1.0)))
+				else:
+					score = 0.5
+				cand["dense_score"] = round(score, 4)
+		else:
+			store = self._get_contriever_store() if is_contriever else self._get_base_store()
+			if store.load_local() and store._local_embeddings is not None:
+				emb_matrix = store._local_embeddings
+				for cand in candidates:
+					c_idx = cand.get("corpus_index")
+					if c_idx is not None and 0 <= c_idx < len(emb_matrix):
+						c_vec = emb_matrix[c_idx]
+						c_norm = float(np.linalg.norm(c_vec))
+						score = float(np.dot(q_vec, c_vec / (c_norm if c_norm > 0 else 1.0)))
+					else:
+						score = 0.5
+					cand["dense_score"] = round(score, 4)
+			else:
+				for cand in candidates:
+					cand["dense_score"] = cand.get("dense_score", 0.5)
+
+		# Sắp xếp để gán dense_rank (1..N)
+		sorted_by_dense = sorted(candidates, key=lambda x: x.get("dense_score", 0.0), reverse=True)
+		for rank, cand in enumerate(sorted_by_dense, start=1):
+			cand["dense_rank"] = rank
+
+		return sorted_by_dense
+
 
 	def _query_dense_candidates(
 		self,
@@ -554,6 +680,8 @@ class Retriever:
 			"filter_applied": filter_applied,
 			"filter_relaxed": filter_relaxed,
 			"dense_candidate_limit": self.dense_candidate_limit,
+			"bm25_candidate_limit": self.bm25_candidate_limit,
+			"rrf_k": self.rrf_k,
 			"rerank_limit": self.rerank_limit,
 			"chunks": selected_chunks,
 			"selected_chunks": selected_chunks,
@@ -618,6 +746,8 @@ class Retriever:
 			"content": content,
 			"metadata": metadata,
 			"dense_score": chunk.get("dense_score", chunk.get("score")),
+			"bm25_score": chunk.get("bm25_score"),
+			"rrf_score": chunk.get("rrf_score"),
 			"rerank_score": chunk.get("rerank_score"),
 			"source": source,
 		}
@@ -657,8 +787,12 @@ class Retriever:
 			if value not in (None, "", []):
 				lines.append(f"{label}: {value}")
 
+		if chunk.get("bm25_score") is not None:
+			lines.append(f"Điểm BM25: {chunk['bm25_score']}")
 		if chunk.get("dense_score") is not None:
 			lines.append(f"Điểm truy xuất dense: {chunk['dense_score']}")
+		if chunk.get("rrf_score") is not None:
+			lines.append(f"Điểm RRF: {chunk['rrf_score']}")
 		if chunk.get("rerank_score") is not None:
 			lines.append(f"Điểm xếp hạng lại: {chunk['rerank_score']}")
 		if chunk.get("source"):
@@ -669,6 +803,7 @@ class Retriever:
 		lines.append("Nội dung:")
 		lines.append(str(chunk.get("content", "")))
 		return "\n".join(lines)
+
 
 	def _referenced_article_nos(self, chunks: list[dict[str, Any]]) -> list[int]:
 		article_nos = []

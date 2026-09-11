@@ -1,8 +1,11 @@
+import argparse
+import json
 import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
 from src.config import settings
+from src.database.bm25 import BM25Index
 from src.database.db_manager import DBManager
 from src.database.storage import BaseStore, ContrieverStore, Neo4jGraphStore
 
@@ -210,6 +213,67 @@ class StoreManager:
                 logger.info("Đồng bộ Knowledge Graph lên Neo4j...")
                 self.graph.import_all_from_dir()
 
+    def index_bm25(self, store_type: str = "all") -> Dict[str, str]:
+        """
+        Lập chỉ mục BM25 và lưu thành file bm25.pkl:
+        - 'base' / 'vector': Tạo db/vector_database/bm25.pkl từ chunks
+        - 'graph': Tạo db/graph_database/bm25.pkl từ text_units.parquet
+        - 'all': Lập chỉ mục cho cả hai hệ thống lưu trữ
+        """
+        st = (store_type or "all").lower().strip()
+        created = {}
+
+        # 1. Vector Database BM25 Indexing (Dùng chung cho cả baseline và contriever)
+        if st in ("base", "vector", "baseline", "contriever", "all"):
+            chunks_path = settings.CHUNKED_DATA_DIR / "landlaw_chunks.json"
+            if not chunks_path.exists():
+                chunks_path = settings.BASELINE_VECTOR_DIR / "chunks.json"
+            if not chunks_path.exists():
+                logger.info("[BM25] Chunks chưa tồn tại, tiến hành chunking tài liệu...")
+                self.chunk()
+                chunks_path = settings.CHUNKED_DATA_DIR / "landlaw_chunks.json"
+
+            logger.info(f"[BM25] Đang nạp chunks từ {chunks_path}...")
+            with open(chunks_path, "r", encoding="utf-8") as f:
+                chunks = json.load(f)
+
+            bm25_index = BM25Index.build(chunks)
+            vec_pkl = settings.LOCAL_VECTOR_DB_DIR / "bm25.pkl"
+            bm25_index.save(vec_pkl)
+            created["vector"] = str(vec_pkl)
+            logger.info(f"[BM25] Đã lưu chỉ mục BM25 Vector DB vào: {vec_pkl}")
+
+        # 2. Graph Database BM25 Indexing
+        if st in ("graph", "neo4j", "graphrag", "all"):
+            parquet_file = settings.GRAPH_DB_DIR / "text_units.parquet"
+            if not parquet_file.exists():
+                logger.warning(f"[BM25] Không tìm thấy file {parquet_file} để lập chỉ mục Graph BM25.")
+            else:
+                import pandas as pd
+                logger.info(f"[BM25] Đang nạp text units từ {parquet_file}...")
+                df = pd.read_parquet(parquet_file)
+                graph_chunks = []
+                for _, row in df.iterrows():
+                    unit_id = str(row.get("id", ""))
+                    graph_chunks.append({
+                        "id": f"graph_{unit_id}",
+                        "content": str(row.get("text", "")),
+                        "metadata": {
+                            "source": "Graph Database",
+                            "text_unit_id": unit_id,
+                            "document_id": str(row.get("document_id", "")),
+                            "entity_ids": row.get("entity_ids", []),
+                            "relationship_ids": row.get("relationship_ids", []),
+                        },
+                    })
+                bm25_graph = BM25Index.build(graph_chunks)
+                graph_pkl = settings.GRAPH_DB_DIR / "bm25.pkl"
+                bm25_graph.save(graph_pkl)
+                created["graph"] = str(graph_pkl)
+                logger.info(f"[BM25] Đã lưu chỉ mục BM25 Graph DB vào: {graph_pkl}")
+
+        return created
+
     # ─────────────────────────────────────────────────────────────
     # Status Diagnostics
     # ─────────────────────────────────────────────────────────────
@@ -239,4 +303,34 @@ class StoreManager:
                 "parquet_files_found": len(graph_files),
                 "neo4j_connected": neo4j_connected,
             },
+            "bm25_indexes": {
+                "vector": (settings.LOCAL_VECTOR_DB_DIR / "bm25.pkl").exists(),
+                "graph": (settings.GRAPH_DB_DIR / "bm25.pkl").exists(),
+            },
         }
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="StoreManager CLI - Quản lý Store và Lập chỉ mục")
+    parser.add_argument(
+        "--bm25",
+        action="store_true",
+        help="Chỉ lập chỉ mục BM25 và lưu vào file bm25.pkl",
+    )
+    parser.add_argument(
+        "--store",
+        type=str,
+        default="all",
+        choices=["base", "vector", "graph", "all"],
+        help="Mục tiêu lập chỉ mục ('base', 'vector', 'graph', 'all')",
+    )
+    args = parser.parse_args()
+
+    manager = StoreManager()
+    if args.bm25:
+        print(f"=== Bắt đầu lập chỉ mục BM25 cho store: '{args.store}' ===")
+        results = manager.index_bm25(store_type=args.store)
+        print(f"=== Hoàn tất lập chỉ mục BM25: {results} ===")
+    else:
+        print(json.dumps(manager.status(), indent=2, ensure_ascii=False))
+
