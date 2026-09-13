@@ -32,6 +32,11 @@ class EvaluationReporter:
         "llm_model",
         "sub_llm_service",
         "sub_llm_model",
+        "ragas_service",
+        "skip_ragas",
+        "limit",
+        "random_sample",
+        "seed",
         "top_k",
         "collection_name",
     ]
@@ -231,27 +236,18 @@ class EvaluationReporter:
         target_dir = Path(output_dir or self.output_dir)
         candidate_files: List[Path] = []
 
-        # Ưu tiên kiểm tra file latest của chính cấu hình này
+        # 1. Ưu tiên kiểm tra file latest của chính cấu hình này
         specific_latest = self.get_latest_filepath(current_config, target_dir)
         if specific_latest.exists():
             candidate_files.append(specific_latest)
 
-        # Fallback các file eval_latest_*.json khác và eval_latest.json
-        for lf in sorted(target_dir.glob("eval_latest_*.json"), key=lambda p: p.stat().st_mtime, reverse=True):
-            if lf not in candidate_files:
-                candidate_files.append(lf)
-
-        latest_path = target_dir / "eval_latest.json"
-        if latest_path.exists() and latest_path not in candidate_files:
-            candidate_files.append(latest_path)
-
-        # Tìm các file eval_report_*.json gần nhất
+        # 2. Tìm các file eval_report_*.json gần nhất để kiểm tra phiên chạy dang dở
         report_files = sorted(
             target_dir.glob("eval_report_*.json"),
             key=lambda p: p.stat().st_mtime,
             reverse=True,
         )
-        for rf in report_files[:10]:
+        for rf in report_files[:20]:
             if rf not in candidate_files:
                 candidate_files.append(rf)
 

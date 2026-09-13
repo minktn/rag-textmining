@@ -267,14 +267,19 @@ class RAGEvaluator:
         }
 
     # ─────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────────────────────
     # Generation Phase
     # ─────────────────────────────────────────────────────────────
 
     def generate(self, question: str, docs: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Sinh câu trả lời từ LLM với danh sách chunks truyền vào."""
+        """Sinh câu trả lời từ LLM với danh sách chunks truyền vào (có timeout & try-except an toàn)."""
         t0 = time.perf_counter()
-        prompt = self.llm_manager.construct_prompt(question, docs=docs)
-        answer = self.llm_manager.generate_response(prompt, model_name=self.model_name) or ""
+        try:
+            prompt = self.llm_manager.construct_prompt(question, docs=docs)
+            answer = self.llm_manager.generate_response(prompt, model_name=self.model_name) or ""
+        except Exception as e:
+            logger.error(f"[RAGEvaluator Generate Error] Thất bại khi sinh câu trả lời: {e}")
+            answer = f"[Lỗi sinh câu trả lời: {e}]"
         latency_ms = (time.perf_counter() - t0) * 1000
 
         return {
@@ -344,13 +349,23 @@ class RAGEvaluator:
         question = item["question"]
         ground_truth = item.get("answer", "") or item.get("ground_truth", "")
 
-        retrieval = self.retrieve(question)
-        generation = self.generate(question, retrieval["docs"])
-        answer = generation["answer"]
-        contexts = retrieval["contexts"]
-        payloads = retrieval["payloads"]
-        retrieval_latency = retrieval["latency_ms"]
-        generation_latency = generation["latency_ms"]
+        try:
+            retrieval = self.retrieve(question)
+        except Exception as e:
+            logger.error(f"[Evaluate Single] Lỗi retrieve câu hỏi '{question[:50]}': {e}")
+            retrieval = {"contexts": [], "payloads": [], "docs": [], "full_context": "", "latency_ms": 0.0}
+
+        try:
+            generation = self.generate(question, retrieval["docs"])
+        except Exception as e:
+            logger.error(f"[Evaluate Single] Lỗi generate câu hỏi '{question[:50]}': {e}")
+            generation = {"answer": f"[Lỗi Generate: {e}]", "latency_ms": 0.0}
+
+        answer = generation.get("answer", "")
+        contexts = retrieval.get("contexts", [])
+        payloads = retrieval.get("payloads", [])
+        retrieval_latency = retrieval.get("latency_ms", 0.0)
+        generation_latency = generation.get("latency_ms", 0.0)
 
         retrieved_law_ids = MetricsCalculator.extract_law_ids_from_payloads(payloads)
 
@@ -402,17 +417,18 @@ class RAGEvaluator:
         total_batches: int = 1,
         on_case_completed: Optional[Any] = None,
     ) -> List[Dict[str, Any]]:
-        """Đánh giá 1 batch câu hỏi với multithreading để tăng tốc các request LLM/Retriever."""
+        """Đánh giá 1 batch câu hỏi với multithreading & timeout để tránh treo hoàn toàn pipeline."""
         if not batch_items:
             return []
 
         import concurrent.futures
 
+        question_timeout = getattr(settings, "EVAL_QUESTION_TIMEOUT", 180.0)
         workers = min(self.max_workers, len(batch_items))
+
         if workers > 1:
             results = [None] * len(batch_items)
             with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
-                # Đảm bảo thứ tự câu hỏi không bị xáo trộn
                 future_to_idx = {
                     executor.submit(self.evaluate_single, item): i
                     for i, item in enumerate(batch_items)
@@ -420,7 +436,38 @@ class RAGEvaluator:
                 completed = 0
                 for future in concurrent.futures.as_completed(future_to_idx):
                     i = future_to_idx[future]
-                    res = future.result()
+                    item = batch_items[i]
+                    try:
+                        res = future.result(timeout=question_timeout)
+                    except Exception as e:
+                        logger.error(f"[Batch Worker Error] Lỗi/Timeout {question_timeout}s câu {item.get('id')}: {e}")
+                        res = {
+                            "id": item.get("id"),
+                            "question": item.get("question", ""),
+                            "question_type": item.get("question_type", ""),
+                            "ground_truth": item.get("answer", "") or item.get("ground_truth", ""),
+                            "generated_answer": f"[Lỗi Timeout/Xử lý quá {question_timeout}s: {e}]",
+                            "retrieved_contexts": [],
+                            "retrieved_payloads": [],
+                            "retrieved_law_ids": [],
+                            "law_id": item.get("law_id", {}),
+                            "is_graph": self.use_graph,
+                            "retrieval_latency_ms": 0.0,
+                            "generation_latency_ms": 0.0,
+                            "e2e_latency_ms": 0.0,
+                            "retrieval_hit": False,
+                            "mrr": 0.0,
+                            "recall_at_k": 0.0,
+                            "precision_at_k": 0.0,
+                            "ndcg": 0.0,
+                            "f1": 0.0,
+                            "bleu1": 0.0,
+                            "rouge_l": 0.0,
+                            "ragas_faithfulness": None,
+                            "ragas_answer_relevancy": None,
+                            "ragas_context_precision": None,
+                            "ragas_context_recall": None,
+                        }
                     results[i] = res
                     if on_case_completed:
                         on_case_completed(res)
@@ -444,7 +491,39 @@ class RAGEvaluator:
                     end="",
                     flush=True,
                 )
-                res = self.evaluate_single(item)
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as single_exec:
+                    future = single_exec.submit(self.evaluate_single, item)
+                    try:
+                        res = future.result(timeout=question_timeout)
+                    except Exception as e:
+                        logger.error(f"[Single Worker Error] Quá thời gian chờ {question_timeout}s cho câu {qid}: {e}")
+                        res = {
+                            "id": item.get("id", qid),
+                            "question": item.get("question", ""),
+                            "question_type": item.get("question_type", ""),
+                            "ground_truth": item.get("answer", "") or item.get("ground_truth", ""),
+                            "generated_answer": f"[Lỗi Timeout quá {question_timeout}s: {e}]",
+                            "retrieved_contexts": [],
+                            "retrieved_payloads": [],
+                            "retrieved_law_ids": [],
+                            "law_id": item.get("law_id", {}),
+                            "is_graph": self.use_graph,
+                            "retrieval_latency_ms": 0.0,
+                            "generation_latency_ms": 0.0,
+                            "e2e_latency_ms": 0.0,
+                            "retrieval_hit": False,
+                            "mrr": 0.0,
+                            "recall_at_k": 0.0,
+                            "precision_at_k": 0.0,
+                            "ndcg": 0.0,
+                            "f1": 0.0,
+                            "bleu1": 0.0,
+                            "rouge_l": 0.0,
+                            "ragas_faithfulness": None,
+                            "ragas_answer_relevancy": None,
+                            "ragas_context_precision": None,
+                            "ragas_context_recall": None,
+                        }
                 results.append(res)
                 if on_case_completed:
                     on_case_completed(res)

@@ -113,4 +113,9 @@ class Config:
 	ADAPTABLE_POSTPROCESS = ["prompt_compression"]
 	ADAPTABLE_PREPROCESS = []
 
+	# TIMEOUT & RETRY CONFIG
+	LLM_TIMEOUT = float(os.getenv('LLM_TIMEOUT', 240.0))
+	LLM_MAX_RETRIES = int(os.getenv('LLM_MAX_RETRIES', 3))
+	EVAL_QUESTION_TIMEOUT = float(os.getenv('EVAL_QUESTION_TIMEOUT', 300.0))
+
 settings = Config()

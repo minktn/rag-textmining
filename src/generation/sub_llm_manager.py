@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 from typing import Optional
@@ -5,6 +6,8 @@ from groq import Groq
 from openai import OpenAI
 
 from src.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 class SubLLMManager:
@@ -17,9 +20,15 @@ class SubLLMManager:
 		api_key: Optional[str] = None,
 		service: Optional[str] = None,
 		mode: Optional[str] = None,
+		timeout: Optional[float] = None,
+		max_retries: Optional[int] = None,
 	):
-		# Mặc định lấy dịch vụ từ settings.LLM_SERVICE
+		# Mặc định lấy dịch vụ từ settings.SUB_LLM_SERVICE
 		self.service = (service or getattr(settings, "SUB_LLM_SERVICE", "nvidia") or "nvidia").lower()
+
+		# Cấu hình Timeout & Max Retries từ settings
+		self.timeout: float = float(timeout if timeout is not None else getattr(settings, "LLM_TIMEOUT", 120.0))
+		self.max_retries: int = int(max_retries if max_retries is not None else getattr(settings, "LLM_MAX_RETRIES", 3))
 
 		# Khởi tạo API key & URL từ settings
 		self.groq_api_key = api_key if self.service == "groq" else (settings.GROQ_KEY or api_key)
@@ -54,7 +63,7 @@ class SubLLMManager:
 		if self._groq_client is None:
 			if not self.groq_api_key:
 				raise ValueError("GROQ_KEY chưa được cấu hình trong .env hoặc settings")
-			self._groq_client = Groq(api_key=self.groq_api_key)
+			self._groq_client = Groq(api_key=self.groq_api_key, timeout=self.timeout, max_retries=self.max_retries)
 		return self._groq_client
 
 	@property
@@ -62,7 +71,12 @@ class SubLLMManager:
 		if self._nvidia_client is None:
 			if not self.nvidia_api_key:
 				raise ValueError("NVIDIA_KEY chưa được cấu hình trong .env hoặc settings")
-			self._nvidia_client = OpenAI(api_key=self.nvidia_api_key, base_url=self.nvidia_base_url)
+			self._nvidia_client = OpenAI(
+				api_key=self.nvidia_api_key,
+				base_url=self.nvidia_base_url,
+				timeout=self.timeout,
+				max_retries=self.max_retries,
+			)
 		return self._nvidia_client
 
 	@property
@@ -76,6 +90,8 @@ class SubLLMManager:
 				google_api_key=self.gemini_key,
 				temperature=self.temperature,
 				max_output_tokens=self.max_tokens,
+				request_timeout=self.timeout,
+				max_retries=self.max_retries,
 			)
 		return self._google_client
 
@@ -178,53 +194,75 @@ class SubLLMManager:
 			{"role": "user", "content": prompt},
 		]
 
-		if active_service in ("google", "gemini"):
-			from langchain_core.messages import HumanMessage, SystemMessage
-			from langchain_core.output_parsers import StrOutputParser
-			from langchain_google_genai import ChatGoogleGenerativeAI
-			llm = ChatGoogleGenerativeAI(
-				model=target_model,
-				google_api_key=self.gemini_key or settings.GEMINI_KEY,
-				temperature=curr_temp,
-				max_output_tokens=curr_max_tokens,
-			)
-			chain = llm | StrOutputParser()
-			return chain.invoke([
-				SystemMessage(content=self.system_prompt),
-				HumanMessage(content=prompt),
-			])
+		last_exception = None
+		for attempt in range(1, self.max_retries + 1):
+			try:
+				if active_service in ("google", "gemini"):
+					from langchain_core.messages import HumanMessage, SystemMessage
+					from langchain_core.output_parsers import StrOutputParser
+					from langchain_google_genai import ChatGoogleGenerativeAI
+					llm = ChatGoogleGenerativeAI(
+						model=target_model,
+						google_api_key=self.gemini_key or settings.GEMINI_KEY,
+						temperature=curr_temp,
+						max_output_tokens=curr_max_tokens,
+						request_timeout=self.timeout,
+						max_retries=self.max_retries,
+					)
+					chain = llm | StrOutputParser()
+					return chain.invoke([
+						SystemMessage(content=self.system_prompt),
+						HumanMessage(content=prompt),
+					])
 
-		elif active_service == "local":
-			pipe = self.local_pipeline
-			prompt_text = f"<|im_start|>system\n{self.system_prompt}<|im_end|>\n<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant\n"
-			res = pipe(
-				prompt_text,
-				max_new_tokens=curr_max_tokens,
-				do_sample=curr_temp > 0,
-				temperature=max(curr_temp, 0.01) if curr_temp > 0 else None,
-			)
-			generated = res[0]["generated_text"]
-			if "<|im_start|>assistant\n" in generated:
-				return generated.split("<|im_start|>assistant\n")[-1].replace("<|im_end|>", "").strip()
-			return generated.strip()
+				elif active_service == "local":
+					pipe = self.local_pipeline
+					prompt_text = f"<|im_start|>system\n{self.system_prompt}<|im_end|>\n<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant\n"
+					res = pipe(
+						prompt_text,
+						max_new_tokens=curr_max_tokens,
+						do_sample=curr_temp > 0,
+						temperature=max(curr_temp, 0.01) if curr_temp > 0 else None,
+					)
+					generated = res[0]["generated_text"]
+					if "<|im_start|>assistant\n" in generated:
+						return generated.split("<|im_start|>assistant\n")[-1].replace("<|im_end|>", "").strip()
+					return generated.strip()
 
-		elif active_service == "nvidia":
-			response = self.nvidia_client.chat.completions.create(
-				model=target_model,
-				messages=messages,
-				temperature=curr_temp,
-				max_tokens=curr_max_tokens,
-			)
-			return response.choices[0].message.content
+				elif active_service == "nvidia":
+					response = self.nvidia_client.chat.completions.create(
+						model=target_model,
+						messages=messages,
+						temperature=curr_temp,
+						max_tokens=curr_max_tokens,
+						timeout=self.timeout,
+					)
+					return response.choices[0].message.content
 
-		else:  # groq
-			response = self.groq_client.chat.completions.create(
-				model=target_model,
-				messages=messages,
-				temperature=curr_temp,
-				max_tokens=curr_max_tokens,
-			)
-			return response.choices[0].message.content
+				else:  # groq
+					response = self.groq_client.chat.completions.create(
+						model=target_model,
+						messages=messages,
+						temperature=curr_temp,
+						max_tokens=curr_max_tokens,
+						timeout=self.timeout,
+					)
+					return response.choices[0].message.content
+
+			except Exception as e:
+				last_exception = e
+				logger.warning(
+					f"[SubLLMManager] Lỗi khi gọi service '{active_service}' (lần thử {attempt}/{self.max_retries}): {e}"
+				)
+				if attempt < self.max_retries:
+					backoff_sec = min(2.0 * (2 ** (attempt - 1)), 15.0)
+					logger.info(f"[SubLLMManager] Tự động thử lại sau {backoff_sec:.1f}s...")
+					time.sleep(backoff_sec)
+				else:
+					logger.error(
+						f"[SubLLMManager] Đã hết {self.max_retries} lần thử thất bại cho service '{active_service}': {e}"
+					)
+					raise last_exception
 
 
 
