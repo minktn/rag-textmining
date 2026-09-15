@@ -264,6 +264,10 @@ class EvaluationReporter:
                 # So sánh các trường cấu hình quan trọng
                 is_match = True
                 for key in self.CRITICAL_CONFIG_KEYS:
+                    # Bỏ qua so khớp dịch vụ RAGAS Judge khi đang kích hoạt --skip-ragas
+                    if key in ("ragas_service", "ragas_model") and (current_config.get("skip_ragas") or prev_config.get("skip_ragas")):
+                        continue
+
                     curr_val = current_config.get(key)
                     prev_val = prev_config.get(key)
 
@@ -291,6 +295,10 @@ class EvaluationReporter:
                 completed_ids: Set[str] = {
                     item["id"] for item in detailed if isinstance(item, dict) and item.get("id")
                 }
+
+                # Bỏ qua nếu file không chứa câu hỏi nào đã hoàn thành
+                if not completed_ids:
+                    continue
 
                 # Xác định file báo cáo thực sự
                 report_filename = meta.get("report_filename")
