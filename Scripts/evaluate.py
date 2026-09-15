@@ -94,8 +94,8 @@ def parse_args():
 		help="Số lượng contexts retrieve (mặc định: 5)"
 	)
 	parser.add_argument(
-		"--collection", type=str, default="landlaw",
-		help="Tên collection Qdrant (mặc định: landlaw)"
+		"--collection", type=str, default=None,
+		help="Tên collection Qdrant (mặc định: None để tự động chọn theo retriever_mode: landlaw | landlaw_contriever | graph)"
 	)
 	parser.add_argument(
 		"--seed", type=int, default=42,

@@ -285,6 +285,9 @@ class EvaluationReporter:
                         # Cho phép linh hoạt nếu một bên là None và bên kia là rỗng/mặc định
                         if curr_val in (None, "") and prev_val in (None, ""):
                             continue
+                        # Linh hoạt tên collection cho retriever_mode 'contriever' (landlaw vs landlaw_contriever)
+                        if key == "collection_name" and {curr_val, prev_val}.issubset({"landlaw", "landlaw_contriever"}):
+                            continue
                         is_match = False
                         break
 
