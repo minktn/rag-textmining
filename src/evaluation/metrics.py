@@ -64,7 +64,19 @@ class MetricsCalculator:
             art = item.get('article_no')
             if art is None:
                 continue
-            clause_nos = set(item.get('clause_nos', []))
+            try:
+                art = int(art)
+            except (ValueError, TypeError):
+                pass
+
+            raw_clauses = item.get('clause_nos', [])
+            clause_nos = set()
+            for c in raw_clauses:
+                try:
+                    clause_nos.add(int(c))
+                except (ValueError, TypeError):
+                    clause_nos.add(c)
+
             items.append({
                 'article_no': art,
                 'clause_nos': clause_nos,
@@ -102,6 +114,19 @@ class MetricsCalculator:
 
         if p_article is None:
             return False
+
+        try:
+            p_article = int(p_article)
+        except (ValueError, TypeError):
+            pass
+
+        clean_clauses = set()
+        for c in p_clauses:
+            try:
+                clean_clauses.add(int(c))
+            except (ValueError, TypeError):
+                clean_clauses.add(c)
+        p_clauses = clean_clauses
 
         for gt in gt_law_ids:
             if p_article != gt['article_no']:
@@ -433,10 +458,20 @@ class MetricsCalculator:
         for r in results:
             # ── Retrieval metrics (Chỉ tính khi KHÔNG PHẢI Graph Mode) ─
             if not is_graph_mode:
-                ret_metrics = MetricsCalculator.compute_retrieval_metrics(
-                    r.get('retrieved_payloads', []), r.get('law_id', {})
-                )
-                r.update(ret_metrics)
+                if "retrieval_hit" not in r or r.get("retrieval_hit") is None:
+                    payloads = r.get('retrieved_payloads') or r.get('retrieved_law_ids') or []
+                    ret_metrics = MetricsCalculator.compute_retrieval_metrics(
+                        payloads, r.get('law_id', {})
+                    )
+                    r.update(ret_metrics)
+                else:
+                    ret_metrics = {
+                        'retrieval_hit': bool(r.get('retrieval_hit')),
+                        'mrr': float(r.get('mrr', 0.0) or 0.0),
+                        'recall_at_k': float(r.get('recall_at_k', 0.0) or 0.0),
+                        'precision_at_k': float(r.get('precision_at_k', 0.0) or 0.0),
+                        'ndcg': float(r.get('ndcg', 0.0) or 0.0),
+                    }
 
                 hit_count += int(ret_metrics['retrieval_hit'])
                 mrr_sum += ret_metrics['mrr']

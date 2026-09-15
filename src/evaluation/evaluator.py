@@ -233,13 +233,19 @@ class RAGEvaluator:
         if self.retriever is not None:
             res = self.retriever.retrieve(question)
 
-            chunks = res.get("chunks") or res.get("selected_chunks") or []
-            if self.top_k and len(chunks) > self.top_k:
-                chunks = chunks[: self.top_k]
+            # 1. Chunks dùng để tính retrieval metrics và lưu vào results:
+            # TUYỆT ĐỐI KHÔNG lưu chunks từ Tavily (chỉ lưu internal chunks từ database/corpus landlaw)
+            raw_chunks = res.get("retrieval_chunks") or res.get("chunks") or res.get("selected_chunks") or []
+            internal_chunks = [
+                c for c in raw_chunks
+                if c.get("source") != "tavily_web_search" and not c.get("is_external_search")
+            ]
+            if self.top_k and len(internal_chunks) > self.top_k:
+                internal_chunks = internal_chunks[: self.top_k]
 
-            contexts = [c.get("content", "") for c in chunks]
+            contexts = [c.get("content", "") for c in internal_chunks]
             payloads = []
-            for c in chunks:
+            for c in internal_chunks:
                 meta = dict(c.get("metadata") or {})
                 if "article_no" not in meta or meta.get("article_no") is None:
                     meta = self.metadata_processor.enrich_payload(meta, c.get("content", ""))
@@ -252,7 +258,9 @@ class RAGEvaluator:
                     "source": c.get("source"),
                 })
 
-            docs = chunks
+            # 2. Docs truyền cho Phase QA (LLM sinh câu trả lời): Sử dụng qa_chunks (có chứa tri thức Tavily)
+            qa_docs = res.get("qa_chunks") or res.get("docs") or raw_chunks
+            docs = qa_docs
             full_context = res.get("context", "")
         else:
             chunks, contexts, payloads, docs, full_context = [], [], [], [], ""
