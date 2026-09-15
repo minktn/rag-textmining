@@ -33,8 +33,6 @@ class EvaluationReporter:
         "sub_llm_service",
         "sub_llm_model",
         "ragas_service",
-        "skip_ragas",
-        "limit",
         "random_sample",
         "seed",
         "top_k",
@@ -49,13 +47,14 @@ class EvaluationReporter:
     def build_pipeline_signature(config: Dict[str, Any]) -> str:
         """
         Sinh chuỗi signature duy nhất phản ánh cấu hình pipeline đánh giá.
-        Quy tắc:
+        Quy tắc đặt tên duy nhất (luôn cố định 3 mô hình):
           1. retriever_mode (base | contriever | graph)
           2. advanced_method (nếu có) HOẶC [preprocessing...] + [postprocessing...]
           3. llm_service
           4. sub_llm_service
-          5. ragas_service (hoặc 'skip_ragas')
+          5. ragas_service
         Ví dụ:
+          - contriever_hyde_crag_nvidia_nvidia_google
           - base_hyde_crag_nvidia_nvidia_google
           - base_rag_fusion_nvidia_nvidia_google
           - base_filter_rerank_google_google_nvidia
@@ -93,7 +92,6 @@ class EvaluationReporter:
                 parts.append(post.lower().strip())
                 method_added = True
 
-
         # 3. LLM Service
         llm = (config.get("llm_service") or getattr(settings, "LLM_SERVICE", "nvidia")).lower().strip()
         parts.append(llm)
@@ -102,12 +100,14 @@ class EvaluationReporter:
         sub_llm = (config.get("sub_llm_service") or getattr(settings, "SUB_LLM_SERVICE", None) or llm).lower().strip()
         parts.append(sub_llm)
 
-        # 5. RAGAS Service
-        if config.get("skip_ragas"):
-            parts.append("skip_ragas")
-        else:
-            ragas = (config.get("ragas_service") or getattr(settings, "RAGAS_SERVICE", "google") or "google").lower().strip()
-            parts.append(ragas)
+        # 5. RAGAS Service: Luôn dùng ragas_service (không bao giờ chèn skip_ragas hay skip_base)
+        # để đảm bảo template json cố định 3 model và thống nhất quy ước đặt tên duy nhất
+        ragas = (
+            config.get("ragas_service")
+            or getattr(settings, "RAGAS_SERVICE", "google")
+            or "google"
+        ).lower().strip()
+        parts.append(ragas)
 
         clean_parts = [p.replace("-", "_").replace(" ", "_") for p in parts if p]
         return "_".join(clean_parts)
@@ -240,6 +240,15 @@ class EvaluationReporter:
         specific_latest = self.get_latest_filepath(current_config, target_dir)
         if specific_latest.exists():
             candidate_files.append(specific_latest)
+        else:
+            # Fallback tương thích ngược: Tìm file cũ có hậu tố _skip_ragas.json nếu có
+            sig = self.build_pipeline_signature(current_config)
+            parts = sig.split("_")
+            if len(parts) >= 4:
+                legacy_sig = "_".join(parts[:-1]) + "_skip_ragas"
+                legacy_file = target_dir / f"eval_latest_{legacy_sig}.json"
+                if legacy_file.exists():
+                    candidate_files.append(legacy_file)
 
         # 2. Tìm các file eval_report_*.json gần nhất để kiểm tra phiên chạy dang dở
         report_files = sorted(
