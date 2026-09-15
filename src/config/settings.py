@@ -75,6 +75,7 @@ class Config:
 	NVIDIA_BASE_URL = os.getenv('NVIDIA_BASE_URL', 'https://integrate.api.nvidia.com/v1')
 	GROQ_KEY = os.getenv('GROQ_API_KEY')
 	GEMINI_KEY = os.getenv('GOOGLE_API_KEY')
+	TAVILY_KEY = os.getenv('TAVILY_API_KEY')
 
 	# LLM MODEL
 	GROQ_LLM = 'llama-3.3-70b-versatile'

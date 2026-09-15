@@ -32,7 +32,9 @@ class Postprocessor:
         **kwargs,
     ) -> List[Dict[str, Any]]:
         """Thực thi tuần tự các bước hậu xử lý đã được chỉ định."""
-        if not self.methods or not chunks:
+        if not self.methods:
+            return chunks
+        if not chunks and "crag" not in self.methods:
             return chunks
 
         active_retriever = retriever or self.retriever
@@ -74,7 +76,16 @@ class Postprocessor:
             processor = CRAGProcessor()
             result = processor.process(query, chunks)
             logger.info(f"[Postprocessor] CRAG hoàn tất với action: {result.get('action')}")
-            return result.get("processed_chunks", chunks)
+
+            # Lưu lại tri thức mở rộng phục vụ phase QA và kết quả phân tích vào retriever
+            if retriever is not None:
+                retriever._crag_result = result
+                retriever._qa_chunks = result.get("qa_chunks") or result.get("processed_chunks") or []
+                retriever._external_chunks = result.get("external_chunks") or []
+                retriever._retrieval_chunks = result.get("retrieval_chunks") or []
+
+            # Trả về CHỈ các chunks nội bộ (đã lọc hoặc fallback top 3) để tính Retrieval Metrics và lưu results
+            return result.get("retrieval_chunks", chunks)
 
         elif method == "prompt_compression":
             from .postprocessing.prompt_compression.compressor import LongLLMLinguaCompressor

@@ -97,7 +97,7 @@ class VietnameseLawMCPClient:
 				env=self.env,
 			)
 
-			# MCP JSON-RPC 2.0 Handshake & Tool Call
+			# MCP JSON-RPC 2.0 Handshake & Tool Call theo chuẩn MCP Specification
 			init_req = {
 				"jsonrpc": "2.0",
 				"id": 1,
@@ -107,6 +107,10 @@ class VietnameseLawMCPClient:
 					"capabilities": {},
 					"clientInfo": {"name": "rag-textmining-client", "version": "1.0.0"},
 				},
+			}
+			initialized_notif = {
+				"jsonrpc": "2.0",
+				"method": "notifications/initialized",
 			}
 			call_req = {
 				"jsonrpc": "2.0",
@@ -118,20 +122,28 @@ class VietnameseLawMCPClient:
 				},
 			}
 
-			payload = f"{json.dumps(init_req)}\n{json.dumps(call_req)}\n".encode("utf-8")
+			payload = f"{json.dumps(init_req)}\n{json.dumps(initialized_notif)}\n{json.dumps(call_req)}\n".encode("utf-8")
 			stdout, stderr = await asyncio.wait_for(proc.communicate(input=payload), timeout=timeout)
+
+			err_text = stderr.decode("utf-8", errors="ignore").strip() if stderr else ""
+			if err_text:
+				logger.debug(f"[MCP Process Stderr]: {err_text}")
 
 			lines = stdout.decode("utf-8", errors="ignore").strip().split("\n")
 			for line in lines:
 				try:
 					data = json.loads(line.strip())
-					if data.get("id") == 2 and "result" in data:
-						return data["result"]
+					if data.get("id") == 2:
+						if "result" in data:
+							return data["result"]
+						if "error" in data:
+							logger.warning(f"[MCP Error] Tool '{tool_name}' báo lỗi từ server: {data['error']}")
+							return None
 				except json.JSONDecodeError:
 					continue
 
 		except Exception as e:
-			logger.error(f"Lỗi khi thực thi MCP process: {e}")
+			logger.error(f"Lỗi khi thực thi MCP process cho tool '{tool_name}': {e}")
 			return None
 
 		return None
@@ -149,16 +161,89 @@ class VietnameseLawMCPClient:
 			return asyncio.run(self.call_tool_async(tool_name, arguments, timeout))
 
 
+class TavilySearchClient:
+	"""Client kết nối tới Tavily Search API để tìm kiếm dữ liệu pháp luật và thông tin cập nhật."""
+
+	def __init__(self, api_key: Optional[str] = None):
+		self.api_key = api_key or getattr(settings, "TAVILY_KEY", None) or os.getenv("TAVILY_API_KEY")
+		self.api_url = "https://api.tavily.com/search"
+
+	def is_available(self) -> bool:
+		"""Kiểm tra xem TAVILY_API_KEY có sẵn hay không."""
+		return bool(self.api_key and self.api_key.strip())
+
+	def search(
+		self,
+		query: str,
+		max_results: int = 5,
+		search_depth: str = "advanced",
+		include_domains: Optional[List[str]] = None,
+	) -> List[Dict[str, Any]]:
+		"""Tìm kiếm tài liệu web qua Tavily Search API."""
+		if not self.is_available():
+			logger.warning("[Tavily] TAVILY_API_KEY chưa được cấu hình. Bỏ qua tìm kiếm Tavily.")
+			return []
+
+		payload: Dict[str, Any] = {
+			"api_key": self.api_key,
+			"query": query,
+			"search_depth": search_depth,
+			"include_answer": False,
+			"max_results": max_results,
+		}
+		if include_domains:
+			payload["include_domains"] = include_domains
+
+		try:
+			import requests
+			resp = requests.post(self.api_url, json=payload, timeout=30.0)
+			if resp.status_code == 200:
+				data = resp.json()
+				return data.get("results") or []
+			else:
+				logger.error(f"[Tavily Error] HTTP {resp.status_code}: {resp.text}")
+				return []
+		except ImportError:
+			import urllib.request
+			req = urllib.request.Request(
+				self.api_url,
+				data=json.dumps(payload).encode("utf-8"),
+				headers={"Content-Type": "application/json"},
+				method="POST",
+			)
+			try:
+				with urllib.request.urlopen(req, timeout=30.0) as response:
+					data = json.loads(response.read().decode("utf-8"))
+					return data.get("results") or []
+			except Exception as e:
+				logger.error(f"[Tavily Error urllib]: {e}")
+				return []
+		except Exception as e:
+			logger.error(f"[Tavily Error]: {e}")
+			return []
+
+
 class VietnameseLawWebSearch:
-	"""Module Web Search & Retrieval pháp luật Việt Nam qua Ansvar Vietnamese Law MCP Server."""
+	"""Module Web Search & Retrieval pháp luật Việt Nam hỗ trợ cả Tavily Search API và Ansvar Vietnamese Law MCP Server."""
 
 	def __init__(
 		self,
+		provider: str = "tavily",
+		tavily_client: Optional[TavilySearchClient] = None,
 		mcp_client: Optional[VietnameseLawMCPClient] = None,
 		default_limit: int = 5,
 	):
-		self.client = mcp_client or VietnameseLawMCPClient()
+		self.tavily_client = tavily_client or TavilySearchClient()
+		self.mcp_client = mcp_client or VietnameseLawMCPClient()
+		self.client = self.mcp_client
 		self.default_limit = default_limit
+
+		# Tự động ưu tiên Tavily nếu có API key, fallback sang mcp
+		if provider == "tavily" and not self.tavily_client.is_available():
+			logger.warning("[WebSearch] Tavily API key chưa có, tự động chuyển sang provider 'mcp'")
+			self.provider = "mcp"
+		else:
+			self.provider = provider
 
 	def search_legislation(self, query: str, limit: Optional[int] = None) -> List[Dict[str, Any]]:
 		"""Tìm kiếm full-text các văn bản pháp luật, điều khoản liên quan qua tool `search_legislation`."""
@@ -241,9 +326,40 @@ class VietnameseLawWebSearch:
 		Returns
 		-------
 		Dict[str, Any]
-			{'query': str, 'context_chunks': List[Dict], 'source': 'vietnamese_law_mcp'}
+			{'query': str, 'context_chunks': List[Dict], 'source': 'tavily_web_search' | 'vietnamese_law_mcp'}
 		"""
 		k = top_k or self.default_limit
+
+		# 1. Ưu tiên tìm kiếm trực tiếp qua Tavily Search API
+		if self.provider == "tavily" and self.tavily_client.is_available():
+			raw_results = self.tavily_client.search(query, max_results=k)
+			formatted_chunks = []
+			for idx, item in enumerate(raw_results):
+				formatted_chunks.append({
+					"id": f"tavily_web_{idx+1}",
+					"content": item.get("content", ""),
+					"metadata": {
+						"source": item.get("title") or "Tavily Web Search",
+						"url": item.get("url", ""),
+						"title": item.get("title", ""),
+						"score": item.get("score"),
+						"article_no": None,
+					},
+					"dense_score": None,
+					"rerank_score": item.get("score"),
+					"source": "tavily_web_search",
+				})
+
+			if formatted_chunks:
+				logger.info(f"[Tavily Search] Tìm thấy {len(formatted_chunks)} kết quả web cho: '{query}'")
+				return {
+					"query": query,
+					"context_chunks": formatted_chunks,
+					"source": "tavily_web_search",
+				}
+			logger.info(f"[Tavily Search] Không tìm thấy kết quả từ Tavily, thử fallback sang MCP...")
+
+		# 2. Fallback sang MCP Server nếu cần
 		raw_items = self.search_legislation(query, limit=k)
 
 		formatted_chunks = []

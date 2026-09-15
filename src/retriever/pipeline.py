@@ -693,6 +693,17 @@ class Retriever:
 		if getattr(self, "_hypothetic_document", None):
 			res["hypothetic_document"] = self._hypothetic_document
 			self._hypothetic_document = None
+		if getattr(self, "_qa_chunks", None):
+			res["qa_chunks"] = self._qa_chunks
+			res["context"] = self.build_context(self._qa_chunks, expanded_chunks)
+			res["final_context"] = res["context"]
+			self._qa_chunks = None
+		if getattr(self, "_external_chunks", None):
+			res["external_chunks"] = self._external_chunks
+			self._external_chunks = None
+		if getattr(self, "_crag_result", None):
+			res["crag_result"] = self._crag_result
+			self._crag_result = None
 		return res
 
 	def _predict_rerank_scores(self, pairs: list[list[str]]) -> list[float]:

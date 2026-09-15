@@ -31,8 +31,10 @@ class KnowledgeRefiner:
 		if not text:
 			return []
 
-		# Tách theo dấu câu tiếng Việt hoặc xuống dòng
-		raw_sentences = re.split(r"(?<=[.!?;\n])\s+", text.strip())
+		# Tách theo dấu câu tiếng Việt hoặc xuống dòng, bảo vệ các trích dẫn luật như 'Điều 1.', 'Khoản 2.'
+		cleaned = re.sub(r"(\b(?:Điều|Khoản)\s+\d+)\.\s+", r"\1_DOT_ ", text.strip(), flags=re.IGNORECASE)
+		raw_sentences = re.split(r"(?<=[.!?;\n])\s+", cleaned)
+		raw_sentences = [s.replace("_DOT_ ", ". ") for s in raw_sentences]
 		strips = [s.strip() for s in raw_sentences if len(s.strip()) >= self.min_strip_chars]
 		return strips if strips else [text.strip()]
 
