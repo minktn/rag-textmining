@@ -497,8 +497,10 @@ class EvaluationReporter:
                 if qid and qid in item_map:
                     target_item = item_map[qid]
                     for mk in metric_keys:
-                        if mk in b_item:
+                        if mk in b_item and b_item[mk] is not None:
                             target_item[mk] = b_item[mk]
+                        elif mk not in target_item:
+                            target_item[mk] = None
                 elif qid:
                     clean_item = {k: v for k, v in b_item.items() if k != "retrieved_payloads"}
                     current_data["detailed_results"].append(clean_item)

@@ -139,8 +139,8 @@ class RagasJudge:
                 "model": self.model_name,
                 "api_key": self.api_key,
                 "base_url": self.base_url,
-                "temperature": 0.4,
-                "max_tokens": 3072,
+                "temperature": 0.0,
+                "max_tokens": 4096,
                 "seed": 42,
                 "request_timeout": 900,
                 "max_retries": 2,
@@ -154,7 +154,7 @@ class RagasJudge:
             kwargs = {
                 "model_name": self.model_name,
                 "groq_api_key": self.api_key,
-                "temperature": 0.4,
+                "temperature": 0.0,
                 "seed": 42,
                 "request_timeout": 900,
                 "max_retries": 2,
@@ -168,8 +168,8 @@ class RagasJudge:
             kwargs = {
                 "model": self.model_name,
                 "google_api_key": self.api_key,
-                "temperature": 0.4,
-                "max_output_tokens": 3072,
+                "temperature": 0.0,
+                "max_output_tokens": 4096,
                 "seed": 42,
                 "request_timeout": 900,
                 "max_retries": 2,
@@ -186,6 +186,7 @@ class RagasJudge:
         batch_idx: int = 1,
         total_batches: int = 1,
         workers: Optional[int] = None,
+        target_metrics: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """Đánh giá 1 batch kết quả qua RAGAS framework không dùng dummy data."""
         if not batch_results:
@@ -197,20 +198,30 @@ class RagasJudge:
         from ragas.metrics import AnswerRelevancy, context_precision, context_recall, faithfulness
         from ragas.run_config import RunConfig
 
+        metric_instance_map = {
+            "faithfulness": faithfulness,
+            "answer_relevancy": AnswerRelevancy(strictness=1),
+            "context_precision": context_precision,
+            "context_recall": context_recall,
+        }
+        metric_names = target_metrics or ["faithfulness", "answer_relevancy", "context_precision", "context_recall"]
+        selected_metrics = [metric_instance_map[m] for m in metric_names if m in metric_instance_map]
+
         num_workers = workers or self.max_workers
         is_single_case = (len(batch_results) == 1)
         qid = batch_results[0].get("id", f"case_{batch_idx}") if is_single_case else None
 
         rate_limit_info = f", rps={self.rate_limit_rps}" if self.rate_limit_rps and self.rate_limit_rps > 0 else ", full-concurrency"
+        metrics_label = ", ".join(metric_names)
         if is_single_case:
             safe_print(
                 f"  [RAGAS Case {batch_idx}/{total_batches}] Đang chấm case '{qid}' "
-                f"(workers={num_workers}, service='{self.service}'{rate_limit_info})..."
+                f"[{metrics_label}] (workers={num_workers}, service='{self.service}'{rate_limit_info})..."
             )
         else:
             safe_print(
                 f"  [RAGAS Batch {batch_idx}/{total_batches}] Đang gửi request LLM Judge "
-                f"cho {len(batch_results)} câu hỏi (workers={num_workers}, service='{self.service}'{rate_limit_info})..."
+                f"cho {len(batch_results)} câu hỏi [{metrics_label}] (workers={num_workers}, service='{self.service}'{rate_limit_info})..."
             )
 
         ragas_data = {
@@ -230,22 +241,13 @@ class RagasJudge:
         ragas_llm_wrapper = LangchainLLMWrapper(langchain_llm)
         embeddings = self._get_embeddings()
 
-        selected_metrics = [
-            faithfulness,
-            AnswerRelevancy(strictness=1),
-            context_precision,
-            context_recall,
-        ]
-
-        # Tối ưu timeout và retry để tránh lỗi 503 và TimeoutError khi server NVIDIA bị quá tải
+        # Tối ưu timeout và retry để tránh lỗi 503 và TimeoutError khi server LLM bị quá tải
         run_config = RunConfig(
             max_workers=num_workers,
-            timeout=300,
+            timeout=900,
             max_retries=5,
-            max_wait=120,
+            max_wait=60,
         )
-
-        metric_names = ["faithfulness", "answer_relevancy", "context_precision", "context_recall"]
 
         try:
             ragas_result = ragas_evaluate(
@@ -258,7 +260,6 @@ class RagasJudge:
 
             df = ragas_result.to_pandas()
             for idx, r in enumerate(batch_results):
-                missing_metrics = []
                 for m in metric_names:
                     if m in df.columns and idx < len(df):
                         val = df.iloc[idx][m]
@@ -268,17 +269,9 @@ class RagasJudge:
                                 r[f"ragas_{m}"] = round(f_val, 4)
                             else:
                                 r[f"ragas_{m}"] = None
-                                missing_metrics.append(m)
                         except (ValueError, TypeError):
                             r[f"ragas_{m}"] = None
-                            missing_metrics.append(m)
                     else:
-                        r[f"ragas_{m}"] = None
-                        missing_metrics.append(m)
-
-                # Không dùng dummy data: nếu lỗi thì để None
-                if missing_metrics:
-                    for m in missing_metrics:
                         r[f"ragas_{m}"] = None
 
             if is_single_case:
@@ -292,7 +285,7 @@ class RagasJudge:
                     m_parts = [f"{m}={r.get('ragas_' + m)}" for m in metric_names]
                     scores_str = ", ".join(m_parts)
                     safe_print(f"  ✓ [RAGAS Case] Đã chấm '{cqid}': {scores_str}")
-                safe_print(f"  ✓ [RAGAS Block {batch_idx}/{total_batches}] Hoàn tất & lưu đồng thời block {len(batch_results)} câu hỏi.")
+                safe_print(f"  ✓ [RAGAS Block {batch_idx}/{total_batches}] Hoàn tất & lưu đồng thời block {len(batch_results)} câu hỏi ({metrics_label}).")
             return getattr(ragas_result, "_repr_dict", {})
         except Exception as e:
             logger.error(f"[RAGAS] Lỗi tại Batch {batch_idx}/{total_batches}: {e}")
@@ -312,27 +305,29 @@ class RagasJudge:
         on_batch_completed: Optional[Any] = None,
     ) -> Dict[str, Any]:
         """
-        Tính toán RAGAS metrics cho tập kết quả theo từng batch.
-        Cơ chế BẢO LƯU: Giữ nguyên các câu đã có đủ 4 điểm RAGAS hợp lệ,
-        CHỈ chạy để FILL bổ sung các câu bị miss/lỗi, và lưu streaming per-batch.
+        Tính toán RAGAS metrics cho tập kết quả theo cơ chế Fine-Grained Smart-Fill.
+        Bảo lưu 100% các cột điểm đã có giá trị hợp lệ, CHỈ gửi đúng trường metric
+        bị thiếu (None/NaN) của từng case lên LLM Judge nhằm tiết kiệm tối đa API calls.
         """
         if not results:
             return {}
 
         metric_names = ["faithfulness", "answer_relevancy", "context_precision", "context_recall"]
+        if metrics_list:
+            metric_names = [m for m in metric_names if m in metrics_list]
 
-        def is_valid_ragas(r: Dict[str, Any]) -> bool:
-            return all(
-                r.get(f"ragas_{m}") is not None
-                and not (isinstance(r.get(f"ragas_{m}"), float) and math.isnan(r.get(f"ragas_{m}")))
-                for m in metric_names
-            )
+        def is_metric_valid(val: Any) -> bool:
+            if val is None:
+                return False
+            if isinstance(val, (int, float)):
+                return not math.isnan(val)
+            return False
 
         def build_ragas_summary(all_items: List[Dict[str, Any]]) -> Dict[str, Any]:
             summary: Dict[str, Any] = {}
             for m in metric_names:
                 key = f"ragas_{m}"
-                vals = [r[key] for r in all_items if r.get(key) is not None]
+                vals = [r[key] for r in all_items if is_metric_valid(r.get(key))]
                 summary[m] = round(sum(vals) / len(vals), 4) if vals else None
             return summary
 
@@ -344,36 +339,58 @@ class RagasJudge:
         workers = max_workers or self.max_workers
         bs = batch_size if batch_size is not None else getattr(settings, "RAGAS_BATCH_SIZE", workers)
 
-        # ── 1. Bảo lưu case đã có điểm, chỉ lọc ra các case bị miss ──
-        already_valid = [r for r in results if is_valid_ragas(r)]
-        pending_items = [r for r in results if not is_valid_ragas(r)]
+        # ── 1. Kiểm tra trạng thái từng metric (Fine-Grained Missing Detection) ──
+        missing_by_metric: Dict[str, List[Dict[str, Any]]] = {}
+        for m in metric_names:
+            key = f"ragas_{m}"
+            missing_items = [r for r in results if not is_metric_valid(r.get(key))]
+            if missing_items:
+                missing_by_metric[m] = missing_items
 
-        if already_valid:
-            safe_print(f"\n[RAGAS Bảo Lưu] Phát hiện {len(already_valid)}/{len(results)} câu hỏi ĐÃ CÓ kết quả RAGAS hợp lệ trước đó (giữ nguyên).")
-
-        if not pending_items:
-            safe_print(f"  ✓ Toàn bộ {len(results)} câu hỏi đã có kết quả RAGAS đầy đủ! Không cần gọi LLM Judge nữa.")
+        if not missing_by_metric:
+            safe_print(f"\n  ✓ Toàn bộ {len(results)} câu hỏi đã có kết quả RAGAS đầy đủ cho cả 4 trường! Không cần gọi LLM Judge nữa.")
             return build_ragas_summary(results)
 
-        total_batches = (len(pending_items) + bs - 1) // bs
-        safe_print(
-            f"\n[RAGAS Concurrency] Đang đánh giá cho {len(pending_items)} câu hỏi chia làm {total_batches} block "
-            f"(mỗi block {bs} requests đồng thời, workers={workers}, LLM Judge='{self.service}', model='{self.model_name}')..."
-        )
+        safe_print(f"\n[RAGAS Smart-Fill] Trạng thái điểm RAGAS trên {len(results)} câu hỏi:")
+        for m in metric_names:
+            n_miss = len(missing_by_metric.get(m, []))
+            n_valid = len(results) - n_miss
+            if n_miss == 0:
+                safe_print(f"  ✓ Metric '{m}': Đã có đủ {n_valid}/{len(results)} câu (Bỏ qua, 0 API call)")
+            else:
+                safe_print(f"  ⚡ Metric '{m}': Đã có {n_valid}/{len(results)} câu, THIẾU {n_miss} câu -> Sẽ gọi LLM Judge chấm bù")
 
-        batches = [pending_items[i : i + bs] for i in range(0, len(pending_items), bs)]
+        # ── 2. Chỉ chạy bù cho đúng các metric và các câu bị thiếu ──
+        metric_idx = 0
+        total_missing_metrics = len(missing_by_metric)
+        for m, pending_items in missing_by_metric.items():
+            metric_idx += 1
+            total_batches = (len(pending_items) + bs - 1) // bs
+            safe_print(
+                f"\n[RAGAS Smart-Fill ({metric_idx}/{total_missing_metrics})] Đang chấm bù metric '{m}' "
+                f"cho {len(pending_items)} câu hỏi ({total_batches} blocks, {bs} items/block, workers={workers}, LLM='{self.service}')..."
+            )
 
-        # ── 2. Đánh giá từng batch và lưu bảo lưu ngay lập tức ─────────
-        for idx, batch in enumerate(batches, 1):
-            self._evaluate_single_batch(batch, idx, total_batches, workers)
+            batches = [pending_items[i : i + bs] for i in range(0, len(pending_items), bs)]
+            for idx, batch in enumerate(batches, 1):
+                self._evaluate_single_batch(
+                    batch_results=batch,
+                    batch_idx=idx,
+                    total_batches=total_batches,
+                    workers=workers,
+                    target_metrics=[m],
+                )
 
-            # Cập nhật và lưu bảo lưu ngay sau mỗi batch
-            current_summary = build_ragas_summary(results)
-            if on_batch_completed:
-                on_batch_completed(batch, current_summary)
+                # Cập nhật và lưu checkpoint ngay sau mỗi batch
+                current_summary = build_ragas_summary(results)
+                if on_batch_completed:
+                    on_batch_completed(batch, current_summary)
 
-            if idx < total_batches:
-                time.sleep(2.0)  # Cooldown xả nghẽn API quota
+                if idx < total_batches:
+                    time.sleep(2.0)  # Cooldown xả nghẽn API quota
+
+            if metric_idx < total_missing_metrics:
+                time.sleep(1.0)
 
         final_summary = build_ragas_summary(results)
         return final_summary
